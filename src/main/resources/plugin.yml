@@ -1,0 +1,10 @@
+---
+name: Parchment
+main: com.basicer.parchment.bukkit.ParchmentPlugin
+version: 0.1
+softdepend: [ProtocolLib]
+commands:
+  parchment:
+    description: Debug commands for parchment.
+    aliases: [p]
+    usage: Â§f[Â§ePÂ§archmentÂ§f]Â§r Command Failed.
