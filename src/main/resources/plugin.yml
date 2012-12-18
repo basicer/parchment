@@ -9,6 +9,6 @@ commands:
     aliases: [p]
     usage: Â§f[Â§ePÂ§archmentÂ§f]Â§r Command Failed.
   cast:
-  	alias: [c]
-  	description: Shortcut for /parchment cast
-  	usage: Â§f[Â§ePÂ§archmentÂ§f]Â§r Command Failed.
+    aliases: [c]
+    description: Shortcut for /parchment cast
+    usage: Â§f[Â§ePÂ§archmentÂ§f]Â§r Command Failed.

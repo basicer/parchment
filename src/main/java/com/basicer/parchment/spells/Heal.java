@@ -12,11 +12,8 @@ public class Heal extends Spell implements Affectable<PlayerParameter> {
 
 	public void affect(PlayerParameter target, SpellContext ctx) {
 		LivingEntity ltarget = target.asLivingEntity();
-		ctx.sendDebugMessage("Casting...");
-		if ( target == null ) return;
-		
+		if ( ltarget == null ) fizzle();		
 		ltarget.setHealth(20); 
-		ctx.sendDebugMessage("Done");
 	}
 
 }

@@ -3,7 +3,7 @@ package com.basicer.parchment;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
-import com.basicer.parchment.spells.Heal;
+import com.basicer.parchment.spells.*;
 
 public class SpellFactory {
 	
@@ -21,6 +21,7 @@ public class SpellFactory {
 	private SpellFactory() {
 		spells = new Hashtable<String,Spell>();
 		addBuiltinSpell(Heal.class);
+		addBuiltinSpell(Shoot.class);
 	}
 	
 	private <T extends Spell> void addBuiltinSpell(Class<T> spell) {

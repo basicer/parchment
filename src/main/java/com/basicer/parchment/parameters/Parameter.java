@@ -17,6 +17,8 @@ public abstract class Parameter implements Iterable<Parameter> {
 	public Entity asEntity() { return null; }
 	public Player asPlayer() { return null; }
 	
+	public Double asDouble() { return null; }
+		
 	// Factory methods
 	public static Parameter from(Player p) { return new PlayerParameter(p); }
 	public static Parameter from(Entity p) { return new EntityParameter(p); }

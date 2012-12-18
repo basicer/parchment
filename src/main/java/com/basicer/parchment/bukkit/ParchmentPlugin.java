@@ -1,13 +1,19 @@
 package com.basicer.parchment.bukkit;
 
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.Queue;
+
 import com.basicer.parchment.Spell;
+import com.basicer.parchment.Spell.FizzleException;
 import com.basicer.parchment.SpellContext;
+import com.basicer.parchment.SpellFactory;
 import com.basicer.parchment.craftbukkit.Book;
 import com.basicer.parchment.parameters.Parameter;
 import com.basicer.parchment.parameters.PlayerParameter;
 import com.basicer.parchment.spells.Heal;
-import com.basicer.parchment.spells.SpellFactory;
 
+import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -23,6 +29,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.bukkit.util.Vector;
 
 import com.comphenix.protocol.ProtocolLibrary;
@@ -30,12 +37,14 @@ import com.comphenix.protocol.ProtocolManager;
 
 import net.minecraft.server.*;
 
-public class ParchmentPlugin extends JavaPlugin implements Listener {
+public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessageListener {
 
 	ProtocolManager	manager;
 
 	public void onDisable() {
+		Bukkit.getMessenger().unregisterIncomingPluginChannel(this);
 		getLogger().info("Framework Disabled");
+		
 	}
 
 	public void onEnable() {
@@ -46,12 +55,24 @@ public class ParchmentPlugin extends JavaPlugin implements Listener {
 		if (pm.getPlugin("ProtocolLib") != null) {
 			manager = ProtocolLibrary.getProtocolManager();
 		}
+		
+		Bukkit.getMessenger().registerIncomingPluginChannel(this, "MC|BEdit", this);
 	}
 
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 
 		if (!sender.isOp())
 			return false;
+		
+		Queue<String> qargs = new LinkedList<String>(Arrays.asList(args));
+		String action = label; 
+		
+		if ( cmd.equals("parchment") || cmd.equals("p") ) {
+			action = qargs.poll();
+		}
+		
+		if ( action == null ) return false;
+		
 		SpellContext ctx = new SpellContext();
 		if (sender instanceof Player) {
 			ctx.setCaster(Parameter.from((Player) sender));
@@ -59,8 +80,12 @@ public class ParchmentPlugin extends JavaPlugin implements Listener {
 			return false;
 		}
 		
-		Spell s = SpellFactory.get(args[0]);
-		s.cast(ctx);
+		Spell s = SpellFactory.get(qargs.poll());
+		try {
+			s.cast(ctx);
+		} catch ( FizzleException fizzle ) {
+			sender.sendMessage("The spell fizzles");
+		}
 		
 		return true;
 	}
@@ -105,7 +130,11 @@ public class ParchmentPlugin extends JavaPlugin implements Listener {
 				ctx.setTarget(Parameter.from(p));
 				ctx.setCaster(Parameter.from(p));
 				Heal h = new Heal();
-				h.cast(ctx);
+				try {
+					h.cast(ctx);
+				} catch ( FizzleException fizzle ) {
+					p.sendMessage("The spell fizzles");
+				}
 			} else {
 				p.sendMessage("Couldnt do " + action);
 			}
@@ -143,6 +172,11 @@ public class ParchmentPlugin extends JavaPlugin implements Listener {
 			return;
 		p.sendMessage("Name is" + name);
 
+	}
+
+	public void onPluginMessageReceived(String channel, Player player, byte[] message) {
+		player.sendMessage("I hear you like books");
+		
 	}
 
 }
