@@ -1,9 +1,9 @@
-package com.basicer.parchment.spells;
+package com.basicer.parchment;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
 
-import com.basicer.parchment.Spell;
+import com.basicer.parchment.spells.Heal;
 
 public class SpellFactory {
 	

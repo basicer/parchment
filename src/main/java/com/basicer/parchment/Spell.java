@@ -11,6 +11,8 @@ import com.basicer.parchment.parameters.*;
 
 public abstract class Spell {
 	
+	
+	
 	public void cast(SpellContext ctx) {
 		List<Class<? extends Parameter>> list = new ArrayList<Class<? extends Parameter>>();
 		for ( Type c : this.getClass().getGenericInterfaces() ) {
@@ -19,7 +21,7 @@ public abstract class Spell {
 			Type[] tx = pt.getActualTypeArguments();
 			if ( base != Affectable.class ) continue;
 			list.add((Class<? extends Parameter>)tx[0]);
-		}
+ 		}
 		
 		for ( Parameter t : resolveTarget(ctx) ) {
 			for ( Class<? extends Parameter> c : list )
