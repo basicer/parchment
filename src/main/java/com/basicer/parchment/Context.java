@@ -2,21 +2,21 @@ package com.basicer.parchment;
 
 import com.basicer.parchment.parameters.Parameter;
 
-public class SpellContext {
+public class Context {
 	
-	private SpellContext parent;
+	private Context parent;
 	
 	private Parameter target;
 	private Parameter caster;
 	
-	public SpellContext() { }
+	public Context() { }
 	
-	private SpellContext(SpellContext parent) {
+	private Context(Context parent) {
 		this.parent = parent;
 	}
 	
 	public void push() {
-		SpellContext new_parent = new SpellContext(parent);
+		Context new_parent = new Context(parent);
 		new_parent.target = target;
 		new_parent.caster = caster;
 		

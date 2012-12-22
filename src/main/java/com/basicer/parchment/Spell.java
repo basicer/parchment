@@ -9,10 +9,10 @@ import java.util.List;
 
 import com.basicer.parchment.parameters.*;
 
-public abstract class Spell {
+public abstract class Spell  {
 	
 		
-	public void cast(SpellContext ctx) throws FizzleException {
+	public void cast(Context ctx) {
 		List<Class<? extends Parameter>> list = new ArrayList<Class<? extends Parameter>>();
 		for ( Type c : this.getClass().getGenericInterfaces() ) {
 			ParameterizedType pt = (ParameterizedType) c;
@@ -33,14 +33,14 @@ public abstract class Spell {
 		throw new FizzleException();
 	}
 	
-	protected Parameter resolveTarget(SpellContext ctx) {
+	protected Parameter resolveTarget(Context ctx) {
 		Parameter t = ctx.getTarget();
 		if ( t != null ) return t;
 		
 		return ctx.getCaster();
 	}
 	
-	private <T extends Parameter> boolean tryAffect(Class<T> type, Parameter t, SpellContext ctx) {
+	private <T extends Parameter> boolean tryAffect(Class<T> type, Parameter t, Context ctx) {
 		if ( !type.isInstance(t) ) return false;
 		T x = (T) t;
 		if ( this instanceof Affectable<?> ) {

@@ -6,7 +6,7 @@ import java.util.Queue;
 
 import com.basicer.parchment.Spell;
 import com.basicer.parchment.Spell.FizzleException;
-import com.basicer.parchment.SpellContext;
+import com.basicer.parchment.Context;
 import com.basicer.parchment.SpellFactory;
 import com.basicer.parchment.craftbukkit.Book;
 import com.basicer.parchment.parameters.Parameter;
@@ -73,7 +73,7 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 		
 		if ( action == null ) return false;
 		
-		SpellContext ctx = new SpellContext();
+		Context ctx = new Context();
 		if (sender instanceof Player) {
 			ctx.setCaster(Parameter.from((Player) sender));
 		} else {
@@ -126,7 +126,7 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 				p.sendMessage("Preformed " + action.substring(5));
 				p.performCommand(action.substring(5));
 			} else if ( action.startsWith("heal") ) {
-				SpellContext ctx = new SpellContext();
+				Context ctx = new Context();
 				ctx.setTarget(Parameter.from(p));
 				ctx.setCaster(Parameter.from(p));
 				Heal h = new Heal();
