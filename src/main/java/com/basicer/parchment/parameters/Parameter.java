@@ -16,12 +16,16 @@ public abstract class Parameter implements Iterable<Parameter> {
 	public LivingEntity asLivingEntity() { return null; }
 	public Entity asEntity() { return null; }
 	public Player asPlayer() { return null; }
+	public String asString() { return null; }
 	
 	public Double asDouble() { return null; }
 		
 	// Factory methods
 	public static Parameter from(Player p) { return new PlayerParameter(p); }
-	public static Parameter from(Entity p) { return new EntityParameter(p); }
+	public static Parameter from(Entity e) { return new EntityParameter(e); }
+	public static Parameter from(String s) { return new StringParameter(s); }
+	public static Parameter from(double d) { return new NumericParameter(d); }
+	
 	
 	public Iterator<Parameter> iterator() {
 		return new SingleIterator<Parameter>(this);

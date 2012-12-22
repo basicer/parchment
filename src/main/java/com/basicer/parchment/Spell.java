@@ -9,9 +9,18 @@ import java.util.List;
 
 import com.basicer.parchment.parameters.*;
 
-public abstract class Spell  {
+public abstract class Spell extends Command {
 	
-		
+	public Parameter execute(Context ctx, Parameter[] args) {
+		try {
+			this.cast(ctx);
+			return Parameter.from("success");
+		} catch ( FizzleException fizzle ) {
+			ctx.sendDebugMessage("The spell fizzles");
+			return Parameter.from("fizzle");
+		}
+	}
+	
 	public void cast(Context ctx) {
 		List<Class<? extends Parameter>> list = new ArrayList<Class<? extends Parameter>>();
 		for ( Type c : this.getClass().getGenericInterfaces() ) {

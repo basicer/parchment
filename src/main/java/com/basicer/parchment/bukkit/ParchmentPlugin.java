@@ -1,5 +1,6 @@
 package com.basicer.parchment.bukkit;
 
+import java.io.StringReader;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -60,7 +61,7 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 	}
 
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-
+		
 		if (!sender.isOp())
 			return false;
 		
@@ -80,12 +81,22 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 			return false;
 		}
 		
-		Spell s = SpellFactory.get(qargs.poll());
-		try {
-			s.cast(ctx);
-		} catch ( FizzleException fizzle ) {
-			sender.sendMessage("The spell fizzles");
+		
+		StringBuilder b = null;
+		while ( !qargs.isEmpty() ) {
+			if ( b == null ) b = new StringBuilder();
+			else b.append(" ");
+			b.append(qargs.poll());
 		}
+		
+		Parameter[] pargs = Spell.parseLine(ctx, new StringReader(b.toString()));
+		for ( Parameter p : pargs ) {
+			sender.sendMessage("[P] " + p.asString());
+		}
+		
+		String name = pargs[0].asString();
+		Spell s = SpellFactory.get(name);
+		s.execute(ctx, pargs);
 		
 		return true;
 	}
