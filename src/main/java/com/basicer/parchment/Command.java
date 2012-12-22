@@ -18,17 +18,21 @@ public abstract class Command {
 		try {
 			while ( (r = s.read()) > 0) {
 				char c = (char)r;
-				
+				boolean append = false;
 				if ( brackets > 0 ) {
-					if ( c == '{' ) ++brackets;
-					else if ( c == '}' ) --brackets;
-					if ( brackets != 0 || procs != 0 ) {
-						current.append(c);
+					
+					if ( c == '}' ) --brackets;
+					if ( brackets != 0 || procs != 0 || in == '"' ) {
+						append = true;
 					} 
 				} else if ( in == '"' ) {
-					if ( c == '"' ) in = '\0';
-					else if ( c == '\\' ) current.append(translateSlashCode(s.read()));
-					else current.append(c);
+					if ( c == '"' && procs == 0) in = '\0';
+					if ( c == '{' ) { ++brackets; append = true; }
+					else {
+						if ( c == ']' ) --procs;
+						else if ( c == '[' ) ++procs;
+						append = true;
+					}
 				} else if ( in == '[' ) {
 					if ( c == '{' ) { ++brackets; }
 					else if ( c == ']' ) { 
@@ -36,15 +40,15 @@ public abstract class Command {
 							out.add(Parameter.from("PROC:" + current.toString()));
 							current.setLength(0);
 						}
-						else current.append(c);
+						else append = true;
 					} else if ( c == ' ' ) {
 						if ( procs == 0 ) in = '\0';
-						else current.append(c);
+						else append = true;
 					} else if ( c == '[' ) {
 						if ( ++procs > 1) {
-							current.append(c);
+							append = true;
 						} 						
-					} else current.append(c);
+					} else append = true;
 				} else {
 					if ( c == '"' ) in = c;
 					else if ( c == '{' ) { 
@@ -57,8 +61,12 @@ public abstract class Command {
 					} else if ( c == '\n' || c == ';' ) {
 						break;
 					} else {
-						current.append(c);
+						append = true;
 					}
+				}
+				if ( append ) {
+					if ( c == '\\' && brackets == 0 && procs == 0 ) current.append(translateSlashCode(s.read()));
+					else current.append(c);
 				}
 			}
 			if ( current.length() > 0 ) out.add(Parameter.from(current.toString()));
@@ -73,6 +81,7 @@ public abstract class Command {
 		if ( i < 1 ) return '\\';
 		switch ( (char) i) {
 			case 'n': return '\n';
+			case 't': return 'X';
 			default: return (char) i;
 		}
 	}
