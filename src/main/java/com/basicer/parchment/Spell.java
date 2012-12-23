@@ -9,9 +9,9 @@ import java.util.List;
 
 import com.basicer.parchment.parameters.*;
 
-public abstract class Spell extends Command {
+public abstract class Spell extends TCLCommand {
 	
-	public Parameter execute(Context ctx, Parameter[] args) {
+	public Parameter execute(Context ctx) {
 		try {
 			this.cast(ctx);
 			return Parameter.from("success");

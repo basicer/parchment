@@ -17,9 +17,14 @@ public abstract class Parameter implements Iterable<Parameter> {
 	public Entity asEntity() { return null; }
 	public Player asPlayer() { return null; }
 	public String asString() { return null; }
-	
 	public Double asDouble() { return null; }
-		
+
+	public Double asDoubleOr(Double def) {
+		Double val = asDouble();
+		if ( val != null ) return val;
+		return def;
+	}
+	
 	// Factory methods
 	public static Parameter from(Player p) { return new PlayerParameter(p); }
 	public static Parameter from(Entity e) { return new EntityParameter(e); }
@@ -29,6 +34,14 @@ public abstract class Parameter implements Iterable<Parameter> {
 	
 	public Iterator<Parameter> iterator() {
 		return new SingleIterator<Parameter>(this);
+	}
+	
+	@Override
+	public String toString() { 
+		String as = this.asString();
+		String type = this.getClass().getSimpleName();
+		if ( as != null ) return "[" + type + ": " + as + "]";
+		return "[" + type + "]";
 	}
 	
 	private class SingleIterator<T> implements Iterator<T> {

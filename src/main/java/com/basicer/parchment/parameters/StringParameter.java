@@ -8,9 +8,12 @@ public class StringParameter extends Parameter {
 	}
 
 	@Override
-	public String asString() { return self; }
+	public Double asDouble() {
+		return Double.parseDouble(self);
+	}
 	
 	@Override
-	public String toString() { return self; }
+	public String asString() { return self; }
+	
 }
 

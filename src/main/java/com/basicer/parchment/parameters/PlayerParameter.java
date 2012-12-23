@@ -19,5 +19,8 @@ public class PlayerParameter extends EntityParameter {
 	@Override
 	public LivingEntity asLivingEntity() { return self; }
 
+	@Override
+	public String asString() { return self.getName(); }
 
+	
 }

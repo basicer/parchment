@@ -13,20 +13,30 @@ public class SpellFactory {
 		return _instance;
 	}
 	
-	public static Spell get(String name) {
-		return instance().spells.get(name.toLowerCase());
+	public static TCLCommand get(String name) {
+		return instance().commands.get(name.toLowerCase());
 	}
 	
-	Dictionary<String, Spell> spells;
+	Dictionary<String, TCLCommand> commands;
 	private SpellFactory() {
-		spells = new Hashtable<String,Spell>();
+		commands = new Hashtable<String,TCLCommand>();
 		addBuiltinSpell(Heal.class);
 		addBuiltinSpell(Shoot.class);
 	}
 	
 	private <T extends Spell> void addBuiltinSpell(Class<T> spell) {
 		try {
-			spells.put(spell.getSimpleName().toLowerCase(), spell.newInstance());
+			commands.put(spell.getSimpleName().toLowerCase(), spell.newInstance());
+		} catch (InstantiationException e) {
+			return;
+		} catch (IllegalAccessException e) {
+			return;
+		}
+	}
+	
+	private <T extends TCLCommand> void addBuiltinCommand(Class<T> cmd) {
+		try {
+			commands.put(cmd.getSimpleName().toLowerCase(), cmd.newInstance());
 		} catch (InstantiationException e) {
 			return;
 		} catch (IllegalAccessException e) {

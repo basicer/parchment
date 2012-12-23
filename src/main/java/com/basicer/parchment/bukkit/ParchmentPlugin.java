@@ -1,5 +1,6 @@
 package com.basicer.parchment.bukkit;
 
+import java.io.PushbackReader;
 import java.io.StringReader;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -9,6 +10,8 @@ import com.basicer.parchment.Spell;
 import com.basicer.parchment.Spell.FizzleException;
 import com.basicer.parchment.Context;
 import com.basicer.parchment.SpellFactory;
+import com.basicer.parchment.TCLCommand;
+import com.basicer.parchment.TCLParser;
 import com.basicer.parchment.craftbukkit.Book;
 import com.basicer.parchment.parameters.Parameter;
 import com.basicer.parchment.parameters.PlayerParameter;
@@ -89,14 +92,7 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 			b.append(qargs.poll());
 		}
 		
-		Parameter[] pargs = Spell.parseLine(ctx, new StringReader(b.toString()));
-		for ( Parameter p : pargs ) {
-			sender.sendMessage("[P] " + p.asString());
-		}
-		
-		String name = pargs[0].asString();
-		Spell s = SpellFactory.get(name);
-		s.execute(ctx, pargs);
+		TCLParser.evaluate(b.toString(), ctx);
 		
 		return true;
 	}

@@ -11,4 +11,9 @@ public class NumericParameter extends Parameter {
 	public Double asDouble() {
 		return self;
 	}
+	
+	@Override
+	public String asString() {
+		return "" + self;
+	}
 }
