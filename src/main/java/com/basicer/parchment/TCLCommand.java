@@ -18,6 +18,10 @@ public abstract class TCLCommand {
 		Context put = ctx.createSubContext();
 		for ( int i = 0; i < args.length; ++i ) {
 			if ( (i+1) >= params.length ) break;
+			if ( (i+1) == args.length && args[i] == "args" ) {
+				put.put("args", Parameter.createList(params, i+1, params.length -1));
+				break;
+			}
 			put.put(args[i], params[i+1]);
 		}
 		

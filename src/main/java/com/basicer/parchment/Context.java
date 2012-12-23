@@ -34,10 +34,11 @@ public class Context {
 	}
 	
 	public void put(String var, Parameter value) {
-		if ( variables.containsKey(var) ) {
-			getRaw(var).val = value;
+		ParameterPtr nv = getRaw(var);
+		if ( nv != null ) {
+			nv.val = value;
 		} else {
-			ParameterPtr nv = new ParameterPtr();
+			nv = new ParameterPtr();
 			nv.val = value;
 			variables.put(var, nv);
 		}
@@ -51,9 +52,7 @@ public class Context {
 	}
 	
 	public Parameter getCaster() {
-		Parameter caster = get("caster");
-		if ( caster == null && parent != null ) return parent.getCaster();
-		return caster;
+		return resolve("caster");
 	}
 
 	public void setCaster(Parameter caster) {
@@ -61,13 +60,27 @@ public class Context {
 	}
 
 	public Parameter getTarget() {
-		Parameter target = get("target");
-		if ( target == null && parent != null ) return parent.getTarget();
-		return target;
+		return resolve("target");
 	}
 
 	public void setTarget(Parameter target) {
 		put("target", target);
+	}
+	
+	public Parameter getWorld() {
+		return resolve("world");
+	}
+
+	public void setWorld(Parameter target) {
+		put("world", target);
+	}
+	
+	public Parameter getServer() {
+		return resolve("server");
+	}
+
+	public void setServer(Parameter target) {
+		put("server", target);
 	}
 	
 	public void sendDebugMessage(String msg) {
@@ -80,7 +93,7 @@ public class Context {
 		return ctx;
 	}
 	
-	private Context up(int level) {
+	public Context up(int level) {
 		Context out = this;
 		for ( int i = 0; i < level; ++i ) {
 			out = out.parent;
@@ -93,6 +106,15 @@ public class Context {
 		setRaw(var, ctx.getRaw(var));
 	}
 	
+	private Parameter resolve(String var) {
+		Parameter val = get(var);
+		if ( val == null ) {
+			if ( parent != null ) return parent.resolve(var);
+			return null;
+		}
+		
+		return val;
+	}
 	
 	private ParameterPtr getRaw(String var) {
 		return variables.get(var);

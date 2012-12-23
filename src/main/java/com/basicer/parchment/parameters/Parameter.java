@@ -1,6 +1,8 @@
 package com.basicer.parchment.parameters;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.bukkit.*;
 import org.bukkit.entity.*;
@@ -18,6 +20,8 @@ public abstract class Parameter implements Iterable<Parameter> {
 	public Player asPlayer() { return null; }
 	public String asString() { return null; }
 	public Double asDouble() { return null; }
+	public World asWorld() { return null; }
+	public Server asServer() { return null; }
 
 	public Double asDoubleOr(Double def) {
 		Double val = asDouble();
@@ -29,8 +33,23 @@ public abstract class Parameter implements Iterable<Parameter> {
 	public static Parameter from(Player p) { return new PlayerParameter(p); }
 	public static Parameter from(Entity e) { return new EntityParameter(e); }
 	public static Parameter from(String s) { return new StringParameter(s); }
-	public static Parameter from(double d) { return new NumericParameter(d); }
+	public static Parameter from(double d) { return new DoubleParameter(d); }
+	public static Parameter from(World w) { return new WorldParameter(w); }
+	public static Parameter from(Server s) { return new ServerParameter(s); }
 	
+	
+	public static Parameter createList(Parameter[] list) {
+		return createList(list, 0, list.length - 1);
+	}
+	
+	public static Parameter createList(Parameter[] list, int start, int end) {
+		List<Parameter> nlist = new ArrayList<Parameter>();
+		for ( int i = start; i <= end; ++i ) {
+			nlist.add(list[i]);
+		}
+		return new ListParameter(nlist);
+	}
+
 	
 	public Iterator<Parameter> iterator() {
 		return new SingleIterator<Parameter>(this);
@@ -67,5 +86,7 @@ public abstract class Parameter implements Iterable<Parameter> {
 		public void remove() { }
 		
 	}
+
+	
 	
 }

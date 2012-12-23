@@ -9,7 +9,9 @@ import org.bukkit.entity.Player;
 public class ListParameter extends Parameter {
 
 	private List<Parameter> self;
-	
+	ListParameter(List<Parameter> self) {
+		this.self = self;
+	}
 	
 	@Override
 	public LivingEntity asLivingEntity() {

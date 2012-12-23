@@ -3,7 +3,7 @@ package com.basicer.parchment.craftbukkit;
 import net.minecraft.server.*;
 
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_4_6.inventory.*;
 import org.bukkit.inventory.ItemStack;
 
 /**
@@ -29,7 +29,7 @@ public class Book {
         }
         
         CraftItemStack ci = (CraftItemStack)base;
-        handle = ci.getHandle();
+        
         this.base = base;
     }
     

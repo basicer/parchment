@@ -4,6 +4,7 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 
 import com.basicer.parchment.spells.*;
+import com.basicer.parchment.tcl.*;
 
 public class SpellFactory {
 	
@@ -20,6 +21,12 @@ public class SpellFactory {
 	Dictionary<String, TCLCommand> commands;
 	private SpellFactory() {
 		commands = new Hashtable<String,TCLCommand>();
+		
+		addBuiltinCommand(PutS.class);
+		addBuiltinCommand(Set.class);
+		addBuiltinCommand(Concat.class);
+		addBuiltinCommand(SCommand.class);
+		
 		addBuiltinSpell(Heal.class);
 		addBuiltinSpell(Shoot.class);
 	}

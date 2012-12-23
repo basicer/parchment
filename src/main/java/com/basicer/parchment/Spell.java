@@ -11,6 +11,11 @@ import com.basicer.parchment.parameters.*;
 
 public abstract class Spell extends TCLCommand {
 	
+	public enum DefaultTargetType { None, Self };
+	
+	
+	public DefaultTargetType getDefaultTargetType() { return DefaultTargetType.None; }
+	
 	public Parameter execute(Context ctx) {
 		try {
 			this.cast(ctx);
@@ -31,7 +36,9 @@ public abstract class Spell extends TCLCommand {
 			list.add((Class<? extends Parameter>)tx[0]);
  		}
 		
-		for ( Parameter t : resolveTarget(ctx) ) {
+		Parameter targets = resolveTarget(ctx);
+		
+		for ( Parameter t : targets ) {
 			for ( Class<? extends Parameter> c : list )
 			if ( this.tryAffect(c, t, ctx) ) break;
 			
@@ -45,8 +52,16 @@ public abstract class Spell extends TCLCommand {
 	protected Parameter resolveTarget(Context ctx) {
 		Parameter t = ctx.getTarget();
 		if ( t != null ) return t;
+		switch ( this.getDefaultTargetType() ) {
+			case None:
+				break;
+			case Self:
+				t = ctx.getCaster();
+				break;
+		}
 		
-		return ctx.getCaster();
+		if ( t != null ) ctx.setTarget(t);
+		return t;
 	}
 	
 	private <T extends Parameter> boolean tryAffect(Class<T> type, Parameter t, Context ctx) {

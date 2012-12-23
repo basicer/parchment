@@ -1,9 +1,9 @@
 package com.basicer.parchment.parameters;
 
-public class NumericParameter extends Parameter {
+public class DoubleParameter extends Parameter {
 	private double self;
 	
-	public NumericParameter(double self) {
+	public DoubleParameter(double self) {
 		this.self = self;
 	}
 
