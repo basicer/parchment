@@ -100,7 +100,8 @@ public class TCLParser {
 		
 		while ( true ) {
 			Parameter[] pargs = TCLParser.parseLine(r, ctx);
-			if ( pargs == null || pargs.length < 1 ) break;
+			if ( pargs == null) break;
+			if ( pargs.length < 1 ) continue;
 			//for (Parameter p : pargs) {
 			//	ctx.sendDebugMessage("[P] " + p.toString());
 			//}
@@ -124,6 +125,7 @@ public class TCLParser {
 		StringBuilder current = new StringBuilder();
 		char in = '\0';
 		Parameter currentp = null;
+		boolean at_end = true; 
 		int r;
 		try {
 			while ((r = s.read()) > 0) {
@@ -161,6 +163,7 @@ public class TCLParser {
 						}
 						current.setLength(0);
 					} else if (c == '\n' || c == ';') {
+						at_end = false;
 						break;
 					} else if ( c == '\r' ) {
 						
@@ -195,6 +198,7 @@ public class TCLParser {
 			throw new Error(e);
 		}
 
+		if ( at_end && out.size() < 1 ) return null;
 		return out.toArray(new Parameter[0]);
 	}
 

@@ -1,25 +1,27 @@
 package com.basicer.parchment.craftbukkit;
 
-import net.minecraft.server.*;
+
 
 import org.bukkit.Material;
+
 import org.bukkit.craftbukkit.v1_4_6.inventory.*;
-import org.bukkit.inventory.ItemStack;
+import net.minecraft.server.v1_4_6.*;
+
 
 /**
  *
  * @author basicer
  */
-public class Book {
+private class Book {
    
-    private net.minecraft.server.ItemStack handle;
-    private ItemStack base;
+    private ItemStack handle;
+    private org.bukkit.inventory.ItemStack base;
     
-    public static Book createFromBukkitItemStack(ItemStack base) {
-        return new Book(base);
+    public static Book createFromBukkitItemStack(org.bukkit.inventory.ItemStack base) {
+         return new Book(base);
     }
     
-    private Book(ItemStack base) {
+    private Book(org.bukkit.inventory.ItemStack base) {
         if ( base.getType() != Material.BOOK_AND_QUILL && base.getType() != Material.WRITTEN_BOOK ) {
             throw new java.lang.IllegalArgumentException("Item is not a book.");
         }
@@ -28,8 +30,7 @@ public class Book {
             throw new java.lang.IllegalArgumentException("Not using CraftBucket as server.");
         }
         
-        CraftItemStack ci = (CraftItemStack)base;
-        
+        this.handle = CraftItemStack.asNMSCopy(base);
         this.base = base;
     }
     
@@ -56,8 +57,8 @@ public class Book {
     public void unlock() {
         if ( !isLocked() ) return;
         base.setType(org.bukkit.Material.BOOK_AND_QUILL);
-        handle.getTag().remove("title");
-        handle.getTag().remove("author");
+        handle.getTag().o("name");
+        handle.getTag().o("author");
     }
     
     

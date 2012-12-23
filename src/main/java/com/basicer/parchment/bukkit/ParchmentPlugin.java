@@ -16,7 +16,7 @@ import com.basicer.parchment.Context;
 import com.basicer.parchment.SpellFactory;
 import com.basicer.parchment.TCLCommand;
 import com.basicer.parchment.TCLParser;
-import com.basicer.parchment.craftbukkit.Book;
+
 import com.basicer.parchment.parameters.Parameter;
 import com.basicer.parchment.parameters.PlayerParameter;
 import com.basicer.parchment.spells.Heal;
@@ -35,6 +35,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.PluginMessageListener;
@@ -154,16 +155,22 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 			return;
 		}
 		p.sendMessage("Clicky click " + e.getAction().toString());
-		Book b = Book.createFromBukkitItemStack(holding);
+		BookMeta b = (BookMeta)holding.getItemMeta();
 
 		if (e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK) {
 			if (e.getClickedBlock() != null && e.getClickedBlock().getType() == org.bukkit.Material.BOOKSHELF) {
-				b.unlock();
+				//b.unlock();
 				e.setCancelled(true);
 				return;
 			}
-			p.sendMessage(b.getFullText());
-			String action = b.getFullText();
+			
+			StringBuilder sb = new StringBuilder();
+			for ( int i = 0; i < b.getPageCount(); ++i) {
+				sb.append(b.getPage(i+1));
+				sb.append("\n");
+			}
+			String action = sb.toString();
+			p.sendMessage(action);
 			/*
 			if ( action.startsWith("bridge") ) {
 				for (Block bl : p.getLineOfSight(null, 40)) {
