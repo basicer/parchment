@@ -107,7 +107,6 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 			
 			TCLParser.evaluate(b.toString(), ctx);
 		} else if ( action.equals("run") ) {
-			
 			String file = qargs.poll() + ".tcl";
 			File folder = this.getDataFolder();
 			File rfile = null;

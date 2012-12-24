@@ -13,7 +13,10 @@ public class SpellFactory {
 	
 	private static SpellFactory _instance;
 	public static SpellFactory instance() {
-		if ( _instance == null ) _instance = new SpellFactory();
+		if ( _instance == null ) {
+			_instance = new SpellFactory();
+			_instance.reset();
+		}
 		return _instance;
 	}
 	
@@ -24,6 +27,10 @@ public class SpellFactory {
 	Dictionary<String, TCLCommand> commands;
 	private SpellFactory() {
 		commands = new Hashtable<String,TCLCommand>();
+	}
+	
+	public void reset() {
+		
 		
 		addBuiltinCommand(PutS.class);
 		addBuiltinCommand(Set.class);
@@ -34,6 +41,12 @@ public class SpellFactory {
 		addBuiltinSpell(Item.class);
 		addBuiltinSpell(Heal.class);
 		addBuiltinSpell(Shoot.class);
+		
+		commands.put("sk", new ScriptedSpell("set cast { puts {Hello from scriptvill} }"));
+	}
+	
+	private void addCustomSpell(String name, ScriptedSpell spell) {
+		commands.put(name, spell);
 	}
 	
 	private <T extends Spell> void addBuiltinSpell(Class<T> spell) {

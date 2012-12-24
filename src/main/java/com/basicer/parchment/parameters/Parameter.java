@@ -8,6 +8,8 @@ import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 
+import com.basicer.parchment.Spell;
+
 
 public abstract class Parameter implements Iterable<Parameter> {
 
@@ -25,6 +27,7 @@ public abstract class Parameter implements Iterable<Parameter> {
 	public World asWorld() { return null; }
 	public Server asServer() { return null; }
 	public ItemStack asItemStack() { return null; }
+	public Spell asSpell() { return null; }
 	
 	public <T extends Parameter> T cast(Class<T> type) {
 		if ( type.equals(EntityParameter.class) ) {
@@ -67,7 +70,7 @@ public abstract class Parameter implements Iterable<Parameter> {
 	public static Parameter from(World w) 		{ return new WorldParameter(w); }
 	public static Parameter from(Server s) 		{ return new ServerParameter(s); }
 	public static Parameter from(ItemStack s) 	{ return new ItemParameter(s); }
-	
+	public static Parameter from(Spell s) 		{ return new SpellParameter(s); }
 	
 	public static Parameter createList(Parameter[] list) {
 		return createList(list, 0, list.length - 1);

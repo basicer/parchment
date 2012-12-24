@@ -14,7 +14,7 @@ public abstract class Spell extends TCLCommand {
 	public enum DefaultTargetType { None, Self };
 	public DefaultTargetType getDefaultTargetType() { return DefaultTargetType.None; }
 	
-	private Context spellStatic;
+	protected Context spellStatic;
 	
 	public Spell() {
 		spellStatic = new Context();
@@ -52,6 +52,7 @@ public abstract class Spell extends TCLCommand {
 		
 		Parameter targets = resolveTarget(ctx);
 		
+		if ( targets == null ) fizzle();
 		targetloop:
 		for ( Parameter t : targets ) {
 			ctx.sendDebugMessage("TARGET> " + t.toString());
