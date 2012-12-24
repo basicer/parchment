@@ -93,6 +93,14 @@ public class Context {
 		return ctx;
 	}
 	
+	public Context createBoundSubContext(Context bound) {
+		Context ctx = new Context();
+		ctx.variables = bound.variables;
+		ctx.parent = this;
+		return ctx;
+	}
+	
+	
 	public Context up(int level) {
 		Context out = this;
 		for ( int i = 0; i < level; ++i ) {
@@ -106,7 +114,7 @@ public class Context {
 		setRaw(var, ctx.getRaw(var));
 	}
 	
-	private Parameter resolve(String var) {
+	public Parameter resolve(String var) {
 		Parameter val = get(var);
 		if ( val == null ) {
 			if ( parent != null ) return parent.resolve(var);
@@ -127,5 +135,7 @@ public class Context {
 	private class ParameterPtr {
 		public Parameter val;
 	}
+
+
 	
 }

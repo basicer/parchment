@@ -170,6 +170,13 @@ public class TCLParser {
 					} else if (c == '$') {
 						s.unread(r);
 						currentp = evaulateVariable(s, ctx);
+					} else if ( c == '#' && currentp == null && current.length() < 1 ) {
+						while ( c != '\n' ) {
+							r = s.read();
+							if ( r < 0 ) return null;
+							c = (char)r;
+						}
+						return new Parameter[0];
 					} else {
 						append = true;
 					}

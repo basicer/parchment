@@ -3,6 +3,9 @@ package com.basicer.parchment;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
+import com.basicer.parchment.base.Color;
+import com.basicer.parchment.base.Item;
+import com.basicer.parchment.base.SCommand;
 import com.basicer.parchment.spells.*;
 import com.basicer.parchment.tcl.*;
 
@@ -26,7 +29,9 @@ public class SpellFactory {
 		addBuiltinCommand(Set.class);
 		addBuiltinCommand(Concat.class);
 		addBuiltinCommand(SCommand.class);
+		addBuiltinCommand(Color.class);
 		
+		addBuiltinSpell(Item.class);
 		addBuiltinSpell(Heal.class);
 		addBuiltinSpell(Shoot.class);
 	}

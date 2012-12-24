@@ -12,10 +12,24 @@ import com.basicer.parchment.parameters.*;
 public abstract class Spell extends TCLCommand {
 	
 	public enum DefaultTargetType { None, Self };
-	
-	
 	public DefaultTargetType getDefaultTargetType() { return DefaultTargetType.None; }
 	
+	private Context spellStatic;
+	
+	public Spell() {
+		spellStatic = new Context();
+	}
+	
+	@Override
+	public Context bindContext(Parameter[] params, Context ctx) {
+		Context spellstatic = ctx.createBoundSubContext(spellStatic);
+		
+		// TODO Auto-generated method stub
+		return super.bindContext(params, spellstatic);
+	}
+
+
+
 	public Parameter execute(Context ctx) {
 		try {
 			this.cast(ctx);
@@ -38,11 +52,25 @@ public abstract class Spell extends TCLCommand {
 		
 		Parameter targets = resolveTarget(ctx);
 		
+		targetloop:
 		for ( Parameter t : targets ) {
-			for ( Class<? extends Parameter> c : list )
-			if ( this.tryAffect(c, t, ctx) ) break;
+			ctx.sendDebugMessage("TARGET> " + t.toString());
+			for ( Class<? extends Parameter> c : list ) {
+				if ( this.tryAffect(c, t, ctx) ) continue targetloop;
+			}
 			
+			for ( Class<? extends Parameter> c : list ) {
+				Parameter casted = t.cast(c);
+				ctx.sendDebugMessage(c.getName() + "?" + casted == null ? "Null" : "Pass");
+				if ( casted == null ) continue;
+				if ( this.tryAffect(c, casted, ctx) ) continue targetloop;
+			}
+
 		}
+		
+		
+		
+		
 	}
 	
 	protected void fizzle() {
