@@ -143,6 +143,7 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 			ctx.setCaster(Parameter.from(p));
 			ctx.setWorld(Parameter.from(p.getWorld()));
 			ctx.setServer(Parameter.from(p.getServer()));
+			ctx.setSource("command");
 		} else {
 			return false;
 		}
@@ -245,6 +246,7 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 			ctx.setCaster(Parameter.from(p));
 			ctx.setWorld(Parameter.from(p.getWorld()));
 			ctx.setServer(Parameter.from(p.getServer()));
+			ctx.setSource("wand");
 			TCLParser.evaluate(action, ctx);
 
 		} 

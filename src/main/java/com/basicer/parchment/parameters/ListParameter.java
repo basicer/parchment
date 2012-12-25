@@ -41,10 +41,25 @@ public class ListParameter extends Parameter {
 	
 	@Override
 	public String asString(Context ctx) {
-		if ( self.size() != 1 ) return null;
-		Parameter p = self.get(0);
-		if ( p == null ) return null;
-		return p.asString();
+		if ( self.size() == 1 ) {
+			Parameter p = self.get(0);
+			if ( p == null ) return null;
+			return p.asString();
+		}
+		StringBuilder b = new StringBuilder();
+		for ( Parameter p : self) {
+			if ( b.length() > 0 ) b.append(" ");
+			String x = p.asString();
+			if ( x == null || x.length() < 1 ) b.append("{}");
+			else if ( x.contains(" ") || x.contains("\\") ) {
+				b.append('{');
+				b.append(x);
+				b.append('}');
+			} else {
+				b.append(x);
+			}
+		}
+		return b.toString();
 	}
 
 	@Override
