@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import com.basicer.parchment.ScriptedSpell;
 import com.basicer.parchment.Spell;
 import com.basicer.parchment.Spell.FizzleException;
 import com.basicer.parchment.Context;
@@ -25,6 +26,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.craftbukkit.libs.jline.internal.Log.Level;
 
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
@@ -68,8 +70,60 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 		}
 		
 		Bukkit.getMessenger().registerIncomingPluginChannel(this, "MC|BEdit", this);
+		
+		File base = this.getDataFolder();
+		File scripts = findDirectory(base, "spells");
+		if ( scripts == null ) return;
+		SpellFactory f = SpellFactory.instance();
+		f.reset();
+		for ( File s : scripts.listFiles() ) {
+			if ( s.isDirectory() ) continue;
+			if ( !s.canRead() ) continue;
+			if ( !s.getName().endsWith(".tcl")) continue;
+			String sname = s.getName().substring(0, (int) (s.getName().length() - 4));
+			try {
+				PushbackReader reader = new PushbackReader(
+						new InputStreamReader(new FileInputStream(s))
+				);
+				f.addCustomSpell(sname, new ScriptedSpell(reader));
+				this.getLogger().info("Loaded " + sname);
+			} catch (FileNotFoundException e) {
+				this.getLogger().warning("Couldnt load " + sname);
+				
+			}
+			
+		}
+		
 	}
 
+	private static File findFile(File folder, String file) {
+		if ( folder == null ) return null;
+		File rfile = null;
+		for ( File f : folder.listFiles() ) {
+			if ( f.isDirectory() ) continue;
+			if ( !f.canRead() ) continue;
+			if ( f.getName().equals(file) ) {
+				rfile = f;
+				break;
+			}
+		}
+		return rfile;	
+	}
+	
+	private static File findDirectory(File folder, String file) {
+		if ( folder == null ) return null;
+		File rfile = null;
+		for ( File f : folder.listFiles() ) {
+			if ( !f.isDirectory() ) continue;
+			if ( !f.canRead() ) continue;
+			if ( f.getName().equals(file) ) {
+				rfile = f;
+				break;
+			}
+		}
+		return rfile;	
+	}
+	
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		
 		if (!sender.isOp())
@@ -95,9 +149,7 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 		
 		
 		
-		if ( action.equals("cast") || action.equals("c") ) {
-		
-			
+		if ( action.equals("cast") || action.equals("c") ) {	
 			StringBuilder b = null;
 			while ( !qargs.isEmpty() ) {
 				if ( b == null ) b = new StringBuilder();
@@ -108,17 +160,8 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 			TCLParser.evaluate(b.toString(), ctx);
 		} else if ( action.equals("run") ) {
 			String file = qargs.poll() + ".tcl";
-			File folder = this.getDataFolder();
-			File rfile = null;
-			for ( File f : folder.listFiles() ) {
-				sender.sendMessage(f.getName());
-				if ( f.isDirectory() ) continue;
-				if ( !f.canRead() ) continue;
-				if ( f.getName().equals(file) ) {
-					rfile = f;
-					break;
-				}
-			}
+			File folder = findDirectory(this.getDataFolder(), "runnable");
+			File rfile = findFile(folder, file);
 			if ( rfile == null ) {
 				sender.sendMessage("Unknown file " + file);
 				return true;

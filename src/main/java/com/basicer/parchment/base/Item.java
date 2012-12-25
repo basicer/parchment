@@ -1,5 +1,7 @@
 package com.basicer.parchment.base;
 
+import java.util.ArrayList;
+
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -8,26 +10,59 @@ import com.basicer.parchment.Affectable;
 import com.basicer.parchment.Context;
 import com.basicer.parchment.Spell;
 import com.basicer.parchment.Spell.DefaultTargetType;
+import com.basicer.parchment.parameters.DoubleParameter;
+import com.basicer.parchment.parameters.IntegerParameter;
 import com.basicer.parchment.parameters.ItemParameter;
+import com.basicer.parchment.parameters.Parameter;
 import com.basicer.parchment.parameters.PlayerParameter;
+import com.basicer.parchment.parameters.StringParameter;
 
 public class Item extends Spell implements Affectable<ItemParameter> {
 
+
 	@Override
-	public DefaultTargetType getDefaultTargetType() { return DefaultTargetType.Self; }
+	public String[] getArguments() { return new String[] { "operation", "args" }; }
 	
-	@Override
-	public String[] getArguments() { return new String[] { "name" }; }
-	
-	public void affect(ItemParameter target, Context ctx) {
+	public Parameter affect(ItemParameter target, Context ctx) {
 		ItemStack itm = target.asItemStack();
-		String str = ctx.get("name").asString();
 		
-		ctx.sendDebugMessage("Old Name>" + itm.getItemMeta().getDisplayName());
+		
+		ArrayList<Parameter> args = ctx.getArgs();
+		if ( itm == null ) fizzleTarget("Not an item.");
 		ItemMeta m = itm.getItemMeta();
-		m.setDisplayName(str);
-		ctx.sendDebugMessage("New Name>" + str);
-		itm.setItemMeta(m);
+		Parameter pop = ctx.get("operation");
+		
+		if ( pop == null ) return Parameter.from(itm);
+		String op = pop.asString(ctx);
+		
+		if ( op.equals("name") ) {
+			if ( args.size() > 0 ) {
+				m.setDisplayName(getArgOrFizzle(ctx, 0, StringParameter.class).toString());
+				itm.setItemMeta(m);
+			}
+			return Parameter.from(m.getDisplayName());
+		} else if ( op.equals("amount") || op.equals("ammount") || op.equals("amt") ) {
+			if ( args.size() > 0 ) {
+				itm.setAmount(getArgOrFizzle(ctx, 0, IntegerParameter.class).asInteger());
+			}
+			return Parameter.from(itm.getAmount());
+		} else if ( op.equals("more") || op.equals("max") ) {
+			itm.setAmount(itm.getMaxStackSize());
+			return Parameter.from(itm.getAmount());
+		} else if ( op.equals("damage") || op.equals("dmg") || op.equals("durability") ) {
+			if ( args.size() > 0 ) {
+				itm.setDurability((short)getArgOrFizzle(ctx, 0, IntegerParameter.class).asInteger().intValue());
+			}
+			return Parameter.from(itm.getDurability());			
+		} else if ( op.equals("repair") || op.equals("fix") ) {
+			itm.setDurability((short)0);
+			return Parameter.from(0);
+		}
+		
+		
+		fizzle("Invalid operation " + op);
+		return null; //Never executed.
  	}
+
 	
 }

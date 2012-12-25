@@ -83,7 +83,7 @@ public class TCLParser {
 		StringBuilder varb = new StringBuilder();
 		readVariable(s, varb);
 		String var = varb.toString();
-		Parameter p = ctx.get(var);
+		Parameter p = ctx.getRespectingGlobals(var);
 		// return Parameter.from("[VAR: " + cmd.toString() + "]");
 		return p;
 	}
@@ -154,7 +154,7 @@ public class TCLParser {
 					} else if (c == '[') {
 						s.unread(r);
 						currentp = evaulateBracketExpression(s, ctx);
-					} else if (c == ' ') {
+					} else if (c == ' ' || c == '\t') {
 						if (currentp != null) {
 							out.add(currentp);
 							currentp = null;

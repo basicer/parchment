@@ -11,7 +11,8 @@ public abstract class TCLCommand {
 
 	public abstract Parameter execute(Context ctx);
 	
-	public String[] getArguments() { return new String[] {}; }
+	public String[] getArguments() { return new String[] {"args"}; }
+	//public abstract String[] getArguments();
 	
 	public Context bindContext(Parameter[] params, Context ctx) {
 		String[] args = this.getArguments();

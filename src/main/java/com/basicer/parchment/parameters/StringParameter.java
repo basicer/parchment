@@ -1,5 +1,11 @@
 package com.basicer.parchment.parameters;
 
+import org.bukkit.Server;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
+
+import com.basicer.parchment.Context;
+
 public class StringParameter extends Parameter {
 	private String self;
 	
@@ -8,12 +14,26 @@ public class StringParameter extends Parameter {
 	}
 
 	@Override
-	public Double asDouble() {
+	public Double asDouble(Context ctx) {
 		return Double.parseDouble(self);
 	}
 	
 	@Override
-	public String asString() { return self; }
+	public Integer asInteger(Context ctx) {
+		return (int)((double)asDouble(ctx));
+	}
+	
+	@Override
+	public String asString(Context ctx) { return self; }
+	
+	@Override
+	public Player asPlayer(Context ctx) {
+		if ( ctx == null ) return null;
+		Server s = ctx.getServer();
+		if ( s == null ) return null;
+		return s.getPlayer(self);
+		
+	}
 	
 }
 

@@ -1,5 +1,6 @@
 package com.basicer.parchment.parameters;
 
+import com.basicer.parchment.Context;
 import com.basicer.parchment.Spell;
 
 public class SpellParameter extends Parameter {
@@ -8,6 +9,6 @@ public class SpellParameter extends Parameter {
 		this.self = self;
 	}
 	
-	public Spell asSpell() { return self; }
+	public Spell asSpell(Context ctx) { return self; }
 	
 }

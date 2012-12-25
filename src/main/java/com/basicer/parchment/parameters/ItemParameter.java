@@ -2,6 +2,9 @@ package com.basicer.parchment.parameters;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+
+import com.basicer.parchment.Context;
 
 public class ItemParameter extends Parameter {
 
@@ -11,5 +14,12 @@ public class ItemParameter extends Parameter {
 	}
 	
 	@Override
-	public ItemStack asItemStack() { return self; }
+	public ItemStack asItemStack(Context ctx) { return self; }
+	
+	@Override
+	public String asString(Context ctx) { 
+		ItemMeta m = self.getItemMeta();
+		if ( m != null && m.getDisplayName() != null ) return m.getDisplayName();
+		return self.getType().name(); 
+	}
 }

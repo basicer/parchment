@@ -2,26 +2,31 @@ package com.basicer.parchment.parameters;
 
 import com.basicer.parchment.Context;
 
-public class DoubleParameter extends Parameter {
-	private double self;
+public class IntegerParameter extends Parameter {
+	private int self;
 	
-	public DoubleParameter(double self) {
+	public IntegerParameter(int self) {
 		this.self = self;
 	}
 
 	@Override
 	public Double asDouble(Context ctx) {
-		return self;
+		return Double.valueOf(self);
 	}
 	
 	@Override
 	public Integer asInteger(Context ctx) {
-		return Integer.valueOf((int) self);
+		return self;
 	}
 	
 	
 	@Override
 	public String asString(Context ctx) {
 		return "" + self;
+	}
+	
+	@Override
+	public boolean asBoolean(Context ctx) {
+		return ( self == 0 );
 	}
 }

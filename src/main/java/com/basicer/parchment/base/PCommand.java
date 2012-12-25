@@ -7,7 +7,7 @@ import com.basicer.parchment.Context;
 import com.basicer.parchment.TCLCommand;
 import com.basicer.parchment.parameters.Parameter;
 
-public class SCommand extends TCLCommand {
+public class PCommand extends TCLCommand {
 
 	@Override
 	public String[] getArguments() { return new String[] { "command" }; }
@@ -15,13 +15,12 @@ public class SCommand extends TCLCommand {
 	@Override
 	public Parameter execute(Context ctx) {
 		Parameter cmd = ctx.get("command");
-		CommandSender sender = ctx.getCaster().asPlayer(); 
+		CommandSender sender = ctx.getCaster().asPlayer(ctx); 
 		Server s = ctx.getServer();
 		
-		//boolean okay = s.dispatchCommand(sender, cmd.asString());
-		boolean okay = s.dispatchCommand(ctx.getServer().getConsoleSender(), cmd.asString());
+		boolean okay = s.dispatchCommand(sender, cmd.asString());
 		
-		return Parameter.from(okay);
+		return Parameter.from(okay ? "true" : "false");
 	}
 
 }

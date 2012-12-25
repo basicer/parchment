@@ -1,7 +1,9 @@
 package com.basicer.parchment;
 
+import com.basicer.parchment.parameters.Parameter;
+
 
 public interface Affectable<T> {
-	public void affect(T target, Context ctx);
+	public Parameter affect(T target, Context ctx);
 }
 

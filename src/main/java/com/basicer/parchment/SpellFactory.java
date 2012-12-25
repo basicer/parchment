@@ -3,9 +3,7 @@ package com.basicer.parchment;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
-import com.basicer.parchment.base.Color;
-import com.basicer.parchment.base.Item;
-import com.basicer.parchment.base.SCommand;
+import com.basicer.parchment.base.*;
 import com.basicer.parchment.spells.*;
 import com.basicer.parchment.tcl.*;
 
@@ -36,16 +34,18 @@ public class SpellFactory {
 		addBuiltinCommand(Set.class);
 		addBuiltinCommand(Concat.class);
 		addBuiltinCommand(SCommand.class);
+		addBuiltinCommand(PCommand.class);
 		addBuiltinCommand(Color.class);
+		addBuiltinCommand(On.class);
+		addBuiltinCommand(Upvar.class);
 		
 		addBuiltinSpell(Item.class);
 		addBuiltinSpell(Heal.class);
 		addBuiltinSpell(Shoot.class);
 		
-		commands.put("sk", new ScriptedSpell("set cast { puts {Hello from scriptvill} }"));
 	}
 	
-	private void addCustomSpell(String name, ScriptedSpell spell) {
+	public void addCustomSpell(String name, ScriptedSpell spell) {
 		commands.put(name, spell);
 	}
 	

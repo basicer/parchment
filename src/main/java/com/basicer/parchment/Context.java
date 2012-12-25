@@ -1,8 +1,13 @@
 package com.basicer.parchment;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.bukkit.Server;
+import org.bukkit.World;
+
+import com.basicer.parchment.parameters.ListParameter;
 import com.basicer.parchment.parameters.Parameter;
 
 public class Context {
@@ -28,6 +33,18 @@ public class Context {
 	}
 	
 	public Parameter get(String var) {
+		ParameterPtr ptr = variables.get(var);
+		if ( ptr == null ) return null;
+		return ptr.val;
+	}
+	
+	public Parameter getRespectingGlobals(String var) {
+		if ( var.equals("target") ) return getTarget();
+		if ( var.equals("caster") ) return getCaster();
+		if ( var.equals("world") ) return Parameter.from(getWorld());
+		if ( var.equals("server") ) return Parameter.from(getServer());
+		if ( var.equals("source") ) return Parameter.from(getSource());
+		
 		ParameterPtr ptr = variables.get(var);
 		if ( ptr == null ) return null;
 		return ptr.val;
@@ -67,24 +84,53 @@ public class Context {
 		put("target", target);
 	}
 	
-	public Parameter getWorld() {
-		return resolve("world");
+	public String getSource() {
+		Parameter p = resolve("source");
+		if ( p == null ) return null;
+		return p.asString();
+	}
+
+	public void setSource(String source) {
+		put("source", Parameter.from(source));
+	}
+	
+	public World getWorld() {
+		Parameter w = resolve("world");
+		if ( w == null ) return null;
+		return w.asWorld();
 	}
 
 	public void setWorld(Parameter target) {
 		put("world", target);
 	}
 	
-	public Parameter getServer() {
-		return resolve("server");
+	public Server getServer() {
+		Parameter s = resolve("server");
+		if ( s == null ) return null;
+		return s.asServer();
 	}
 
 	public void setServer(Parameter target) {
 		put("server", target);
 	}
 	
+	public ArrayList<Parameter> getArgs() {
+		Parameter lg = get("args");
+		if ( lg == null ) return new ArrayList<Parameter>();
+		if ( lg instanceof ListParameter ) {
+			ListParameter ll = (ListParameter)lg;
+			return ll.asArrayList();
+		}
+		return new ArrayList<Parameter>();
+	}
+	
 	public void sendDebugMessage(String msg) {
-		getCaster().asPlayer().sendMessage(msg);
+		Parameter p = getCaster();
+		if ( p != null ) {
+			p.asPlayer().sendMessage(msg);
+		} else {
+			System.out.println(msg);
+		}
 	}
 	
 	public Context createSubContext() {
@@ -124,6 +170,14 @@ public class Context {
 		return val;
 	}
 	
+	public <T extends Parameter> T getWithTypeOr(String var, T def) {
+		Parameter p = get(var);
+		if ( p == null ) return def;
+		T result = (T)p.cast(def.getClass());
+		if ( result == null ) return def;
+		return result;
+	}
+	
 	private ParameterPtr getRaw(String var) {
 		return variables.get(var);
 	}
@@ -132,7 +186,14 @@ public class Context {
 		variables.put(var, p);
 	}
 	
-	private class ParameterPtr {
+	static class ParameterPtr {
+		public ParameterPtr(Parameter val) {
+			this.val = val;
+		}
+
+		public ParameterPtr() {
+
+		}
 		public Parameter val;
 	}
 

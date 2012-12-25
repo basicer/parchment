@@ -4,6 +4,8 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import com.basicer.parchment.Context;
+
 
 public class PlayerParameter extends EntityParameter {
 
@@ -15,15 +17,15 @@ public class PlayerParameter extends EntityParameter {
 	
 	
 	@Override
-	public Player asPlayer() { return self; }
+	public Player asPlayer(Context ctx) { return self; }
 	
 	@Override
-	public LivingEntity asLivingEntity() { return self; }
+	public LivingEntity asLivingEntity(Context ctx) { return self; }
 
 	@Override
-	public String asString() { return self.getName(); }
+	public String asString(Context ctx) { return self.getName(); }
 
 	@Override
-	public ItemStack asItemStack() { return self.getItemInHand(); }
+	public ItemStack asItemStack(Context ctx) { return self.getItemInHand(); }
 	
 }

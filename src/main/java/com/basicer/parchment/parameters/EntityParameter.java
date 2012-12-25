@@ -4,6 +4,8 @@ import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 
+import com.basicer.parchment.Context;
+
 
 
 public class EntityParameter extends Parameter {
@@ -19,7 +21,7 @@ public class EntityParameter extends Parameter {
 	}
 
 	@Override
-	public Entity asEntity() {
+	public Entity asEntity(Context ctx) {
 		return self;
 	}
 	

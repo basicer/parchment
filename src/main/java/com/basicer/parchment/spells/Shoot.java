@@ -2,15 +2,17 @@ package com.basicer.parchment.spells;
 
 import org.bukkit.entity.*;
 import com.basicer.parchment.*;
+import com.basicer.parchment.parameters.Parameter;
 
 
 public class Shoot extends Spell {
 	
 	@Override
-	public void cast(Context ctx) {
+	public Parameter cast(Context ctx) {
 		LivingEntity ent = ctx.getCaster().asLivingEntity();
 		if ( ent == null ) fizzle();
 		ent.launchProjectile(Arrow.class);
+		return null;
 	}
 
 }

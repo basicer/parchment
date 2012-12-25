@@ -2,6 +2,8 @@ package com.basicer.parchment.parameters;
 
 import org.bukkit.Server;
 
+import com.basicer.parchment.Context;
+
 public class ServerParameter extends Parameter {
 
 	private Server self;
@@ -9,5 +11,5 @@ public class ServerParameter extends Parameter {
 		self = str;
 	}
 	
-	public Server asServer() { return self; }
+	public Server asServer(Context ctx) { return self; }
 }
