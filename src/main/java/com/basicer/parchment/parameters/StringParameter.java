@@ -1,5 +1,6 @@
 package com.basicer.parchment.parameters;
 
+import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -33,6 +34,13 @@ public class StringParameter extends Parameter {
 		if ( s == null ) return null;
 		return s.getPlayer(self);
 		
+	}
+	
+	@Override
+	public Material asMaterial(Context ctx) {
+		Material m = Material.valueOf(self);
+		if ( m == null ) return null;
+		return m;
 	}
 	
 }

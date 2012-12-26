@@ -36,6 +36,7 @@ public abstract class Parameter implements Iterable<Parameter> {
 	public final ItemStack asItemStack()	{ return asItemStack(null); }
 	public final Spell asSpell() 			{ return asSpell(null); }
 	public final Block asBlock() 			{ return asBlock(null); }
+	public final Material asMaterial() 		{ return asMaterial(null); }
 	
 	public LivingEntity asLivingEntity(Context ctx) { return null; }
 	public Entity asEntity(Context ctx) 		{ return null; }
@@ -49,6 +50,7 @@ public abstract class Parameter implements Iterable<Parameter> {
 	public ItemStack asItemStack(Context ctx)	{ return null; }
 	public Spell asSpell(Context ctx) 			{ return null; }
 	public Block asBlock(Context ctx) 			{ return null; }
+	public Material asMaterial(Context ctx)		{ return null; }
 	
 	public <T extends Parameter> T cast(Class<T> type) {
 		return cast(type, null);
@@ -73,6 +75,8 @@ public abstract class Parameter implements Iterable<Parameter> {
 			return (T)Parameter.from(this.asItemStack(ctx));
 		} else if ( type.equals(SpellParameter.class) ) {
 			return (T)Parameter.from(this.asSpell(ctx));
+		} else if ( type.equals(MaterialParameter.class) ) {
+			return (T)Parameter.from(this.asMaterial(ctx));
 		}
 		
 		return null;
@@ -92,6 +96,7 @@ public abstract class Parameter implements Iterable<Parameter> {
 	public static Parameter from(boolean b)		{ return new IntegerParameter(b ? 1 : 0); }
 	public static Parameter from(Delegate d)	{ return d == null ? null : new DelegateParameter(d); }
 	public static Parameter from(Block b)	    { return b == null ? null : new BlockParameter(b); }
+	public static Parameter from(Material m)	{ return m == null ? null : new MaterialParameter(m); }
 	
 	public static Parameter createList(Parameter[] list) {
 		return createList(list, 0, list.length - 1);

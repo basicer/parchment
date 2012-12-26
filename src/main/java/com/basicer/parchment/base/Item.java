@@ -37,10 +37,12 @@ public class Item extends Spell implements Affectable<ItemParameter> {
 		
 		if ( op.equals("name") ) {
 			if ( args.size() > 0 ) {
-				m.setDisplayName(getArgOrFizzle(ctx, 0, StringParameter.class).toString());
+				m.setDisplayName(getArgOrFizzle(ctx, 0, StringParameter.class).asString());
 				itm.setItemMeta(m);
 			}
-			return Parameter.from(m.getDisplayName());
+			String name = m.getDisplayName();
+			if ( name == null ) return null;
+			return Parameter.from(name);
 		} else if ( op.equals("amount") || op.equals("ammount") || op.equals("amt") ) {
 			if ( args.size() > 0 ) {
 				itm.setAmount(getArgOrFizzle(ctx, 0, IntegerParameter.class).asInteger());

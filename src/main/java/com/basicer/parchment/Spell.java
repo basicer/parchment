@@ -24,6 +24,9 @@ public abstract class Spell extends TCLCommand {
 			if ( this.canAffect(PlayerParameter.class) ) {
 				System.out.println(this.getClass().getName() + " => Self");
 				return DefaultTargetType.Self;
+			} else if ( this.canAffect(ItemParameter.class) ) {
+				System.out.println(this.getClass().getName() + " => Self");
+				return DefaultTargetType.Self;
 			}
 			System.out.println(this.getClass().getName() + " => None");
 			return DefaultTargetType.None;

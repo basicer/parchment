@@ -6,11 +6,9 @@ import com.basicer.parchment.Affectable;
 import com.basicer.parchment.Spell;
 import com.basicer.parchment.Context;
 import com.basicer.parchment.Spell.DefaultTargetType;
-import com.basicer.parchment.TCLArguments;
 import com.basicer.parchment.parameters.*;
 import com.mysql.jdbc.log.Log;
 
-@TCLArguments("amount")
 public class Heal extends Spell implements Affectable<PlayerParameter> {
 	
 	@Override
