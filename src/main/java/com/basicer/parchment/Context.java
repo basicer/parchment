@@ -157,7 +157,12 @@ public class Context {
 	
 	public void upvar(int level, String var) {
 		Context ctx = up(level);
-		setRaw(var, ctx.getRaw(var));
+		ParameterPtr p = ctx.getRaw(var);
+		if ( p == null ) {
+			p = new ParameterPtr();
+			ctx.setRaw(var, p);
+		}
+		setRaw(var, p);
 	}
 	
 	public Parameter resolve(String var) {

@@ -5,8 +5,10 @@ import java.util.*;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.block.*;
 
 import com.basicer.parchment.Context;
+
 
 public class ListParameter extends Parameter {
 
@@ -37,6 +39,14 @@ public class ListParameter extends Parameter {
 		Parameter p = self.get(0);
 		if ( p == null ) return null;
 		return p.asPlayer();
+	}
+	
+	@Override
+	public Block asBlock(Context ctx) {
+		if ( self.size() != 1 ) return null;
+		Parameter p = self.get(0);
+		if ( p == null ) return null;
+		return p.asBlock();
 	}
 	
 	@Override

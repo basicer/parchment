@@ -19,7 +19,7 @@ public abstract class Spell extends TCLCommand {
 	
 	public DefaultTargetType getDefaultTargetType(Context ctx) { 
 		String source = ctx.getSource();
-		if ( source == null || source.equals("command") ) {
+		if ( source == null || source.equals("command") || true ) {
 			//TODO: Caster might not be player, so this doesnt make much sense.
 			if ( this.canAffect(PlayerParameter.class) ) {
 				System.out.println(this.getClass().getName() + " => Self");
@@ -27,6 +27,9 @@ public abstract class Spell extends TCLCommand {
 			} else if ( this.canAffect(ItemParameter.class) ) {
 				System.out.println(this.getClass().getName() + " => Self");
 				return DefaultTargetType.Self;
+			} else if ( this.canAffect(BlockParameter.class) ) {
+				System.out.println(this.getClass().getName() + " => TargetBlock");
+				return DefaultTargetType.TargetBlock;
 			}
 			System.out.println(this.getClass().getName() + " => None");
 			return DefaultTargetType.None;
@@ -100,7 +103,9 @@ public abstract class Spell extends TCLCommand {
 
 		}
 		
-		return Parameter.createList(out.toArray(new Parameter[0]));
+		if ( out.size() == 0 ) return null;
+		else if ( out.size() == 1 ) return out.get(0);
+		else return Parameter.createList(out.toArray(new Parameter[0]));
 		
 	}
 	

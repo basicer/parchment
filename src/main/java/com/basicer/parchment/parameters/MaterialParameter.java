@@ -15,4 +15,7 @@ public class MaterialParameter extends Parameter {
 	
 	@Override
 	public Integer asInteger(Context ctx) { return self.getId(); }
+
+	@Override
+	public Material asMaterial(Context ctx) { return self; }
 }

@@ -2,6 +2,7 @@ package com.basicer.parchment.base;
 
 import java.util.ArrayList;
 
+import org.bukkit.Material;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -13,6 +14,7 @@ import com.basicer.parchment.Spell.DefaultTargetType;
 import com.basicer.parchment.parameters.DoubleParameter;
 import com.basicer.parchment.parameters.IntegerParameter;
 import com.basicer.parchment.parameters.ItemParameter;
+import com.basicer.parchment.parameters.MaterialParameter;
 import com.basicer.parchment.parameters.Parameter;
 import com.basicer.parchment.parameters.PlayerParameter;
 import com.basicer.parchment.parameters.StringParameter;
@@ -59,7 +61,15 @@ public class Item extends Spell implements Affectable<ItemParameter> {
 		} else if ( op.equals("repair") || op.equals("fix") ) {
 			itm.setDurability((short)0);
 			return Parameter.from(0);
+		} else if ( op.equals("material") || op.equals("type") ) {
+			Material old = itm.getType();
+			if ( args.size() > 0 ) {
+				Material now = getArgOrFizzle(ctx, 0, MaterialParameter.class).asMaterial();
+				itm.setType(now);
+			}
+			return Parameter.from(itm.getType());
 		}
+		
 		
 		
 		fizzle("Invalid operation " + op);

@@ -38,8 +38,10 @@ public class SpellFactory {
 		addBuiltinCommand(Color.class);
 		addBuiltinCommand(On.class);
 		addBuiltinCommand(Upvar.class);
+		addBuiltinCommand(Expand.class);
 		
 		addBuiltinSpell(Item.class);
+		addBuiltinSpell(Block.class);
 		addBuiltinSpell(Heal.class);
 		addBuiltinSpell(Shoot.class);
 		

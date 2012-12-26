@@ -38,7 +38,7 @@ public class StringParameter extends Parameter {
 	
 	@Override
 	public Material asMaterial(Context ctx) {
-		Material m = Material.valueOf(self);
+		Material m = Material.matchMaterial(self);
 		if ( m == null ) return null;
 		return m;
 	}

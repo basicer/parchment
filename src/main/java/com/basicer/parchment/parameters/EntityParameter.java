@@ -16,7 +16,7 @@ public class EntityParameter extends Parameter {
 	}
 	
 	@Override
-	public Location asLocation() {
+	public Location asLocation(Context ctx, SelectionMode mode) {
 		return self.getLocation();
 	}
 

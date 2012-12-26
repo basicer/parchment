@@ -21,8 +21,8 @@ public abstract class Parameter implements Iterable<Parameter> {
 		public Parameter invoke();
 	}
 	
-	public Location asLocation() { return asLocation(SelectionMode.DEFAULT); }
-	public Location asLocation(SelectionMode mode) { return null; }
+	public final Location asLocation() { return asLocation(null, SelectionMode.DEFAULT); }
+	public final Location asLocation(SelectionMode mode) { return asLocation(null, mode); }
 	
 	public final LivingEntity asLivingEntity() { return asLivingEntity(null); }
 	public final Entity asEntity() 			{ return asEntity(null); }
@@ -37,7 +37,7 @@ public abstract class Parameter implements Iterable<Parameter> {
 	public final Spell asSpell() 			{ return asSpell(null); }
 	public final Block asBlock() 			{ return asBlock(null); }
 	public final Material asMaterial() 		{ return asMaterial(null); }
-	
+		
 	public LivingEntity asLivingEntity(Context ctx) { return null; }
 	public Entity asEntity(Context ctx) 		{ return null; }
 	public Player asPlayer(Context ctx) 		{ return null; }
@@ -51,12 +51,15 @@ public abstract class Parameter implements Iterable<Parameter> {
 	public Spell asSpell(Context ctx) 			{ return null; }
 	public Block asBlock(Context ctx) 			{ return null; }
 	public Material asMaterial(Context ctx)		{ return null; }
+	public Location asLocation(Context ctx, SelectionMode mode)	{ return null; }
 	
 	public <T extends Parameter> T cast(Class<T> type) {
 		return cast(type, null);
 	}
 	
 	public <T extends Parameter> T cast(Class<T> type, Context ctx) {
+		if ( type.isInstance(this) ) return (T) this;
+		
 		if ( type.equals(EntityParameter.class) ) {
 			return (T)Parameter.from(this.asEntity(ctx));
 		} else if ( type.equals(PlayerParameter.class) ) {
