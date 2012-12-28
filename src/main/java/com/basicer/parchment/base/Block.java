@@ -26,7 +26,7 @@ public class Block extends Spell {
 
 
 	@Override
-	public String[] getArguments() { return new String[] { "operation", "args" }; }
+	public String[] getArguments() { return new String[] { "operation?", "args" }; }
 	
 	public Parameter affect(BlockParameter target, Context ctx) {
 		org.bukkit.block.Block block = target.asBlock();
