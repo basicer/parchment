@@ -27,7 +27,7 @@ public class SpellFactory {
 		addBuiltinCommand(SCommand.class);
 		addBuiltinCommand(PCommand.class);
 		addBuiltinCommand(Color.class);
-		addBuiltinCommand(On.class);
+		addBuiltinCommand(Bind.class);
 		addBuiltinCommand(Upvar.class);
 		addBuiltinCommand(Expand.class);
 		

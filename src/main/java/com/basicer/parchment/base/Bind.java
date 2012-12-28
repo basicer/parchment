@@ -7,10 +7,10 @@ import com.basicer.parchment.TCLCommand;
 import com.basicer.parchment.parameters.Parameter;
 import com.basicer.parchment.parameters.SpellParameter;
 
-public class On extends TCLCommand {
+public class Bind extends TCLCommand {
 
 	@Override
-	public String[] getArguments() { return new String[] { "trigger", "code" }; }
+	public String[] getArguments() { return new String[] { "trigger", "procedure" }; }
 	
 	@Override
 	public Parameter execute(Context ctx) {
@@ -24,7 +24,7 @@ public class On extends TCLCommand {
 		if ( !( s instanceof ScriptedSpell )) return Parameter.from(false);
 
 		ScriptedSpell ss = (ScriptedSpell) s;
-		ss.setTrigger(ctx.get("trigger").asString(), ctx.get("code").asString());
+		ss.setTrigger(ctx.get("trigger").asString(), ctx.get("procedure").asString());
 		
 		return Parameter.from(true);
 		

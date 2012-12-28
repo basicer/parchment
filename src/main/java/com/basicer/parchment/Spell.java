@@ -129,28 +129,31 @@ public abstract class Spell extends TCLCommand {
 	}
 	
 	public Parameter cast(Context ctx) {
-		List<Class<? extends Parameter>> list = getAffectors();
+		return Spell.defaultCastBehavior(this, ctx);
+	}
 		
-		Parameter targets = resolveTarget(ctx);
+	protected static Parameter defaultCastBehavior(Spell s, Context ctx) {
+		List<Class<? extends Parameter>> list = s.getAffectors();
+		
+		Parameter targets = s.resolveTarget(ctx);
 		ArrayList<Parameter> out = new ArrayList<Parameter>();
-		if ( targets == null ) fizzle();
+		if ( targets == null ) s.fizzle();
 		ParameterPtr result;
 		targetloop:
 		for ( Parameter t : targets ) {
 			for ( Class<? extends Parameter> c : list ) {
-				result = this.tryAffect(c, t, ctx);
+				result = s.tryAffect(c, t, ctx);
 				if ( result != null ) {
 					out.add(result.val);
 					continue targetloop;
 				}
-				
 			}
 			
 			for ( Class<? extends Parameter> c : list ) {
 				Parameter casted = t.cast(c, ctx);
 				ctx.sendDebugMessage(c.getName() + "?" + (casted == null ? "Null" : "Pass"));
 				if ( casted == null ) continue;
-				result = this.tryAffect(c, casted, ctx);
+				result = s.tryAffect(c, casted, ctx);
 				if ( result != null ) {
 					out.add(result.val);
 					continue targetloop;

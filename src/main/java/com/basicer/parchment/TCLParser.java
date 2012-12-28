@@ -69,7 +69,7 @@ public class TCLParser {
 			if (n < 0)
 				break;
 			char c = (char) n;
-			if (Character.isLetterOrDigit(c) || c == '_')
+			if (Character.isLetterOrDigit(c) || c == '_' || c == ':' )
 				b.append(c);
 			else {
 				s.unread(n);

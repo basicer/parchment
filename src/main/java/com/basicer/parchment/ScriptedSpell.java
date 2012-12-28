@@ -1,6 +1,7 @@
 package com.basicer.parchment;
 
 import java.io.PushbackReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.basicer.parchment.Spell.DefaultTargetType;
@@ -55,7 +56,7 @@ public class ScriptedSpell extends Spell {
 	
 	@Override
 	public Parameter cast(final Context ctx) {
-		String script = triggers.get("cast");
+		String name = triggers.get("cast");
 		final Spell closure_s = this;
 		
 		DefaultTargetType tt = getDefaultTargetType(ctx);
@@ -66,18 +67,24 @@ public class ScriptedSpell extends Spell {
 		ctx.put("super", Parameter.from(new TCLCommand() {
 			@Override
 			public Parameter execute(Context ctx) {
-				// TODO Auto-generated method stub
-				return null;
+				return Spell.defaultCastBehavior(closure_s, ctx);
 			}
 		}));
-		if ( script != null ) {
-			ctx.sendDebugMessage("EVAL:" + script);
-			Parameter r = TCLParser.evaluate(script, ctx);
+		if ( name != null ) {
+			TCLCommand proc = ctx.getCommand(name);
+			ArrayList<Parameter> argz = ctx.getArgs();
+			Parameter[] up = new Parameter[argz.size() + 1];
+			up[0] = Parameter.from(name);
+			for ( int i = 0; i < argz.size(); ++i) up[i+1] = argz.get(i);
+				
+			Context ctx2 = proc.bindContext(up, ctx.up(1));
+			return proc.execute(ctx2);
+			
+			
 		} else {
-			super.cast(ctx);
+			return super.cast(ctx);
 		}
 		
-		return null;
 	}
 
 	
