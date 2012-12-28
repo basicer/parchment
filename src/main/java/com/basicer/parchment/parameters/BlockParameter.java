@@ -4,7 +4,6 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 
 import com.basicer.parchment.Context;
-import com.basicer.parchment.parameters.Parameter.SelectionMode;
 
 public class BlockParameter extends Parameter {
 	private Block self;

@@ -114,7 +114,7 @@ public class TCLParser {
 
 	public static Parameter evaluate(Parameter[] pargs, Context ctx) {
 		String name = pargs[0].asString();
-		TCLCommand s = SpellFactory.get(name);
+		TCLCommand s = ctx.getCommand(name);
 		if ( s == null ) throw new Error("No such command: " + name);
 		Context c2 = s.bindContext(pargs, ctx);
 		return s.execute(c2);

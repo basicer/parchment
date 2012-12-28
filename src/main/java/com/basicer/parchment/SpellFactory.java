@@ -9,25 +9,16 @@ import com.basicer.parchment.tcl.*;
 
 public class SpellFactory {
 	
-	private static SpellFactory _instance;
-	public static SpellFactory instance() {
-		if ( _instance == null ) {
-			_instance = new SpellFactory();
-			_instance.reset();
-		}
-		return _instance;
-	}
-	
-	public static TCLCommand get(String name) {
-		return instance().commands.get(name.toLowerCase());
+	public TCLCommand get(String name) {
+		return commands.get(name.toLowerCase());
 	}
 	
 	Dictionary<String, TCLCommand> commands;
-	private SpellFactory() {
+	public SpellFactory() {
 		commands = new Hashtable<String,TCLCommand>();
 	}
 	
-	public void reset() {
+	public void load() {
 		
 		
 		addBuiltinCommand(PutS.class);
@@ -39,6 +30,10 @@ public class SpellFactory {
 		addBuiltinCommand(On.class);
 		addBuiltinCommand(Upvar.class);
 		addBuiltinCommand(Expand.class);
+		
+		addBuiltinCommand(Proc.class);
+		addBuiltinCommand(Expr.class);
+		addBuiltinCommand(If.class);
 		
 		addBuiltinSpell(Item.class);
 		addBuiltinSpell(Block.class);

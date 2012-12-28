@@ -32,6 +32,7 @@ public class StringParameter extends Parameter {
 		if ( ctx == null ) return null;
 		Server s = ctx.getServer();
 		if ( s == null ) return null;
+		System.out.println("Server s looks for " + self);
 		return s.getPlayer(self);
 		
 	}

@@ -1,6 +1,8 @@
 package com.basicer.parchment;
 
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
@@ -16,6 +18,11 @@ import com.basicer.parchment.parameters.*;
 public abstract class Spell extends TCLCommand {
 	
 	public enum DefaultTargetType { None, Self, TargetBlock };
+	public enum FirstParamaterTargetType { Never, ExactMatch, FuzzyMatch };
+	
+	public FirstParamaterTargetType getFirstParamaterTargetType(Context ctx) {
+		return FirstParamaterTargetType.ExactMatch;
+	}
 	
 	public DefaultTargetType getDefaultTargetType(Context ctx) { 
 		String source = ctx.getSource();
@@ -49,7 +56,54 @@ public abstract class Spell extends TCLCommand {
 	@Override
 	public Context bindContext(Parameter[] params, Context ctx) {
 		Context spellstatic = ctx.createBoundSubContext(spellStatic);
-		
+		if ( params.length > 1 ) {
+			Parameter test = params[1];
+			if ( test instanceof ListParameter) {
+				if ( test.getHomogeniousType() != null ) {
+					test = ((ListParameter)test).get(0);
+					System.out.println("Casted list type");
+				}
+			}
+			if ( test != null ) {
+				switch ( getFirstParamaterTargetType(ctx) ) {
+					case Never:
+						test = null;
+						break;
+					case ExactMatch:
+						if ( !this.canAffect(test.getClass()) ) {
+							test = null;
+						}
+						break;
+					case FuzzyMatch:
+						List<Class<? extends Parameter>> list = getAffectors();
+						boolean match = false;
+						for ( Class<? extends Parameter> c : list ) {
+							if ( test.cast(c, ctx) != null ) {
+								match = true;
+								break;
+							} else {
+								System.out.println("FAIL MATCH " + c.getSimpleName() + " to " + test.getClass().getSimpleName());
+							}
+						}
+						
+						if ( !match ) test = null;
+						break;
+						
+				}
+				
+				if ( test != null ) {
+					System.out.println("Casting first param to target for " + this.getClass().getSimpleName());
+					Parameter[] nparams = new Parameter[params.length - 1];
+					System.out.println("C " + params.length);
+					System.out.println("X " + nparams.length);
+					nparams[0] = params[0];
+					System.arraycopy(params, 2, nparams, 1, nparams.length - 1);
+					ctx.setTarget(params[1]);
+					params = nparams;
+					
+				}
+			}
+		}
 		// TODO Auto-generated method stub
 		return super.bindContext(params, spellstatic);
 	}
@@ -63,15 +117,19 @@ public abstract class Spell extends TCLCommand {
 		}
 	}
 	
-	public Parameter cast(Context ctx) {
+	private List<Class<? extends Parameter>> getAffectors() {
 		List<Class<? extends Parameter>> list = new ArrayList<Class<? extends Parameter>>();
-		for ( Type c : this.getClass().getGenericInterfaces() ) {
-			ParameterizedType pt = (ParameterizedType) c;
-			Class base = (Class)pt.getRawType();
-			Type[] tx = pt.getActualTypeArguments();
-			if ( base != Affectable.class ) continue;
-			list.add((Class<? extends Parameter>)tx[0]);
- 		}
+		for ( Method m : this.getClass().getMethods() ) {
+			if ( m.getName() != "affect" ) continue;
+			Class[] types = m.getParameterTypes();
+			list.add(types[0]);
+		}
+		
+		return list;
+	}
+	
+	public Parameter cast(Context ctx) {
+		List<Class<? extends Parameter>> list = getAffectors();
 		
 		Parameter targets = resolveTarget(ctx);
 		ArrayList<Parameter> out = new ArrayList<Parameter>();
@@ -79,7 +137,6 @@ public abstract class Spell extends TCLCommand {
 		ParameterPtr result;
 		targetloop:
 		for ( Parameter t : targets ) {
-			ctx.sendDebugMessage("TARGET> " + t.toString());
 			for ( Class<? extends Parameter> c : list ) {
 				result = this.tryAffect(c, t, ctx);
 				if ( result != null ) {
@@ -163,25 +220,42 @@ public abstract class Spell extends TCLCommand {
 	}
 	
 	private boolean canAffect(Class<? extends Parameter> type) {
-		for ( Type c : this.getClass().getGenericInterfaces() ) {
-			ParameterizedType pt = (ParameterizedType) c;
-			Class base = (Class)pt.getRawType();
-			Type[] tx = pt.getActualTypeArguments();
-			if ( base != Affectable.class ) continue;
-			if ( type == tx[0] ) return true;
- 		}
-		return false;
+		return getAffectors().contains(type);
 	}
 
 	
 	private <T extends Parameter> ParameterPtr tryAffect(Class<T> type, Parameter t, Context ctx) {
 		if ( !type.isInstance(t) ) return null;
 		if ( !this.canAffect(type) ) return null;
-		T x = (T) t;
-		if ( this instanceof Affectable<?> ) {
-			Parameter out = ((Affectable<T>) this).affect(x, ctx);
-			return new ParameterPtr(out);
+		Class[] types = new Class[] { type, Context.class };
+		try {
+			System.out.println("INVOKE " + t.getClass() + " bread inside " + this.getClass().getSimpleName());
+			Method m = this.getClass().getMethod("affect", types);
+			Parameter p = (Parameter) m.invoke(this, t, ctx);
+			ParameterPtr o = new ParameterPtr();
+			o.val = p;
+			return o;
+		} catch (NoSuchMethodException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			if ( e.getTargetException() instanceof RuntimeException )
+				throw (RuntimeException) e.getTargetException();
+			if ( e.getTargetException() instanceof Error )
+				throw (Error)e.getTargetException();
+			
+			e.printStackTrace();
 		}
+		
 		
 		return null;
 	}

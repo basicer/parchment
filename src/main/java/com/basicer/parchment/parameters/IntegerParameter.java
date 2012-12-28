@@ -29,7 +29,7 @@ public class IntegerParameter extends Parameter {
 	
 	@Override
 	public boolean asBoolean(Context ctx) {
-		return ( self == 0 );
+		return ( self != 0 );
 	}
 	
 	@Override

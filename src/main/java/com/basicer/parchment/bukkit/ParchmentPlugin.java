@@ -52,7 +52,8 @@ import net.minecraft.server.*;
 public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessageListener {
 
 	ProtocolManager	manager;
-
+	SpellFactory spellfactory;
+	
 	public void onDisable() {
 		Bukkit.getMessenger().unregisterIncomingPluginChannel(this);
 		getLogger().info("Framework Disabled");
@@ -64,7 +65,8 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 		PluginManager pm = this.getServer().getPluginManager();
 		pm.registerEvents(this, this);
 		getLogger().info("Framework Enabled");
-
+		spellfactory = new SpellFactory();
+		
 		if (pm.getPlugin("ProtocolLib") != null) {
 			manager = ProtocolLibrary.getProtocolManager();
 		}
@@ -74,8 +76,8 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 		File base = this.getDataFolder();
 		File scripts = findDirectory(base, "spells");
 		if ( scripts == null ) return;
-		SpellFactory f = SpellFactory.instance();
-		f.reset();
+		
+		spellfactory.load();
 		for ( File s : scripts.listFiles() ) {
 			if ( s.isDirectory() ) continue;
 			if ( !s.canRead() ) continue;
@@ -85,8 +87,8 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 				PushbackReader reader = new PushbackReader(
 						new InputStreamReader(new FileInputStream(s))
 				);
-				f.addCustomSpell(sname, new ScriptedSpell(reader));
-				this.getLogger().info("Loaded " + sname);
+				spellfactory.addCustomSpell(sname, new ScriptedSpell(reader, spellfactory));
+				this.getLogger().info("Loaded " + sname); 
 			} catch (FileNotFoundException e) {
 				this.getLogger().warning("Couldnt load " + sname);
 				
@@ -140,6 +142,7 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 		Context ctx = new Context();
 		if (sender instanceof Player) {
 			Player p = (Player) sender;
+			ctx.setSpellFactory(spellfactory);
 			ctx.setCaster(Parameter.from(p));
 			ctx.setWorld(Parameter.from(p.getWorld()));
 			ctx.setServer(Parameter.from(p.getServer()));
@@ -197,7 +200,6 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 			//p.sendMessage("MATERIAL IS " + holding.getType().toString());
 			return;
 		}
-		p.sendMessage("Clicky click " + e.getAction().toString());
 		BookMeta b = (BookMeta)holding.getItemMeta();
 
 		if (e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK) {
@@ -243,12 +245,13 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 			
 			// e.getClickedBlock().breakNaturally(e.getPlayer().getItemInHand());
 			Context ctx = new Context();
+			ctx.setSpellFactory(spellfactory);
 			ctx.setCaster(Parameter.from(p));
 			ctx.setWorld(Parameter.from(p.getWorld()));
 			ctx.setServer(Parameter.from(p.getServer()));
 			ctx.setSource("wand");
 			TCLParser.evaluate(action, ctx);
-
+			e.setCancelled(true);
 		} 
 		
 	}

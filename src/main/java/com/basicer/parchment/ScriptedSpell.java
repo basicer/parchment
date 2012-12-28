@@ -24,21 +24,25 @@ public class ScriptedSpell extends Spell {
 	}
 
 
-	public ScriptedSpell(String source) {
+	public ScriptedSpell(String source, SpellFactory f) {
 		super();
 		triggers = new HashMap<String, String>();
 		affects = new HashMap<Class<? extends Parameter>, String>();
 		spellStatic.put("this", Parameter.from(this));
+		spellStatic.setSpellFactory(f);
 		TCLParser.evaluate(source, this.spellStatic);
+		spellStatic.setSpellFactory(null);
 	}
 
 
-	public ScriptedSpell(PushbackReader source) {
+	public ScriptedSpell(PushbackReader source, SpellFactory f) {
 		super();
 		triggers = new HashMap<String, String>();
 		affects = new HashMap<Class<? extends Parameter>, String>();
 		spellStatic.put("this", Parameter.from(this));
+		spellStatic.setSpellFactory(f);
 		TCLParser.evaluate(source, this.spellStatic);
+		spellStatic.setSpellFactory(null);
 	}
 
 	public void setTrigger(String name, String source) {
@@ -59,8 +63,10 @@ public class ScriptedSpell extends Spell {
 			ctx.put("target", resolveTarget(ctx));
 		}
 		
-		ctx.put("super", Parameter.from(new Parameter.Delegate() {
-			public Parameter invoke() {
+		ctx.put("super", Parameter.from(new TCLCommand() {
+			@Override
+			public Parameter execute(Context ctx) {
+				// TODO Auto-generated method stub
 				return null;
 			}
 		}));

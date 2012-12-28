@@ -17,6 +17,20 @@ public class ListParameter extends Parameter {
 		this.self = self;
 	}
 	
+	public Class<? extends Parameter> getHomogeniousType() {
+		Class<? extends Parameter> out = null;
+		for ( Parameter p : self ) {
+			Class<? extends Parameter> x = p.getClass();
+			if ( out == null ) out = x;
+			else if ( out.equals(x) ) continue;
+			else {
+				out = null;
+				break;
+			}
+		}
+		return out;
+	}
+	
 	@Override
 	public LivingEntity asLivingEntity(Context ctx) {
 		if ( self.size() != 1 ) return null;
@@ -79,6 +93,10 @@ public class ListParameter extends Parameter {
 	
 	public ArrayList<Parameter> asArrayList() {
 		return new ArrayList<Parameter>(self);
+	}
+
+	public Parameter get(int i) {
+		return self.get(i);
 	}
 	
 

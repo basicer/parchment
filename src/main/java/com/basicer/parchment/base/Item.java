@@ -7,7 +7,6 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import com.basicer.parchment.Affectable;
 import com.basicer.parchment.Context;
 import com.basicer.parchment.Spell;
 import com.basicer.parchment.Spell.DefaultTargetType;
@@ -19,7 +18,7 @@ import com.basicer.parchment.parameters.Parameter;
 import com.basicer.parchment.parameters.PlayerParameter;
 import com.basicer.parchment.parameters.StringParameter;
 
-public class Item extends Spell implements Affectable<ItemParameter> {
+public class Item extends Spell  {
 
 
 	@Override

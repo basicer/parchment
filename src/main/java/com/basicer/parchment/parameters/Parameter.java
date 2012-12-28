@@ -11,16 +11,14 @@ import org.bukkit.inventory.ItemStack;
 
 import com.basicer.parchment.Context;
 import com.basicer.parchment.Spell;
+import com.basicer.parchment.TCLCommand;
 
 
 public abstract class Parameter implements Iterable<Parameter> {
 
 	public enum SelectionMode { DEFAULT, HIT, LOOKING, STANDING };
 	
-	public interface Delegate {
-		public Parameter invoke();
-	}
-	
+
 	public final Location asLocation() { return asLocation(null, SelectionMode.DEFAULT); }
 	public final Location asLocation(SelectionMode mode) { return asLocation(null, mode); }
 	
@@ -80,11 +78,16 @@ public abstract class Parameter implements Iterable<Parameter> {
 			return (T)Parameter.from(this.asSpell(ctx));
 		} else if ( type.equals(MaterialParameter.class) ) {
 			return (T)Parameter.from(this.asMaterial(ctx));
+		} else if ( type.equals(LocationParameter.class) ) {
+			return (T)Parameter.from(this.asLocation(ctx, SelectionMode.DEFAULT));
 		}
 		
 		return null;
 	}
 
+	public Class<? extends Parameter> getHomogeniousType() {
+		return this.getClass();
+	}
 	
 	// Factory methods
 	public static Parameter from(Player p) 		{ return p == null ? null : new PlayerParameter(p); }
@@ -97,9 +100,10 @@ public abstract class Parameter implements Iterable<Parameter> {
 	public static Parameter from(ItemStack i) 	{ return i == null ? null : new ItemParameter(i); }
 	public static Parameter from(Spell s) 		{ return s == null ? null : new SpellParameter(s); }
 	public static Parameter from(boolean b)		{ return new IntegerParameter(b ? 1 : 0); }
-	public static Parameter from(Delegate d)	{ return d == null ? null : new DelegateParameter(d); }
+	public static Parameter from(TCLCommand d)	{ return d == null ? null : new DelegateParameter(d); }
 	public static Parameter from(Block b)	    { return b == null ? null : new BlockParameter(b); }
 	public static Parameter from(Material m)	{ return m == null ? null : new MaterialParameter(m); }
+	public static Parameter from(Location l)	{ return l == null ? null : new LocationParameter(l); }
 	
 	public static Parameter createList(Parameter[] list) {
 		return createList(list, 0, list.length - 1);
@@ -151,5 +155,13 @@ public abstract class Parameter implements Iterable<Parameter> {
 	}
 
 
+	public boolean equals(Parameter other) {
+		String a = this.asString();
+		String b = other.asString();
+		
+		if ( a == null ) return false;
+		if ( b == null ) return false;
+		return a.equals(b);
+	}
 	
 }

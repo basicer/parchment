@@ -14,14 +14,19 @@ public class Context {
 	
 	private Context parent;
 	
+	private SpellFactory spellfactory;
 	private Map<String, ParameterPtr> variables;
+	private Map<String, TCLCommand> procs;
 	
 	public Context() { 
 		variables = new HashMap<String, ParameterPtr>();
+		procs = new HashMap<String, TCLCommand>();
 		
 	}
 	
 	private Context(Context parent) {
+		variables = new HashMap<String, ParameterPtr>();
+		procs = new HashMap<String, TCLCommand>();
 		this.parent = parent;
 	}
 	
@@ -66,6 +71,26 @@ public class Context {
 	public void pop() {
 		if ( parent == null ) throw new IllegalStateException("Can't pop base context.");
 		this.variables = parent.variables;
+	}
+	
+		
+	public SpellFactory getSpellFactory() {
+		if ( spellfactory != null ) return spellfactory;
+		if ( parent != null ) return parent.getSpellFactory();
+		return null;
+		
+	}
+	
+	public TCLCommand getCommand(String name) {
+		if ( procs.containsKey(name)) return procs.get(name);
+		if ( spellfactory != null ) return spellfactory.get(name);
+		if ( parent != null ) return parent.getCommand(name);
+		return null;
+		
+	}
+	
+	public void setSpellFactory(SpellFactory val) {
+		spellfactory = val;
 	}
 	
 	public Parameter getCaster() {
@@ -143,6 +168,7 @@ public class Context {
 		Context ctx = new Context();
 		ctx.variables = bound.variables;
 		ctx.parent = this;
+		ctx.procs = bound.procs;
 		return ctx;
 	}
 	
@@ -200,6 +226,11 @@ public class Context {
 
 		}
 		public Parameter val;
+	}
+
+	public void setCommand(String name, TCLCommand proc) {
+		procs.put(name, proc);
+		
 	}
 
 

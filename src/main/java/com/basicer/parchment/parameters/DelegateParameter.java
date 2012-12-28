@@ -1,15 +1,18 @@
 package com.basicer.parchment.parameters;
 
+import com.basicer.parchment.Context;
+import com.basicer.parchment.TCLCommand;
+
 public class DelegateParameter extends Parameter {
 
 
-	private Delegate self;
+	private TCLCommand self;
 	
-	DelegateParameter(Delegate self) {
+	DelegateParameter(TCLCommand self) {
 		this.self = self;
 	}
 	
-	public Parameter invoke() {
-		return self.invoke();
+	public Parameter evaluate(Context ctx) {
+		return self.execute(ctx);
 	}
 }
