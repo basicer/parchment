@@ -42,10 +42,6 @@ public class Block extends Spell {
 		return action(block, ctx);
  	}
 	
-	@Override
-	protected boolean getShouldCombindDuplicateListOutput() {
-		return true;
-	}
 
 	protected Parameter action(org.bukkit.block.Block block, Context ctx) {
 		Parameter pop = ctx.get("operation");

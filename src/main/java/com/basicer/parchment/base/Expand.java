@@ -26,6 +26,11 @@ public class Expand extends Spell {
 	public Parameter affect(BlockParameter target, Context ctx) {
 		return expand(target, ctx);
 	}
+	
+	@Override
+	protected boolean getShouldCombindDuplicateListOutput() {
+		return true;
+	}
 
 	private Parameter expand(Parameter target, Context ctx) {
 		ListParameter l = ctx.get("args").cast(ListParameter.class);

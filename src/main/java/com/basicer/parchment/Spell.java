@@ -259,7 +259,7 @@ public abstract class Spell extends TCLCommand {
 		return getAffectors().contains(type);
 	}
 	
-	protected boolean getShouldCombindDuplicateListOutput() { return true; }
+	protected boolean getShouldCombindDuplicateListOutput() { return false; }
 
 	
 	private <T extends Parameter> ParameterPtr tryAffect(Class<T> type, Parameter t, Context ctx) {
