@@ -191,7 +191,7 @@ public class TCLParser {
 						currentp = null;
 					}
 					if (c == '\\')
-						current.append(translateSlashCode(s.read()));
+						current.append(readSlashCode(s));
 					else
 						current.append(c);
 				}
@@ -209,16 +209,25 @@ public class TCLParser {
 		return out.toArray(new Parameter[0]);
 	}
 
-	private static char translateSlashCode(int i) {
+	private static String readSlashCode(PushbackReader r) throws IOException {
+		int i = r.read();
 		if (i < 1)
-			return '\\';
+			return "\\";
 		switch ((char) i) {
 		case 'n':
-			return '\n';
+			return "\n";
 		case 't':
-			return 'X';
+			return "\t";
+		case '\n':
+			r.unread(' '); //Super Hacky >.<
+			return "";
+		case '\r':
+			int x = r.read();
+			if ( x != -1 && (char)x != '\n'  ) r.unread(x);
+			r.unread(' '); //Super Hacky >.<
+			return "";
 		default:
-			return (char) i;
+			return "" + (char) i;
 		}
 	}
 

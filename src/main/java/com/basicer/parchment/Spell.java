@@ -9,6 +9,7 @@ import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
@@ -17,8 +18,10 @@ import com.basicer.parchment.parameters.*;
 
 public abstract class Spell extends TCLCommand {
 	
-	public enum DefaultTargetType { None, Self, TargetBlock };
+	public enum DefaultTargetType { None, Self, TargetBlock, TargetPlace };
 	public enum FirstParamaterTargetType { Never, ExactMatch, FuzzyMatch };
+	
+	public String getName() { return this.getClass().getSimpleName(); }
 	
 	public FirstParamaterTargetType getFirstParamaterTargetType(Context ctx) {
 		return FirstParamaterTargetType.ExactMatch;
@@ -26,6 +29,7 @@ public abstract class Spell extends TCLCommand {
 	
 	public DefaultTargetType getDefaultTargetType(Context ctx) { 
 		String source = ctx.getSource();
+		System.out.println("GDT " + this.getName());
 		if ( source == null || source.equals("command") || true ) {
 			//TODO: Caster might not be player, so this doesnt make much sense.
 			if ( this.canAffect(PlayerParameter.class) ) {
@@ -110,6 +114,9 @@ public abstract class Spell extends TCLCommand {
 
 	public Parameter execute(Context ctx) {
 		try {
+			Parameter targets = ctx.getTarget();
+			System.out.println("EXEC " + getName() + " with target " + 
+					(targets == null ? "null" : targets.toString()));
 			return this.cast(ctx);
 		} catch ( FizzleException fizzle ) {
 			ctx.sendDebugMessage("The spell fizzles: " + fizzle.getMessage());
@@ -135,7 +142,11 @@ public abstract class Spell extends TCLCommand {
 	protected static Parameter defaultCastBehavior(Spell s, Context ctx) {
 		List<Class<? extends Parameter>> list = s.getAffectors();
 		
+		System.out.println("TI " + s.getName() + " with target " + 
+				(ctx.getTarget() == null ? "null" : ctx.getTarget().toString()));
 		Parameter targets = s.resolveTarget(ctx);
+		System.out.println("TR " + s.getName() + " coming out as " + 
+				(targets == null ? "null" : targets.toString()));
 		ArrayList<Parameter> out = new ArrayList<Parameter>();
 		if ( targets == null ) s.fizzle();
 		ParameterPtr result;
@@ -206,6 +217,7 @@ public abstract class Spell extends TCLCommand {
 		Parameter t = ctx.getTarget();
 		if ( t != null ) return t;
 		LivingEntity casterp = ctx.getCaster().asLivingEntity();
+		List<Block> sight = null;
 		switch ( this.getDefaultTargetType(ctx) ) {
 			case None:
 				break;
@@ -214,7 +226,14 @@ public abstract class Spell extends TCLCommand {
 				break;
 			case TargetBlock:
 				if ( casterp == null ) return null;
-				return Parameter.from(casterp.getTargetBlock(null, 100));
+				sight = casterp.getLastTwoTargetBlocks(null, 100);
+				if ( sight.size() < 2 ) return Parameter.from(casterp.getTargetBlock(null, 100));
+				return Parameter.from(sight.get(1), sight.get(1).getFace(sight.get(0)));				
+			case TargetPlace:
+				if ( casterp == null ) return null;
+				sight = casterp.getLastTwoTargetBlocks(null, 100);
+				if ( sight.size() < 2 ) return null;
+				return Parameter.from(sight.get(0), sight.get(0).getFace(sight.get(1)));
 		}
 		
 		

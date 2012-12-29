@@ -20,7 +20,8 @@ public class ScriptedSpell extends Spell {
 		if ( s == null ) return DefaultTargetType.None;
 		System.out.println("I see you want: " + s);
 		if ( s.equals("self") ) return DefaultTargetType.Self;
-		
+		if ( s.equals("block") ) return DefaultTargetType.TargetBlock;
+		if ( s.equals("place") ) return DefaultTargetType.TargetPlace;
 		return DefaultTargetType.None;
 	}
 
@@ -60,10 +61,12 @@ public class ScriptedSpell extends Spell {
 		final Spell closure_s = this;
 		
 		DefaultTargetType tt = getDefaultTargetType(ctx);
+
+		Parameter target = null;
 		if ( tt != DefaultTargetType.None ) {
-			ctx.put("target", resolveTarget(ctx));
+			target = resolveTarget(ctx);
 		}
-		
+
 		ctx.put("super", Parameter.from(new TCLCommand() {
 			@Override
 			public Parameter execute(Context ctx) {
@@ -71,13 +74,16 @@ public class ScriptedSpell extends Spell {
 			}
 		}));
 		if ( name != null ) {
+			System.out.println("-> DELEGATE TO " + name);
 			TCLCommand proc = ctx.getCommand(name);
 			ArrayList<Parameter> argz = ctx.getArgs();
 			Parameter[] up = new Parameter[argz.size() + 1];
 			up[0] = Parameter.from(name);
 			for ( int i = 0; i < argz.size(); ++i) up[i+1] = argz.get(i);
 				
+			
 			Context ctx2 = proc.bindContext(up, ctx.up(1));
+			if ( target != null ) ctx2.setTarget(target);
 			return proc.execute(ctx2);
 			
 			

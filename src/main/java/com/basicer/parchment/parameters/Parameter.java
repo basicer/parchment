@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 
@@ -104,6 +105,11 @@ public abstract class Parameter implements Iterable<Parameter> {
 	public static Parameter from(Block b)	    { return b == null ? null : new BlockParameter(b); }
 	public static Parameter from(Material m)	{ return m == null ? null : new MaterialParameter(m); }
 	public static Parameter from(Location l)	{ return l == null ? null : new LocationParameter(l); }
+	public static Parameter from(Block block, BlockFace face) {
+		if ( block == null ) return null;
+		if ( face == null ) return from(block);
+		return new BlockParameter(block, face);
+	}
 	
 	public static Parameter createList(Parameter[] list) {
 		return createList(list, 0, list.length - 1);
@@ -163,5 +169,6 @@ public abstract class Parameter implements Iterable<Parameter> {
 		if ( b == null ) return false;
 		return a.equals(b);
 	}
+
 	
 }

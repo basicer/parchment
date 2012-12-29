@@ -58,7 +58,13 @@ public class Block extends Spell {
 				block.setType(now);
 			}
 			return Parameter.from(block.getType());
+		} else if ( op.equals("break") ) {
+			return Parameter.from(block.breakNaturally());
+		} else if ( op.equals("power") ) {
+			return Parameter.from(block.getBlockPower());
 		} 
+		
+		
 		
 		fizzle("Invalid operation " + op);
 		return null;

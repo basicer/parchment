@@ -215,7 +215,7 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 				sb.append("\n");
 			}
 			String action = sb.toString();
-			p.sendMessage(action);
+			//p.sendMessage(action);
 			/*
 			if ( action.startsWith("bridge") ) {
 				for (Block bl : p.getLineOfSight(null, 40)) {
@@ -244,13 +244,20 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 			*/
 			
 			// e.getClickedBlock().breakNaturally(e.getPlayer().getItemInHand());
+			
+			Spell s = new ScriptedSpell(new PushbackReader(new StringReader(action)), spellfactory);
+			
 			Context ctx = new Context();
 			ctx.setSpellFactory(spellfactory);
 			ctx.setCaster(Parameter.from(p));
 			ctx.setWorld(Parameter.from(p.getWorld()));
 			ctx.setServer(Parameter.from(p.getServer()));
 			ctx.setSource("wand");
-			TCLParser.evaluate(action, ctx);
+
+			Parameter[] ws = new Parameter[1];
+			ws[0] = Parameter.from("want");
+			Context ctx2 = s.bindContext(ws, ctx);
+			s.execute(ctx2);
 			e.setCancelled(true);
 		} 
 		

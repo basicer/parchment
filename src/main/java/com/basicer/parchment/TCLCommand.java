@@ -9,7 +9,6 @@ import com.basicer.parchment.parameters.Parameter;
 
 public abstract class TCLCommand {
 	
-
 	public abstract Parameter execute(Context ctx);
 	
 	public String[] getArguments() { return new String[] {"args"}; }

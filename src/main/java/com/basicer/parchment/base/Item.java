@@ -22,14 +22,14 @@ public class Item extends Spell  {
 
 
 	@Override
-	public String[] getArguments() { return new String[] { "operation", "args" }; }
+	public String[] getArguments() { return new String[] { "operation?", "args" }; }
 	
 	public Parameter affect(ItemParameter target, Context ctx) {
 		ItemStack itm = target.asItemStack();
-		
+		if ( itm == null ) fizzleTarget("Not an item.");
 		
 		ArrayList<Parameter> args = ctx.getArgs();
-		if ( itm == null ) fizzleTarget("Not an item.");
+		
 		ItemMeta m = itm.getItemMeta();
 		Parameter pop = ctx.get("operation");
 		
@@ -44,6 +44,21 @@ public class Item extends Spell  {
 			String name = m.getDisplayName();
 			if ( name == null ) return null;
 			return Parameter.from(name);
+		} else if ( op.endsWith("lore") ) {
+			if ( args.size() > 0 ) {
+				ArrayList<String> nlore = new ArrayList<String>();
+				for ( Parameter p : args ) {
+					nlore.add(p.asString());
+				}
+				m.setLore(nlore);
+				itm.setItemMeta(m);
+			}
+			ArrayList<Parameter> lout = new ArrayList<Parameter>();
+			for ( String s : m.getLore() ) {
+				lout.add(Parameter.from(s));
+			}
+			
+			return Parameter.createList(lout.toArray(new Parameter[0]));
 		} else if ( op.equals("amount") || op.equals("ammount") || op.equals("amt") ) {
 			if ( args.size() > 0 ) {
 				itm.setAmount(getArgOrFizzle(ctx, 0, IntegerParameter.class).asInteger());
