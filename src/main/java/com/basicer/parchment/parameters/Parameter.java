@@ -161,14 +161,24 @@ public abstract class Parameter implements Iterable<Parameter> {
 	}
 
 
-	public boolean equals(Parameter other) {
-		String a = this.asString();
-		String b = other.asString();
-		
-		if ( a == null ) return false;
-		if ( b == null ) return false;
-		return a.equals(b);
+	@Override
+	public boolean equals(Object oother) {
+		if ( oother instanceof Parameter ) {
+			Parameter other = (Parameter) oother;
+			String a = this.asString();
+			String b = other.asString();
+			
+			if ( a == null ) return false;
+			if ( b == null ) return false;
+			return a.equals(b);
+		} return false;
 	}
+	
+	@Override
+	public int hashCode() {
+		return this.asString().hashCode();
+	}
+	
 
 	
 }

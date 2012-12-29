@@ -16,6 +16,7 @@ public class BlockParameter extends Parameter {
 	
 	BlockParameter(Block self, BlockFace extra) {
 		this.self = self;
+		this.extra = extra;
 	}
 	
 	@Override
@@ -28,6 +29,11 @@ public class BlockParameter extends Parameter {
 	
 	@Override
 	public String asString(Context ctx) {
-		return "[Block T:" + self.getType().name() + " @ " + self.getWorld().getName() + "]";
+		Location l = self.getLocation();
+		return "[Block T:" + self.getType().name() + " @ " + self.getWorld().getName() + "/" 
+				+ l.getBlockX() + "," + l.getBlockY() + "," + l.getBlockZ() +
+				"]";
 	}
+
+	
 }

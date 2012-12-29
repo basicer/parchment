@@ -41,6 +41,11 @@ public class Block extends Spell {
 		if ( block == null ) fizzleTarget("Not an block.");
 		return action(block, ctx);
  	}
+	
+	@Override
+	protected boolean getShouldCombindDuplicateListOutput() {
+		return true;
+	}
 
 	protected Parameter action(org.bukkit.block.Block block, Context ctx) {
 		Parameter pop = ctx.get("operation");
@@ -64,8 +69,7 @@ public class Block extends Spell {
 			return Parameter.from(block.getBlockPower());
 		} 
 		
-		
-		
+			
 		fizzle("Invalid operation " + op);
 		return null;
 		

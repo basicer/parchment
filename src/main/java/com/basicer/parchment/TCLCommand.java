@@ -11,6 +11,8 @@ public abstract class TCLCommand {
 	
 	public abstract Parameter execute(Context ctx);
 	
+	public String getName() { return this.getClass().getSimpleName(); }
+	
 	public String[] getArguments() { return new String[] {"args"}; }
 	//public abstract String[] getArguments();
 	
@@ -80,7 +82,7 @@ public abstract class TCLCommand {
 		}
 		
 		if ( required > 0 ) {
-			throw new RuntimeException("Command required " + required + " more arguements");
+			throw new RuntimeException("Command " + getName() + " required " + required + " more arguements");
 		}
 		
 		if ( and_args ) put.put("args", Parameter.createList(params, ptr, params.length - 1));

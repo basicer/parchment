@@ -7,6 +7,8 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 import org.bukkit.block.Block;
@@ -21,7 +23,6 @@ public abstract class Spell extends TCLCommand {
 	public enum DefaultTargetType { None, Self, TargetBlock, TargetPlace };
 	public enum FirstParamaterTargetType { Never, ExactMatch, FuzzyMatch };
 	
-	public String getName() { return this.getClass().getSimpleName(); }
 	
 	public FirstParamaterTargetType getFirstParamaterTargetType(Context ctx) {
 		return FirstParamaterTargetType.ExactMatch;
@@ -147,35 +148,47 @@ public abstract class Spell extends TCLCommand {
 		Parameter targets = s.resolveTarget(ctx);
 		System.out.println("TR " + s.getName() + " coming out as " + 
 				(targets == null ? "null" : targets.toString()));
-		ArrayList<Parameter> out = new ArrayList<Parameter>();
+		
+		//TODO : Do we want to collapse duplicate returns by default ?
+		Collection<Parameter> out = null;
+		if ( s.getShouldCombindDuplicateListOutput() ) {
+			out = new HashSet<Parameter>();
+		} else {
+			out = new ArrayList<Parameter>();
+		}
 		if ( targets == null ) s.fizzle();
 		ParameterPtr result;
 		targetloop:
 		for ( Parameter t : targets ) {
+			ctx.sendDebugMessage("Ttype of T is " + t.getClass().getSimpleName());
 			for ( Class<? extends Parameter> c : list ) {
 				result = s.tryAffect(c, t, ctx);
-				if ( result != null ) {
-					out.add(result.val);
+				if ( result != null ) {					
+					// Combine returned lists into one large list.
+					for ( Parameter rr : result.val ) {
+						out.add(rr);
+					}				
 					continue targetloop;
 				}
 			}
 			
 			for ( Class<? extends Parameter> c : list ) {
 				Parameter casted = t.cast(c, ctx);
-				ctx.sendDebugMessage(c.getName() + "?" + (casted == null ? "Null" : "Pass"));
+				ctx.sendDebugMessage(c.getSimpleName() + "?" + (casted == null ? "Null" : "Pass"));
 				if ( casted == null ) continue;
 				result = s.tryAffect(c, casted, ctx);
 				if ( result != null ) {
-					out.add(result.val);
+					// Combine returned lists into one large list.
+					for ( Parameter rr : result.val ) {
+						out.add(rr);
+					}
 					continue targetloop;
-				}
-				
+				}	
 			}
-
 		}
 		
 		if ( out.size() == 0 ) return null;
-		else if ( out.size() == 1 ) return out.get(0);
+		else if ( out.size() == 1 ) return out.iterator().next();
 		else return Parameter.createList(out.toArray(new Parameter[0]));
 		
 	}
@@ -218,6 +231,7 @@ public abstract class Spell extends TCLCommand {
 		if ( t != null ) return t;
 		LivingEntity casterp = ctx.getCaster().asLivingEntity();
 		List<Block> sight = null;
+		int dist = 100;
 		switch ( this.getDefaultTargetType(ctx) ) {
 			case None:
 				break;
@@ -226,12 +240,12 @@ public abstract class Spell extends TCLCommand {
 				break;
 			case TargetBlock:
 				if ( casterp == null ) return null;
-				sight = casterp.getLastTwoTargetBlocks(null, 100);
-				if ( sight.size() < 2 ) return Parameter.from(casterp.getTargetBlock(null, 100));
+				sight = casterp.getLastTwoTargetBlocks(null, dist);
+				if ( sight.size() < 2 ) return Parameter.from(casterp.getTargetBlock(null, dist));
 				return Parameter.from(sight.get(1), sight.get(1).getFace(sight.get(0)));				
 			case TargetPlace:
 				if ( casterp == null ) return null;
-				sight = casterp.getLastTwoTargetBlocks(null, 100);
+				sight = casterp.getLastTwoTargetBlocks(null, dist);
 				if ( sight.size() < 2 ) return null;
 				return Parameter.from(sight.get(0), sight.get(0).getFace(sight.get(1)));
 		}
@@ -244,6 +258,8 @@ public abstract class Spell extends TCLCommand {
 	private boolean canAffect(Class<? extends Parameter> type) {
 		return getAffectors().contains(type);
 	}
+	
+	protected boolean getShouldCombindDuplicateListOutput() { return true; }
 
 	
 	private <T extends Parameter> ParameterPtr tryAffect(Class<T> type, Parameter t, Context ctx) {
@@ -251,7 +267,7 @@ public abstract class Spell extends TCLCommand {
 		if ( !this.canAffect(type) ) return null;
 		Class[] types = new Class[] { type, Context.class };
 		try {
-			System.out.println("INVOKE " + t.getClass() + " bread inside " + this.getClass().getSimpleName());
+			//System.out.println("INVOKE " + t.getClass() + " bread inside " + this.getClass().getSimpleName());
 			Method m = this.getClass().getMethod("affect", types);
 			Parameter p = (Parameter) m.invoke(this, t, ctx);
 			ParameterPtr o = new ParameterPtr();
