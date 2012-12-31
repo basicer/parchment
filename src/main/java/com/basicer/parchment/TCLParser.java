@@ -84,6 +84,20 @@ public class TCLParser {
 		readVariable(s, varb);
 		String var = varb.toString();
 		Parameter p = ctx.getRespectingGlobals(var);
+		
+		int r = s.read();
+		if ( (char)r == '(' ) {
+			StringBuilder b = new StringBuilder();
+			while (true) {
+				r = s.read();
+				if ( r < 0 || (char)r == ')' ) break;
+				b.append((char) r);
+			}
+			p = p.get(b.toString());
+		} else if ( r > 0 ) {
+			s.unread(r);
+		}
+
 		// return Parameter.from("[VAR: " + cmd.toString() + "]");
 		return p;
 	}

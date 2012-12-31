@@ -160,7 +160,11 @@ public abstract class Parameter implements Iterable<Parameter> {
 		
 	}
 
+	public Parameter get(String string) {
+		return Parameter.from("[GET: " + string + "]");
+	}
 
+	
 	@Override
 	public boolean equals(Object oother) {
 		if ( oother instanceof Parameter ) {

@@ -1,5 +1,6 @@
 package com.basicer.parchment.parameters;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.World;
@@ -35,6 +36,15 @@ public class StringParameter extends Parameter {
 		System.out.println("Server s looks for " + self);
 		return s.getPlayer(self);
 		
+	}
+	
+	@Override
+	public World asWorld(Context ctx) {
+		if ( ctx == null ) return null;
+		Server s = ctx.getServer();
+		if ( s == null ) return null;
+		
+		return Bukkit.getWorld(self);		
 	}
 	
 	@Override

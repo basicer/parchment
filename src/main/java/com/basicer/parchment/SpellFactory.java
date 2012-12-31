@@ -39,6 +39,7 @@ public class SpellFactory {
 		addBuiltinSpell(Block.class);
 		addBuiltinSpell(Heal.class);
 		addBuiltinSpell(Shoot.class);
+		addBuiltinSpell(Explode.class);
 		
 	}
 	

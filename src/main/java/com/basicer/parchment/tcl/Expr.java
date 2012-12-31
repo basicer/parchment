@@ -55,10 +55,12 @@ public class Expr extends TCLCommand {
 		System.out.println(" " + lhs.toString() + " " + op + rhs.toString());
 		
 		if ( op.equals("+") ) return Parameter.from(lhs.asDouble() + rhs.asDouble());
-		if ( op.equals("+") ) return Parameter.from(lhs.asDouble() - rhs.asDouble());
+		if ( op.equals("-") ) return Parameter.from(lhs.asDouble() - rhs.asDouble());
 		if ( op.equals("%") ) return Parameter.from(lhs.asInteger() % rhs.asInteger());
 		if ( op.equals("*") ) return Parameter.from(lhs.asDouble() * rhs.asDouble());
+		if ( op.equals("**") ) return Parameter.from(Math.pow(lhs.asDouble(),rhs.asDouble()));
 		if ( op.equals("/") ) return Parameter.from(lhs.asDouble() / rhs.asDouble());
+		
 		if ( op.equals("eq") ) return Parameter.from(lhs.equals(rhs));
 		if ( op.equals("ne") ) return Parameter.from(!lhs.equals(rhs));
 		if ( op.equals("==") ) return Parameter.from(lhs.equals(rhs));
@@ -89,7 +91,6 @@ public class Expr extends TCLCommand {
 		if ( x.equals("**") ) return 14;
 		if ( x.equals("==") || x.equals("!=") ) return 9;
 		
-		System.out.println("OP |" + x + "| XXX");
 		return 0;
 	}
 

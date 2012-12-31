@@ -95,7 +95,7 @@ public class ListParameter extends Parameter {
 		return new ArrayList<Parameter>(self);
 	}
 
-	public Parameter get(int i) {
+	public Parameter index(int i) {
 		return self.get(i);
 	}
 	

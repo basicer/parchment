@@ -65,7 +65,7 @@ public abstract class Spell extends TCLCommand {
 			Parameter test = params[1];
 			if ( test instanceof ListParameter) {
 				if ( test.getHomogeniousType() != null ) {
-					test = ((ListParameter)test).get(0);
+					test = ((ListParameter)test).index(0);
 					System.out.println("Casted list type");
 				}
 			}
@@ -165,9 +165,11 @@ public abstract class Spell extends TCLCommand {
 				result = s.tryAffect(c, t, ctx);
 				if ( result != null ) {					
 					// Combine returned lists into one large list.
-					for ( Parameter rr : result.val ) {
-						out.add(rr);
-					}				
+					if ( result.val != null ) {
+						for ( Parameter rr : result.val ) {
+							out.add(rr);
+						}				
+					}
 					continue targetloop;
 				}
 			}
