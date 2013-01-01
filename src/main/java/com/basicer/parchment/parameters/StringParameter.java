@@ -16,6 +16,9 @@ public class StringParameter extends Parameter {
 	}
 
 	@Override
+	public Class getUnderlyingType() { return String.class; }
+	
+	@Override
 	public Double asDouble(Context ctx) {
 		return Double.parseDouble(self);
 	}

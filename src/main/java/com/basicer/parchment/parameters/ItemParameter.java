@@ -14,6 +14,9 @@ public class ItemParameter extends Parameter {
 	}
 	
 	@Override
+	public Class getUnderlyingType() { return ItemStack.class; }
+	
+	@Override
 	public ItemStack asItemStack(Context ctx) { return self; }
 	
 	@Override

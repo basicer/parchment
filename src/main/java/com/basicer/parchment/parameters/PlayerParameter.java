@@ -15,6 +15,9 @@ public class PlayerParameter extends EntityParameter {
 		this.self = self;
 	}
 	
+	@SuppressWarnings("rawtypes")
+	@Override
+	public Class getUnderlyingType() { return Player.class; }
 	
 	@Override
 	public Player asPlayer(Context ctx) { return self; }

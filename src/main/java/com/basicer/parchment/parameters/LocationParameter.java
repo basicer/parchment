@@ -9,6 +9,10 @@ public class LocationParameter extends Parameter {
 	LocationParameter(Location self) {
 		this.self = self;
 	}
+	
+	@Override
+	public Class getUnderlyingType() { return Location.class; }
+	
 	@Override
 	public Location asLocation(Context ctx, SelectionMode mode) {
 		return self;

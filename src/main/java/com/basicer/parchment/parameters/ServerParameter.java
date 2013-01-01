@@ -11,5 +11,8 @@ public class ServerParameter extends Parameter {
 		self = str;
 	}
 	
+	@Override
+	public Class getUnderlyingType() { return Server.class; }
+	
 	public Server asServer(Context ctx) { return self; }
 }

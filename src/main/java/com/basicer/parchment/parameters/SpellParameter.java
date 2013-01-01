@@ -9,6 +9,9 @@ public class SpellParameter extends Parameter {
 		this.self = self;
 	}
 	
+	@Override
+	public Class getUnderlyingType() { return Spell.class; }
+	
 	public Spell asSpell(Context ctx) { return self; }
 	
 }

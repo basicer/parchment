@@ -16,6 +16,9 @@ public class EntityParameter extends Parameter {
 	}
 	
 	@Override
+	public Class getUnderlyingType() { return Entity.class; }
+	
+	@Override
 	public Location asLocation(Context ctx, SelectionMode mode) {
 		return self.getLocation();
 	}

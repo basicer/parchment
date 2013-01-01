@@ -14,6 +14,9 @@ public class WorldParameter extends Parameter {
 	}
 	
 	@Override
+	public Class getUnderlyingType() { return World.class; }
+	
+	@Override
 	public World asWorld(Context ctx) { return self; }
 
 	@Override

@@ -283,28 +283,22 @@ public abstract class Spell extends TCLCommand {
 			o.val = p;
 			return o;
 		} catch (NoSuchMethodException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		} catch (InvocationTargetException e) {
 			if ( e.getTargetException() instanceof RuntimeException )
 				throw (RuntimeException) e.getTargetException();
 			if ( e.getTargetException() instanceof Error )
 				throw (Error)e.getTargetException();
 			
-			e.printStackTrace();
+			throw new RuntimeException(e.getTargetException());
 		}
 		
-		
-		return null;
 	}
 	
 	

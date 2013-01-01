@@ -10,6 +10,7 @@ public class BlockParameter extends Parameter {
 	private Block self;
 	private BlockFace extra;
 	
+	
 	BlockParameter(Block self) {
 		this.self = self;
 	}
@@ -18,6 +19,10 @@ public class BlockParameter extends Parameter {
 		this.self = self;
 		this.extra = extra;
 	}
+	
+	@Override
+	public Class getUnderlyingType() { return Block.class; }
+
 	
 	@Override
 	public Block asBlock(Context ctx) { return self; }

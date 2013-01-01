@@ -12,6 +12,9 @@ public class IntegerParameter extends Parameter {
 	}
 
 	@Override
+	public Class getUnderlyingType() { return Integer.class; }
+	
+	@Override
 	public Double asDouble(Context ctx) {
 		return Double.valueOf(self);
 	}

@@ -10,6 +10,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import com.basicer.parchment.Context;
+import com.basicer.parchment.OperationalSpell;
 import com.basicer.parchment.Spell;
 import com.basicer.parchment.Spell.DefaultTargetType;
 import com.basicer.parchment.craftbukkit.Book;
@@ -21,97 +22,123 @@ import com.basicer.parchment.parameters.Parameter;
 import com.basicer.parchment.parameters.PlayerParameter;
 import com.basicer.parchment.parameters.StringParameter;
 
-public class Item extends Spell  {
+public class Item extends OperationalSpell<ItemParameter>  {
 
 
-	@Override
-	public String[] getArguments() { return new String[] { "operation?", "args" }; }
+	
+
+	
 	
 	public Parameter affect(ItemParameter target, Context ctx) {
-		ItemStack itm = target.asItemStack();
-		if ( itm == null ) fizzleTarget("Not an item.");
-		
-		ArrayList<Parameter> args = ctx.getArgs();
-		
-		ItemMeta m = itm.getItemMeta();
-		Parameter pop = ctx.get("operation");
-		
-		if ( pop == null ) return Parameter.from(itm);
-		String op = pop.asString(ctx);
-		
-		if ( op.equals("name") ) {
-			if ( ctx.hasArgs() ) {
-				m.setDisplayName(getArgOrFizzle(ctx, 0, StringParameter.class).asString());
-				itm.setItemMeta(m);
-			}
-			String name = m.getDisplayName();
-			if ( name == null ) return null;
-			return Parameter.from(name);
-		} else if ( op.endsWith("lore") ) {
-			if ( ctx.hasArgs() ) {
-				ArrayList<String> nlore = new ArrayList<String>();
-				for ( Parameter p : args ) {
-					nlore.add(p.asString());
-				}
-				m.setLore(nlore);
-				itm.setItemMeta(m);
-			}
-			ArrayList<Parameter> lout = new ArrayList<Parameter>();
-			for ( String s : m.getLore() ) {
-				lout.add(Parameter.from(s));
-			}
-			
-			return Parameter.createList(lout.toArray(new Parameter[0]));
-		} else if ( op.equals("amount") || op.equals("ammount") || op.equals("amt") ) {
-			return ammountOperation(itm, ctx);
-		} else if ( op.equals("more") || op.equals("max") ) {
-			itm.setAmount(itm.getMaxStackSize());
-			return Parameter.from(itm.getAmount());
-		} else if ( op.equals("damage") || op.equals("dmg") || op.equals("durability") ) {
-			if ( ctx.hasArgs() ) {
-				itm.setDurability((short)getArgOrFizzle(ctx, 0, IntegerParameter.class).asInteger().intValue());
-			}
-			return Parameter.from(itm.getDurability());			
-		} else if ( op.equals("repair") || op.equals("fix") ) {
-			itm.setDurability((short)0);
-			return Parameter.from(0);
-		} else if ( op.equals("material") || op.equals("type") ) {
-			Material old = itm.getType();
-			if ( ctx.hasArgs() ) {
-				Material now = getArgOrFizzle(ctx, 0, MaterialParameter.class).asMaterial();
-				itm.setType(now);
-			}
-			return Parameter.from(itm.getType());
-		} else if ( op.equals("enchant" ) || op.equals("ench") ) {
-			return enchantOperation(itm, ctx);
-		} else if ( op.equals("bind") ) {
-			if ( ctx.hasArgs() ) {
-				String str = getArgOrFizzle(ctx, 0, StringParameter.class).asString();
-				Book.setSpell(itm, str);
-			}
-			return Parameter.from(Book.readSpell(itm));
-		}
-		
-		
-		fizzle("Invalid operation " + op);
-		return null; //Never executed.
- 	}
+		return super.doaffect(target, ctx);
+	}
 	
-	public Parameter ammountOperation(ItemStack itm, Context ctx) {
-		if ( ctx.hasArgs() ) {
-			itm.setAmount(getArgOrFizzle(ctx, 0, IntegerParameter.class).asInteger());
+	public Parameter bindOperation(ItemStack itm, Context ctx, StringParameter bind) {
+		if ( bind != null ) {
+			Book.setSpell(itm, bind.asString());
+		}
+		return Parameter.from(Book.readSpell(itm));
+	}
+	
+	public Parameter ammountOperation(ItemStack itm, Context ctx, IntegerParameter amnt) {
+		return amountOperation(itm, ctx, amnt);
+	}
+	
+	public Parameter amtOperation(ItemStack itm, Context ctx, IntegerParameter amnt) {
+		return amountOperation(itm, ctx, amnt);
+	}
+		
+	public Parameter amountOperation(ItemStack itm, Context ctx, IntegerParameter amnt) {
+		if ( amnt != null ) {
+			itm.setAmount(amnt.asInteger());
 		}
 		return Parameter.from(itm.getAmount());
 	}
-
-	public Parameter enchantOperation(ItemStack itm, Context ctx) {
-		if ( ctx.hasArgs() ) {
-			String name = getArgOrFizzle(ctx, 0, StringParameter.class).asString();
-			Enchantment enc = ParseEnchantment(name);
+	
+	public Parameter damageOperation(ItemStack itm, Context ctx, IntegerParameter dmg) {
+		if ( dmg != null ) {
+			itm.setDurability((short)((int)dmg.asInteger()));
+		}
+		return Parameter.from(itm.getDurability());
+	}
+	
+	public Parameter dmgOperation(ItemStack itm, Context ctx, IntegerParameter dmg) {
+		return damageOperation(itm, ctx, dmg);
+	}
+	
+	public Parameter durabilityOperation(ItemStack itm, Context ctx, IntegerParameter dmg) {
+		return damageOperation(itm, ctx, dmg);
+	}
+	
+	
+	public Parameter fixOperation(ItemStack itm, Context ctx) {
+		itm.setDurability((short)0);
+		return Parameter.from(itm.getDurability());
+	}
+	
+	public Parameter loreOperation(ItemStack itm, Context ctx, StringParameter lore) {
+		ItemMeta m = itm.getItemMeta();
+		if ( lore != null ) {
+			String[] lores = lore.asString().split("\r?\n");
+			ArrayList<String> lout = new ArrayList<String>();
+			for ( String s :lores ) {
+				lout.add(s);
+			}
+			m.setLore(lout);
+			itm.setItemMeta(m);
+		}
+		
+		StringBuilder b = new StringBuilder();
+		for ( String s : m.getLore() ) {
+			if ( b.length() > 0 ) b.append("\n");
+			b.append(s);
+		}
+		return Parameter.from(b.toString());
+		
+	}
+	
+	public Parameter repairOperation(ItemStack itm, Context ctx) {
+		return fixOperation(itm, ctx);
+	}
+	
+	public Parameter materialOperation(ItemStack itm, Context ctx, MaterialParameter mat) {
+		if ( mat != null ) {
+			itm.setType(mat.asMaterial());
+		}
+		return Parameter.from(itm.getType());
+	}
+	
+	public Parameter typeOperation(ItemStack itm, Context ctx, MaterialParameter mat) {
+		if ( mat != null ) {
+			itm.setType(mat.asMaterial());
+		}
+		return Parameter.from(itm.getType());
+	}
+	
+	public Parameter maxOperation(ItemStack itm, Context ctx) {
+		return moreOperation(itm, ctx);
+	}
+	
+	public Parameter moreOperation(ItemStack itm, Context ctx) {
+		itm.setAmount(itm.getMaxStackSize());
+		return Parameter.from(itm.getAmount());
+	}
+	
+	public Parameter nameOperation(ItemStack itm, Context ctx, StringParameter name) {
+		ItemMeta m = itm.getItemMeta();
+		if ( name != null ) {
+			m.setDisplayName(name.asString());
+			itm.setItemMeta(m);
+		}
+		return Parameter.from(m.getDisplayName());
+	}
+	
+	public Parameter enchantOperation(ItemStack itm, Context ctx, StringParameter name, Parameter level) {
+		if ( name != null ) {
+			Enchantment enc = ParseEnchantment(name.asString());
 			
-			if ( enc == null ) fizzle("Unknwon enchantment: " + name);
+			if ( enc == null ) fizzle("Unknwon enchantment: " + name.asString());
 			
-			Parameter level = getArg(ctx, 1, StringParameter.class);
 			if ( level == null ) level = Parameter.from(enc.getStartLevel());
 			else if ( level.asString().equals("max") ) level = Parameter.from(enc.getMaxLevel());
 			

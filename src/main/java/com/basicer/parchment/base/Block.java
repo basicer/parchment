@@ -10,6 +10,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import com.basicer.parchment.Context;
+import com.basicer.parchment.OperationalSpell;
 import com.basicer.parchment.Spell;
 import com.basicer.parchment.Spell.DefaultTargetType;
 import com.basicer.parchment.parameters.BlockParameter;
@@ -22,16 +23,13 @@ import com.basicer.parchment.parameters.Parameter;
 import com.basicer.parchment.parameters.PlayerParameter;
 import com.basicer.parchment.parameters.StringParameter;
 
-public class Block extends Spell {
+public class Block extends OperationalSpell<BlockParameter> {
 
 
-	@Override
-	public String[] getArguments() { return new String[] { "operation?", "args" }; }
-	
 	public Parameter affect(BlockParameter target, Context ctx) {
 		org.bukkit.block.Block block = target.asBlock();
 		if ( block == null ) fizzleTarget("Not an block.");
-		return action(block, ctx);
+		return this.doaffect(target, ctx);
  	}
 	
 	public Parameter affect(LocationParameter target, Context ctx) {
@@ -39,38 +37,32 @@ public class Block extends Spell {
 		if ( w == null ) fizzleTarget("No world to resolve location target");
 		org.bukkit.block.Block block = w.getBlockAt(target.asLocation());
 		if ( block == null ) fizzleTarget("Not an block.");
-		return action(block, ctx);
+		return this.doaffect((BlockParameter)Parameter.from(block), ctx);
  	}
 	
 
-	protected Parameter action(org.bukkit.block.Block block, Context ctx) {
-		Parameter pop = ctx.get("operation");
-		ArrayList<Parameter> args = ctx.getArgs();
 
-		
-		if ( pop == null ) return Parameter.from(block);
-		String op = pop.asString();
-		
-		
-		if ( op.equals("material") || op.equals("type") ) {
-			Material old = block.getType();
-			if ( args.size() > 0 ) {
-				Material now = getArgOrFizzle(ctx, 0, MaterialParameter.class).asMaterial();
-				block.setType(now);
-			}
-			return Parameter.from(block.getType());
-		} else if ( op.equals("break") ) {
-			return Parameter.from(block.breakNaturally());
-		} else if ( op.equals("power") ) {
-			return Parameter.from(block.getBlockPower());
-		} 
-		
-			
-		fizzle("Invalid operation " + op);
-		return null;
-		
+	public Parameter materialOperation(org.bukkit.block.Block block, Context ctx, MaterialParameter type) {
+		if ( type != null ) {
+			block.setType(type.asMaterial());
+		}
+		return Parameter.from(block.getType());
+	}
+	
+	
+	public Parameter typeOperation(org.bukkit.block.Block block, Context ctx, MaterialParameter type) {
+		return materialOperation(block, ctx, type);
+	}
+	
+	public Parameter breakOperation(org.bukkit.block.Block block, Context ctx) {
+		return Parameter.from(block.breakNaturally());
 	}
 
+	public Parameter powerOperation(org.bukkit.block.Block block, Context ctx) {
+		return Parameter.from(block.getBlockPower());
+	}
+	
+	
 	@Override
 	public FirstParamaterTargetType getFirstParamaterTargetType(Context ctx) {
 		return FirstParamaterTargetType.FuzzyMatch;

@@ -1,5 +1,6 @@
 package com.basicer.parchment.parameters;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -71,6 +72,27 @@ public abstract class Parameter implements Iterable<Parameter> {
 		return null;
 	}
 	
+	public abstract Class getUnderlyingType();
+	
+	public Object getUnderlyingValue() {
+		Field f;
+		try {
+			f = this.getClass().getDeclaredField("self");
+			f.setAccessible(true);
+			return f.get(this);
+		} catch (NoSuchFieldException e) {
+			throw new RuntimeException(e);
+		} catch (SecurityException e) {
+			throw new RuntimeException(e);
+		} catch (IllegalArgumentException e) {
+			throw new RuntimeException(e);
+		} catch (IllegalAccessException e) {
+			throw new RuntimeException(e);
+		}
+		
+		
+	}
+	
 	public <T extends Parameter> T cast(Class<T> type, Context ctx) {
 		if ( type.isInstance(this) ) return (T) this;
 		
@@ -120,6 +142,7 @@ public abstract class Parameter implements Iterable<Parameter> {
 	public static Parameter from(Block b)	    { return b == null ? null : new BlockParameter(b); }
 	public static Parameter from(Material m)	{ return m == null ? null : new MaterialParameter(m); }
 	public static Parameter from(Location l)	{ return l == null ? null : new LocationParameter(l); }
+	
 	public static Parameter from(Block block, BlockFace face) {
 		if ( block == null ) return null;
 		if ( face == null ) return from(block);
