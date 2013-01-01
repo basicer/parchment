@@ -1,6 +1,8 @@
 package com.basicer.parchment.tcl;
 
 import com.basicer.parchment.Context;
+import com.basicer.parchment.EvaluationResult;
+import com.basicer.parchment.EvaluationResult.Code;
 import com.basicer.parchment.TCLCommand;
 import com.basicer.parchment.TCLParser;
 import com.basicer.parchment.parameters.Parameter;
@@ -12,6 +14,8 @@ public class Proc extends TCLCommand {
 		return new String[] { "name", "argNames", "body" };
 	}
 
+	
+	
 	@Override
 	public Parameter execute(Context ctx) {
 		Parameter pname = ctx.get("name");
@@ -24,11 +28,18 @@ public class Proc extends TCLCommand {
 		TCLCommand proc = new TCLCommand() {
 
 			@Override
+			public Parameter execute(Context ctx) { return this.extendedExecute(ctx).getValue(); }
+			
+			@Override
 			public String[] getArguments() { return xargs; }
 			
 			@Override
-			public Parameter execute(Context ctx) {
-				return TCLParser.evaluate(bodystr, ctx);
+			public EvaluationResult extendedExecute(Context ctx) {
+				EvaluationResult r = TCLParser.evaluate(bodystr, ctx);
+				if ( r.getCode() == Code.BREAK ) {
+					r.setCode(Code.OK);
+				}
+				return r;
 			}
 			
 		};

@@ -17,7 +17,7 @@ public class Heal extends Spell {
 	}
 
 	@Override
-	public String[] getArguments() { return new String[] {"amount"}; }
+	public String[] getArguments() { return new String[] {"amount?"}; }
 	
 	public Parameter affect(PlayerParameter target, Context ctx) {
 		LivingEntity ltarget = target.asLivingEntity();

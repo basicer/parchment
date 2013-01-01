@@ -34,12 +34,15 @@ public class SpellFactory {
 		addBuiltinCommand(Proc.class);
 		addBuiltinCommand(Expr.class);
 		addBuiltinCommand(If.class);
+		addBuiltinCommand(Return.class);
+		addBuiltinCommand(Break.class);
 		
 		addBuiltinSpell(Item.class);
 		addBuiltinSpell(Block.class);
 		addBuiltinSpell(Heal.class);
 		addBuiltinSpell(Shoot.class);
 		addBuiltinSpell(Explode.class);
+		addBuiltinSpell(Entity.class);
 		
 	}
 	

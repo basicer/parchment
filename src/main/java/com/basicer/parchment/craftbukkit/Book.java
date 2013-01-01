@@ -2,9 +2,12 @@ package com.basicer.parchment.craftbukkit;
 
 
 
+import java.lang.reflect.Field;
+
 import org.bukkit.Material;
 
 import org.bukkit.craftbukkit.v1_4_6.inventory.*;
+
 import net.minecraft.server.v1_4_6.*;
 
 
@@ -12,10 +15,64 @@ import net.minecraft.server.v1_4_6.*;
  *
  * @author basicer
  */
-private class Book {
+public class Book {
    
     private ItemStack handle;
     private org.bukkit.inventory.ItemStack base;
+    
+    public static String readSpell(org.bukkit.inventory.ItemStack itm) {
+    	if ( itm == null ) return null;
+    	
+    	Field fhandle;
+		try {
+			fhandle = CraftItemStack.class.getDeclaredField("handle");
+	    	fhandle.setAccessible(true);
+	    	Object o = fhandle.get(itm);
+	    	net.minecraft.server.v1_4_6.ItemStack nis = (net.minecraft.server.v1_4_6.ItemStack)o;
+	    	if ( nis.getTag() == null ) return null;
+	    	return nis.getTag().getString("binding");
+		} catch (NoSuchFieldException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;   	
+    }
+    
+    public static void setSpell(org.bukkit.inventory.ItemStack cis, String value) {
+    	if ( cis == null ) return;
+    	
+    	Field fhandle;
+		try {
+			fhandle = CraftItemStack.class.getDeclaredField("handle");
+	    	fhandle.setAccessible(true);
+	    	Object o = fhandle.get(cis);
+	    	net.minecraft.server.v1_4_6.ItemStack nis = (net.minecraft.server.v1_4_6.ItemStack)o;
+	    	if ( nis.getTag() == null ) nis.setTag(new NBTTagCompound());
+	    	nis.getTag().setString("binding", value);
+	    	
+		} catch (NoSuchFieldException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
     
     public static Book createFromBukkitItemStack(org.bukkit.inventory.ItemStack base) {
          return new Book(base);

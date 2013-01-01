@@ -18,6 +18,7 @@ import com.basicer.parchment.SpellFactory;
 import com.basicer.parchment.TCLCommand;
 import com.basicer.parchment.TCLParser;
 
+import com.basicer.parchment.craftbukkit.Book;
 import com.basicer.parchment.parameters.Parameter;
 import com.basicer.parchment.parameters.PlayerParameter;
 import com.basicer.parchment.spells.Heal;
@@ -52,12 +53,12 @@ import net.minecraft.server.*;
 public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessageListener {
 
 	ProtocolManager	manager;
-	SpellFactory spellfactory;
-	
+	SpellFactory	spellfactory;
+
 	public void onDisable() {
 		Bukkit.getMessenger().unregisterIncomingPluginChannel(this);
 		getLogger().info("Framework Disabled");
-		
+
 	}
 
 	public void onEnable() {
@@ -66,79 +67,88 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 		pm.registerEvents(this, this);
 		getLogger().info("Framework Enabled");
 		spellfactory = new SpellFactory();
-		
+
 		if (pm.getPlugin("ProtocolLib") != null) {
 			manager = ProtocolLibrary.getProtocolManager();
 		}
-		
+
 		Bukkit.getMessenger().registerIncomingPluginChannel(this, "MC|BEdit", this);
-		
+
 		File base = this.getDataFolder();
 		File scripts = findDirectory(base, "spells");
-		if ( scripts == null ) return;
-		
+		if (scripts == null)
+			return;
+
 		spellfactory.load();
-		for ( File s : scripts.listFiles() ) {
-			if ( s.isDirectory() ) continue;
-			if ( !s.canRead() ) continue;
-			if ( !s.getName().endsWith(".tcl")) continue;
+		for (File s : scripts.listFiles()) {
+			if (s.isDirectory())
+				continue;
+			if (!s.canRead())
+				continue;
+			if (!s.getName().endsWith(".tcl"))
+				continue;
 			String sname = s.getName().substring(0, (int) (s.getName().length() - 4));
 			try {
-				PushbackReader reader = new PushbackReader(
-						new InputStreamReader(new FileInputStream(s))
-				);
+				PushbackReader reader = new PushbackReader(new InputStreamReader(new FileInputStream(s)));
 				spellfactory.addCustomSpell(sname, new ScriptedSpell(reader, spellfactory));
-				this.getLogger().info("Loaded " + sname); 
+				this.getLogger().info("Loaded " + sname);
 			} catch (FileNotFoundException e) {
 				this.getLogger().warning("Couldnt load " + sname);
-				
+
 			}
-			
+
 		}
-		
+
 	}
 
 	private static File findFile(File folder, String file) {
-		if ( folder == null ) return null;
+		if (folder == null)
+			return null;
 		File rfile = null;
-		for ( File f : folder.listFiles() ) {
-			if ( f.isDirectory() ) continue;
-			if ( !f.canRead() ) continue;
-			if ( f.getName().equals(file) ) {
+		for (File f : folder.listFiles()) {
+			if (f.isDirectory())
+				continue;
+			if (!f.canRead())
+				continue;
+			if (f.getName().equals(file)) {
 				rfile = f;
 				break;
 			}
 		}
-		return rfile;	
+		return rfile;
 	}
-	
+
 	private static File findDirectory(File folder, String file) {
-		if ( folder == null ) return null;
+		if (folder == null)
+			return null;
 		File rfile = null;
-		for ( File f : folder.listFiles() ) {
-			if ( !f.isDirectory() ) continue;
-			if ( !f.canRead() ) continue;
-			if ( f.getName().equals(file) ) {
+		for (File f : folder.listFiles()) {
+			if (!f.isDirectory())
+				continue;
+			if (!f.canRead())
+				continue;
+			if (f.getName().equals(file)) {
 				rfile = f;
 				break;
 			}
 		}
-		return rfile;	
+		return rfile;
 	}
-	
+
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-		
+
 		if (!sender.isOp())
 			return false;
-		
+
 		Queue<String> qargs = new LinkedList<String>(Arrays.asList(args));
-		String action = label; 
-		
-		if ( label.equals("parchment") || label.equals("p") ) {
+		String action = label;
+
+		if (label.equals("parchment") || label.equals("p")) {
 			action = qargs.poll();
 		}
-		
-		if ( action == null ) return false;
+
+		if (action == null)
+			return false;
 		Context ctx = new Context();
 		if (sender instanceof Player) {
 			Player p = (Player) sender;
@@ -150,40 +160,38 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 		} else {
 			return false;
 		}
-		
-		
-		
-		if ( action.equals("cast") || action.equals("c") ) {	
+
+		if (action.equals("cast") || action.equals("c")) {
 			StringBuilder b = null;
-			while ( !qargs.isEmpty() ) {
-				if ( b == null ) b = new StringBuilder();
-				else b.append(" ");
+			while (!qargs.isEmpty()) {
+				if (b == null)
+					b = new StringBuilder();
+				else
+					b.append(" ");
 				b.append(qargs.poll());
 			}
-			
+
 			TCLParser.evaluate(b.toString(), ctx);
-		} else if ( action.equals("run") ) {
+		} else if (action.equals("run")) {
 			String file = qargs.poll() + ".tcl";
 			File folder = findDirectory(this.getDataFolder(), "runnable");
 			File rfile = findFile(folder, file);
-			if ( rfile == null ) {
+			if (rfile == null) {
 				sender.sendMessage("Unknown file " + file);
 				return true;
 			}
 			PushbackReader reader;
 			try {
-				reader = new PushbackReader(
-						new InputStreamReader(new FileInputStream(rfile))
-				);
+				reader = new PushbackReader(new InputStreamReader(new FileInputStream(rfile)));
 				TCLParser.evaluate(reader, ctx);
 			} catch (FileNotFoundException e) {
 				sender.sendMessage("Unknown file 2 " + file);
 			}
-			
+
 		} else {
 			sender.sendMessage("Unknonw action " + action);
 		}
-		
+
 		return true;
 	}
 
@@ -195,58 +203,58 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 	public void onPlayerInteract(PlayerInteractEvent e) {
 		Player p = e.getPlayer();
 		ItemStack holding = p.getItemInHand();
-		if (holding.getType() != org.bukkit.Material.BOOK_AND_QUILL
-				&& holding.getType() != org.bukkit.Material.WRITTEN_BOOK) {
-			//p.sendMessage("MATERIAL IS " + holding.getType().toString());
-			return;
-		}
-		BookMeta b = (BookMeta)holding.getItemMeta();
 
+		TCLCommand s = null;
 		if (e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK) {
-			if (e.getClickedBlock() != null && e.getClickedBlock().getType() == org.bukkit.Material.BOOKSHELF) {
-				//b.unlock();
-				e.setCancelled(true);
-				return;
-			}
-			
-			StringBuilder sb = new StringBuilder();
-			for ( int i = 0; i < b.getPageCount(); ++i) {
-				sb.append(b.getPage(i+1));
-				sb.append("\n");
-			}
-			String action = sb.toString();
-			//p.sendMessage(action);
-			/*
-			if ( action.startsWith("bridge") ) {
-				for (Block bl : p.getLineOfSight(null, 40)) {
-					if (bl.getLocation().distance(p.getLocation()) > 2)
-						bl.getWorld().getHighestBlockAt(bl.getLocation()).getRelative(0, 0, 0).setTypeId(66);
+
+			if (holding.getType() != org.bukkit.Material.BOOK_AND_QUILL & holding.getType() != org.bukkit.Material.WRITTEN_BOOK) {
+				// p.sendMessage("MATERIAL IS " + holding.getType().toString());
+				String ss = Book.readSpell(holding);
+				if ( ss == null ) {
+					p.sendMessage("Your blade is dull");
+					return;
 				}
-			} else if ( action.startsWith("arrow") ) {
-				Arrow a = p.launchProjectile(Arrow.class);
-				a.setVelocity(a.getVelocity().multiply(4));
-			} else if ( action.startsWith("eval")) {
-				p.sendMessage("Preformed " + action.substring(5));
-				p.performCommand(action.substring(5));
-			} else if ( action.startsWith("heal") ) {
-				Context ctx = new Context();
-				ctx.setTarget(Parameter.from(p));
-				ctx.setCaster(Parameter.from(p));
-				Heal h = new Heal();
-				try {
-					h.cast(ctx);
-				} catch ( FizzleException fizzle ) {
-					p.sendMessage("The spell fizzles");
-				}
+				p.sendMessage("Your blade is: " + ss);
+				s = spellfactory.get(ss);
 			} else {
-				p.sendMessage("Couldnt do " + action);
+				BookMeta b = (BookMeta) holding.getItemMeta();
+
+				if (e.getClickedBlock() != null && e.getClickedBlock().getType() == org.bukkit.Material.BOOKSHELF) {
+					// b.unlock();
+					e.setCancelled(true);
+					return;
+				}
+
+				StringBuilder sb = new StringBuilder();
+				for (int i = 0; i < b.getPageCount(); ++i) {
+					sb.append(b.getPage(i + 1));
+					sb.append("\n");
+				}
+				String action = sb.toString();
+				// p.sendMessage(action);
+				/*
+				 * if ( action.startsWith("bridge") ) { for (Block bl :
+				 * p.getLineOfSight(null, 40)) { if
+				 * (bl.getLocation().distance(p.getLocation()) > 2)
+				 * bl.getWorld()
+				 * .getHighestBlockAt(bl.getLocation()).getRelative(0, 0,
+				 * 0).setTypeId(66); } } else if ( action.startsWith("arrow") )
+				 * { Arrow a = p.launchProjectile(Arrow.class);
+				 * a.setVelocity(a.getVelocity().multiply(4)); } else if (
+				 * action.startsWith("eval")) { p.sendMessage("Preformed " +
+				 * action.substring(5)); p.performCommand(action.substring(5));
+				 * } else if ( action.startsWith("heal") ) { Context ctx = new
+				 * Context(); ctx.setTarget(Parameter.from(p));
+				 * ctx.setCaster(Parameter.from(p)); Heal h = new Heal(); try {
+				 * h.cast(ctx); } catch ( FizzleException fizzle ) {
+				 * p.sendMessage("The spell fizzles"); } } else {
+				 * p.sendMessage("Couldnt do " + action); }
+				 */
+
+				// e.getClickedBlock().breakNaturally(e.getPlayer().getItemInHand());
+
+				s = new ScriptedSpell(new PushbackReader(new StringReader(action)), spellfactory);
 			}
-			*/
-			
-			// e.getClickedBlock().breakNaturally(e.getPlayer().getItemInHand());
-			
-			Spell s = new ScriptedSpell(new PushbackReader(new StringReader(action)), spellfactory);
-			
 			Context ctx = new Context();
 			ctx.setSpellFactory(spellfactory);
 			ctx.setCaster(Parameter.from(p));
@@ -259,19 +267,18 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 			Context ctx2 = s.bindContext(ws, ctx);
 			s.execute(ctx2);
 			e.setCancelled(true);
-		} 
-		
+		}
+
 	}
 
 	@EventHandler
 	public void onPlayerItemHeld(PlayerItemHeldEvent e) {
 
-
 	}
 
 	public void onPluginMessageReceived(String channel, Player player, byte[] message) {
 		player.sendMessage("I hear you like books");
-		
+
 	}
 
 }

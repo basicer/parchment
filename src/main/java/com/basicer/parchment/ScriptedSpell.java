@@ -3,14 +3,15 @@ package com.basicer.parchment;
 import java.io.PushbackReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
+import com.basicer.parchment.Context.ParameterPtr;
 import com.basicer.parchment.Spell.DefaultTargetType;
 import com.basicer.parchment.parameters.Parameter;
 
 public class ScriptedSpell extends Spell {
 	
 	private HashMap<String, String> triggers;
-	private HashMap<Class<? extends Parameter>, String> affects;
 	
 	@Override
 	public DefaultTargetType getDefaultTargetType(Context ctx) {
@@ -29,7 +30,6 @@ public class ScriptedSpell extends Spell {
 	public ScriptedSpell(String source, SpellFactory f) {
 		super();
 		triggers = new HashMap<String, String>();
-		affects = new HashMap<Class<? extends Parameter>, String>();
 		spellStatic.put("this", Parameter.from(this));
 		spellStatic.setSpellFactory(f);
 		TCLParser.evaluate(source, this.spellStatic);
@@ -40,7 +40,6 @@ public class ScriptedSpell extends Spell {
 	public ScriptedSpell(PushbackReader source, SpellFactory f) {
 		super();
 		triggers = new HashMap<String, String>();
-		affects = new HashMap<Class<? extends Parameter>, String>();
 		spellStatic.put("this", Parameter.from(this));
 		spellStatic.setSpellFactory(f);
 		TCLParser.evaluate(source, this.spellStatic);
@@ -52,8 +51,30 @@ public class ScriptedSpell extends Spell {
 	}
 	
 	public void setAffect(Class<? extends Parameter> name, String source) {
-		affects.put(name, source);
+		triggers.put("affect:" + name.getSimpleName(), source);
 	}
+	
+	
+	
+	@Override
+	protected <T extends Parameter> ParameterPtr tryAffect(Class<T> type, Parameter t, Context ctx) {
+		// TODO Auto-generated method stub
+		return super.tryAffect(type, t, ctx);
+	}
+
+
+	@Override
+	protected List<Class<? extends Parameter>> getAffectors() {
+		List<Class<? extends Parameter>> out = new ArrayList<Class<? extends Parameter>>();
+		for ( String s : triggers.keySet() ) {
+			if ( s.startsWith("affect:") ) continue;
+			
+			
+		}
+		
+		return out;
+	}
+
 	
 	@Override
 	public Parameter cast(final Context ctx) {

@@ -107,4 +107,8 @@ public abstract class TCLCommand {
 		
 		return put;
 	}
+
+	public EvaluationResult extendedExecute(Context c2) {
+		return new EvaluationResult(this.execute(c2));
+	}
 }

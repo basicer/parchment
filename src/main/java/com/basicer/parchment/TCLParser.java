@@ -6,6 +6,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.basicer.parchment.EvaluationResult.Code;
 import com.basicer.parchment.parameters.Parameter;
 
 public class TCLParser {
@@ -57,7 +58,7 @@ public class TCLParser {
 		StringBuilder cmd = new StringBuilder();
 		readBracketExpression(s, cmd);
 
-		return evaluate(cmd.toString(), ctx);
+		return evaluate(cmd.toString(), ctx).getValue();
 	}
 
 	public static void readVariable(PushbackReader s, StringBuilder b) throws IOException {
@@ -104,46 +105,52 @@ public class TCLParser {
 
 	
 	
-	public static Parameter evaluate(String cmd, Context ctx) {
+	public static EvaluationResult evaluate(String cmd, Context ctx) {
 		PushbackReader r = new PushbackReader(new StringReader(cmd));
 		return evaluate(r, ctx);
 	}
 	
-	public static Parameter evaluate(PushbackReader r, Context ctx) {
-		Parameter result = null;
-		
+	public static EvaluationResult evaluate(PushbackReader r, Context ctx) {
+		EvaluationResult result = null;
+		boolean done = false;
 		while ( true ) {
 			Parameter[] pargs = TCLParser.parseLine(r, ctx);
+			if ( done ) continue;
 			if ( pargs == null) break;
 			if ( pargs.length < 1 ) continue;
 			//for (Parameter p : pargs) {
 			//	ctx.sendDebugMessage("[P] " + p.toString());
 			//}
-
+			
 			result = evaluate(pargs, ctx);
+			if ( result.getCode() != Code.OK ) return result;
 			//ctx.sendDebugMessage("[R] " + result.toString());
 		}
 		return result;
 	}
 
-	public static Parameter evaluate(Parameter[] pargs, Context ctx) {
+
+	public static EvaluationResult evaluate(Parameter[] pargs, Context ctx) {
 		String name = pargs[0].asString();
 		TCLCommand s = ctx.getCommand(name);
 		if ( s == null ) throw new Error("No such command: " + name);
 		Context c2 = s.bindContext(pargs, ctx);
-		return s.execute(c2);
+
+		return s.extendedExecute(c2);		
 	}
 
 	public static Parameter[] parseLine(PushbackReader s, Context ctx) {
 		List<Parameter> out = new ArrayList<Parameter>();
 		StringBuilder current = new StringBuilder();
 		char in = '\0';
+		boolean empty = true;
 		Parameter currentp = null;
 		boolean at_end = true; 
 		int r;
 		try {
 			while ((r = s.read()) > 0) {
 				char c = (char) r;
+				
 				boolean append = false;
 				if (in == '"') {
 					if (c == '"')
@@ -151,6 +158,7 @@ public class TCLParser {
 					else if (c == '{') {
 						s.unread(r);
 						readCurlyBraceString(s, current);
+						empty = false;
 					} else if (c == '[') {
 						s.unread(r);
 						currentp = evaulateBracketExpression(s, ctx);
@@ -165,6 +173,7 @@ public class TCLParser {
 					else if (c == '{') {
 						s.unread(r);
 						readCurlyBraceString(s, current);
+						empty = false;
 					} else if (c == '[') {
 						s.unread(r);
 						currentp = evaulateBracketExpression(s, ctx);
@@ -172,10 +181,11 @@ public class TCLParser {
 						if (currentp != null) {
 							out.add(currentp);
 							currentp = null;
-						} else if ( current.length() > 0) {
+						} else if ( !empty ) {
 							out.add(Parameter.from(current.toString()));
 						}
 						current.setLength(0);
+						empty = true;
 					} else if (c == '\n' || c == ';') {
 						at_end = false;
 						break;
@@ -184,6 +194,7 @@ public class TCLParser {
 					} else if (c == '$') {
 						s.unread(r);
 						currentp = evaulateVariable(s, ctx);
+						empty = false;
 					} else if ( c == '#' && currentp == null && current.length() < 1 ) {
 						while ( c != '\n' ) {
 							r = s.read();
@@ -195,10 +206,11 @@ public class TCLParser {
 						append = true;
 					}
 				}
-				if (currentp != null && current.length() > 0) {
-					current.append(currentp.asString());
-					currentp = null;
-				}
+				//if (currentp != null && !empty) {
+				//	current.append(currentp.asString());
+				//	currentp = null;
+				//	empty = false;
+				//}
 				if (append) {
 					if (currentp != null) {
 						current.append(currentp.asString());
@@ -208,13 +220,20 @@ public class TCLParser {
 						current.append(readSlashCode(s));
 					else
 						current.append(c);
+					
+					empty = false;
 				}
+				
 			}
-			if (current.length() > 0) {
-				out.add(Parameter.from(current.toString()));
-			} else if (currentp != null) {
+			
+			if (currentp != null) {
 				out.add(currentp);
-			}
+			} else if (!empty) {
+				out.add(Parameter.from(current.toString()));
+			} 
+			
+			
+			
 		} catch (IOException e) {
 			throw new Error(e);
 		}

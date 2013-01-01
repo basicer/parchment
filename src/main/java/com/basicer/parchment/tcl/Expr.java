@@ -24,7 +24,10 @@ public class Expr extends TCLCommand {
 		
 		PushbackReader s = new PushbackReader(new StringReader(expr));
 		Queue<Parameter> tokens = new LinkedList<Parameter>();
-		for ( Parameter p : TCLParser.parseLine(s, ctx) ) tokens.add(p);
+		for ( Parameter p : TCLParser.parseLine(s, ctx) ) {
+			System.out.println("TKN " + p.asString());
+			tokens.add(p);
+		}
 		return parse(tokens, tokens.poll(), 0);
 	}
 	
@@ -52,21 +55,27 @@ public class Expr extends TCLCommand {
 	
 	public static Parameter evaluate(Parameter lhs, Parameter pop, Parameter rhs) {
 		String op = pop.asString();
-		System.out.println(" " + lhs.toString() + " " + op + rhs.toString());
+		System.out.println("EVAL: " + (lhs == null ? "null" : lhs.toString()) + " " + op + " " + (rhs == null ? "null" : rhs.toString()));
 		
 		if ( op.equals("+") ) return Parameter.from(lhs.asDouble() + rhs.asDouble());
 		if ( op.equals("-") ) return Parameter.from(lhs.asDouble() - rhs.asDouble());
 		if ( op.equals("%") ) return Parameter.from(lhs.asInteger() % rhs.asInteger());
 		if ( op.equals("*") ) return Parameter.from(lhs.asDouble() * rhs.asDouble());
+		if ( op.equals("/") ) return Parameter.from(lhs.asDouble() / rhs.asDouble());	
 		if ( op.equals("**") ) return Parameter.from(Math.pow(lhs.asDouble(),rhs.asDouble()));
-		if ( op.equals("/") ) return Parameter.from(lhs.asDouble() / rhs.asDouble());
 		
-		if ( op.equals("eq") ) return Parameter.from(lhs.equals(rhs));
-		if ( op.equals("ne") ) return Parameter.from(!lhs.equals(rhs));
-		if ( op.equals("==") ) return Parameter.from(lhs.equals(rhs));
-		if ( op.equals("!=") ) return Parameter.from(!lhs.equals(rhs));
+		if ( op.equals("eq") ) return Parameter.from(testEquality(lhs,rhs));
+		if ( op.equals("ne") ) return Parameter.from(!testEquality(lhs,rhs));
+		if ( op.equals("==") ) return Parameter.from(testEquality(lhs,rhs));
+		if ( op.equals("!=") ) return Parameter.from(!testEquality(lhs,rhs));
 		
 		return null;
+	}
+	
+	protected static boolean testEquality(Parameter lhs, Parameter rhs) {
+		if ( lhs == null && rhs == null ) return true;
+		if ( lhs == null || lhs == null ) return false;
+		return lhs.equals(rhs);
 	}
 	
 	private static int getTokenPrecedence(Parameter p) {

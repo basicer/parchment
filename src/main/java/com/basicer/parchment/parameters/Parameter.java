@@ -56,6 +56,21 @@ public abstract class Parameter implements Iterable<Parameter> {
 		return cast(type, null);
 	}
 	
+	private static Class<? extends Parameter> classForName(String s) {
+		
+		if ( s.equals("Player") ) return PlayerParameter.class;
+		else if ( s.equals("Location") ) return LocationParameter.class;
+		else if ( s.equals("String") ) return StringParameter.class;
+		else if ( s.equals("Server") ) return ServerParameter.class;
+		else if ( s.equals("Block") ) return BlockParameter.class;
+		else if ( s.equals("Double") ) return DoubleParameter.class;
+		else if ( s.equals("Entity") ) return EntityParameter.class;
+		else if ( s.equals("Item") ) return ItemParameter.class;
+		else if ( s.equals("World") ) return WorldParameter.class;
+		
+		return null;
+	}
+	
 	public <T extends Parameter> T cast(Class<T> type, Context ctx) {
 		if ( type.isInstance(this) ) return (T) this;
 		

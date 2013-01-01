@@ -233,6 +233,10 @@ public class Context {
 		
 	}
 
+	public boolean hasArgs() {
+		return this.getArgs().size() > 0;
+	}
+
 
 	
 }

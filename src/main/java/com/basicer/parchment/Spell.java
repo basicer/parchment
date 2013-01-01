@@ -125,7 +125,7 @@ public abstract class Spell extends TCLCommand {
 		}
 	}
 	
-	private List<Class<? extends Parameter>> getAffectors() {
+	protected List<Class<? extends Parameter>> getAffectors() {
 		List<Class<? extends Parameter>> list = new ArrayList<Class<? extends Parameter>>();
 		for ( Method m : this.getClass().getMethods() ) {
 			if ( m.getName() != "affect" ) continue;
@@ -160,7 +160,6 @@ public abstract class Spell extends TCLCommand {
 		ParameterPtr result;
 		targetloop:
 		for ( Parameter t : targets ) {
-			ctx.sendDebugMessage("Ttype of T is " + t.getClass().getSimpleName());
 			for ( Class<? extends Parameter> c : list ) {
 				result = s.tryAffect(c, t, ctx);
 				if ( result != null ) {					
@@ -176,7 +175,6 @@ public abstract class Spell extends TCLCommand {
 			
 			for ( Class<? extends Parameter> c : list ) {
 				Parameter casted = t.cast(c, ctx);
-				ctx.sendDebugMessage(c.getSimpleName() + "?" + (casted == null ? "Null" : "Pass"));
 				if ( casted == null ) continue;
 				result = s.tryAffect(c, casted, ctx);
 				if ( result != null ) {
@@ -233,7 +231,7 @@ public abstract class Spell extends TCLCommand {
 		if ( t != null ) return t;
 		LivingEntity casterp = ctx.getCaster().asLivingEntity();
 		List<Block> sight = null;
-		int dist = 100;
+		int dist = 250;
 		switch ( this.getDefaultTargetType(ctx) ) {
 			case None:
 				break;
@@ -243,13 +241,22 @@ public abstract class Spell extends TCLCommand {
 			case TargetBlock:
 				if ( casterp == null ) return null;
 				sight = casterp.getLastTwoTargetBlocks(null, dist);
-				if ( sight.size() < 2 ) return Parameter.from(casterp.getTargetBlock(null, dist));
-				return Parameter.from(sight.get(1), sight.get(1).getFace(sight.get(0)));				
+				Block blk = null;
+				if ( sight.size() < 2 ) {
+					blk = casterp.getTargetBlock(null, dist);
+					if ( blk.isEmpty() ) return null;
+					return Parameter.from(blk);
+				}
+				blk = sight.get(1); 
+				if( blk.isEmpty() ) return null;
+				return Parameter.from(blk, blk.getFace(sight.get(0)));				
 			case TargetPlace:
 				if ( casterp == null ) return null;
 				sight = casterp.getLastTwoTargetBlocks(null, dist);
 				if ( sight.size() < 2 ) return null;
-				return Parameter.from(sight.get(0), sight.get(0).getFace(sight.get(1)));
+				Block blk2 = sight.get(0);
+				if( blk2.isEmpty() ) return null;
+				return Parameter.from(blk2, sight.get(0).getFace(sight.get(1)));
 		}
 		
 		
@@ -264,7 +271,7 @@ public abstract class Spell extends TCLCommand {
 	protected boolean getShouldCombindDuplicateListOutput() { return false; }
 
 	
-	private <T extends Parameter> ParameterPtr tryAffect(Class<T> type, Parameter t, Context ctx) {
+	protected <T extends Parameter> ParameterPtr tryAffect(Class<T> type, Parameter t, Context ctx) {
 		if ( !type.isInstance(t) ) return null;
 		if ( !this.canAffect(type) ) return null;
 		Class[] types = new Class[] { type, Context.class };
