@@ -118,6 +118,8 @@ public abstract class Parameter implements Iterable<Parameter> {
 			return (T)Parameter.from(this.asMaterial(ctx));
 		} else if ( type.equals(LocationParameter.class) ) {
 			return (T)Parameter.from(this.asLocation(ctx, SelectionMode.DEFAULT));
+		} else if ( type.equals(LivingEntityParameter.class) ) {
+			return (T)Parameter.from(this.asLivingEntity(ctx));
 		}
 		
 		return null;
@@ -128,20 +130,23 @@ public abstract class Parameter implements Iterable<Parameter> {
 	}
 	
 	// Factory methods
-	public static Parameter from(Player p) 		{ return p == null ? null : new PlayerParameter(p); }
-	public static Parameter from(Entity e) 		{ return e == null ? null : new EntityParameter(e); }
-	public static Parameter from(String s) 		{ return s == null ? null : new StringParameter(s); }
-	public static Parameter from(double d) 		{ return new DoubleParameter(d); }
-	public static Parameter from(int i) 		{ return new IntegerParameter(i); }
-	public static Parameter from(World w) 		{ return w == null ? null : new WorldParameter(w); }
-	public static Parameter from(Server s) 		{ return s == null ? null : new ServerParameter(s); }
-	public static Parameter from(ItemStack i) 	{ return i == null ? null : new ItemParameter(i); }
-	public static Parameter from(Spell s) 		{ return s == null ? null : new SpellParameter(s); }
-	public static Parameter from(boolean b)		{ return new IntegerParameter(b ? 1 : 0); }
-	public static Parameter from(TCLCommand d)	{ return d == null ? null : new DelegateParameter(d); }
-	public static Parameter from(Block b)	    { return b == null ? null : new BlockParameter(b); }
-	public static Parameter from(Material m)	{ return m == null ? null : new MaterialParameter(m); }
-	public static Parameter from(Location l)	{ return l == null ? null : new LocationParameter(l); }
+	public static PlayerParameter 	from(Player p) 		{ return p == null ? null : new PlayerParameter(p); }
+	public static EntityParameter 	from(Entity e) 		{ return e == null ? null : new EntityParameter(e); }
+	public static LivingEntityParameter from(LivingEntity e) { return e == null ? null : new LivingEntityParameter(e); }
+	public static StringParameter 	from(String s) 		{ return s == null ? null : new StringParameter(s); }
+	public static DoubleParameter 	from(double d) 		{ return new DoubleParameter(d); }
+	public static DoubleParameter 	from(Double d)		{ return d == null ? null : new DoubleParameter(d); }
+	public static IntegerParameter 	from(int i) 		{ return new IntegerParameter(i); }
+	public static IntegerParameter 	from(Integer i)		{ return i == null ? null : new IntegerParameter(i); }
+	public static WorldParameter 	from(World w) 		{ return w == null ? null : new WorldParameter(w); }
+	public static ServerParameter 	from(Server s) 		{ return s == null ? null : new ServerParameter(s); }
+	public static ItemParameter 	from(ItemStack i) 	{ return i == null ? null : new ItemParameter(i); }
+	public static SpellParameter 	from(Spell s) 		{ return s == null ? null : new SpellParameter(s); }
+	public static IntegerParameter 	from(boolean b)		{ return new IntegerParameter(b ? 1 : 0); }
+	public static DelegateParameter from(TCLCommand d)	{ return d == null ? null : new DelegateParameter(d); }
+	public static BlockParameter 	from(Block b)	    { return b == null ? null : new BlockParameter(b); }
+	public static MaterialParameter from(Material m)	{ return m == null ? null : new MaterialParameter(m); }
+	public static LocationParameter from(Location l)	{ return l == null ? null : new LocationParameter(l); }
 	
 	public static Parameter from(Block block, BlockFace face) {
 		if ( block == null ) return null;
@@ -207,11 +212,18 @@ public abstract class Parameter implements Iterable<Parameter> {
 	public boolean equals(Object oother) {
 		if ( oother instanceof Parameter ) {
 			Parameter other = (Parameter) oother;
+			Double da = this.asDouble();
+			Double db = other.asDouble();
+
+			if ( da != null && db != null ) return da.equals(db);
+			
 			String a = this.asString();
 			String b = other.asString();
 			
 			if ( a == null ) return false;
 			if ( b == null ) return false;
+			
+			
 			return a.equals(b);
 		} return false;
 	}

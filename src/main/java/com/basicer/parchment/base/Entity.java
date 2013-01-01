@@ -15,78 +15,65 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Vector;
 
 import com.basicer.parchment.Context;
+import com.basicer.parchment.OperationalSpell;
 import com.basicer.parchment.Spell;
 import com.basicer.parchment.Spell.DefaultTargetType;
+import com.basicer.parchment.parameters.BlockParameter;
 import com.basicer.parchment.parameters.DoubleParameter;
 import com.basicer.parchment.parameters.EntityParameter;
 import com.basicer.parchment.parameters.IntegerParameter;
 import com.basicer.parchment.parameters.ItemParameter;
+import com.basicer.parchment.parameters.LocationParameter;
 import com.basicer.parchment.parameters.MaterialParameter;
 import com.basicer.parchment.parameters.Parameter;
 import com.basicer.parchment.parameters.PlayerParameter;
 import com.basicer.parchment.parameters.StringParameter;
 
-public class Entity extends Spell  {
+public class Entity extends OperationalSpell<EntityParameter>  {
 
 
-	@Override
-	public String[] getArguments() { return new String[] { "operation?", "args" }; }
-	
 	public Parameter affect(EntityParameter target, Context ctx) {
-		return operation(target, ctx);
+		return this.doaffect(target, ctx);
 	}
 	
 	public Parameter affect(PlayerParameter target, Context ctx) {
-		return operation(target, ctx);
+		return this.doaffect(target, ctx);
+	}
+	public Parameter affect(LocationParameter target, Context ctx) {
+		for ( org.bukkit.entity.Entity e : target.asLocation().getWorld().getEntities() ) {
+			if ( e.getLocation().distanceSquared(target.asLocation()) < 4 ) {
+				return this.doaffect(Parameter.from(e), ctx);
+			}
+		}
+		fizzle("No entities fond there");
+		return null;
 	}
 	
-	public Parameter operation(Parameter target, Context ctx) {
-		org.bukkit.entity.Entity ent = target.asEntity();
-		if ( ent == null ) fizzleTarget("Not an entity.");
-		LivingEntity lent = null;
-		Player pent = null;
-		
-		if ( ent instanceof LivingEntity ) lent = (LivingEntity) ent;
-		if ( ent instanceof Player ) pent = (Player) ent;
-		
-		
-		ArrayList<Parameter> args = ctx.getArgs();
-		Parameter pop = ctx.get("operation");
-		
-		if ( pop == null ) return Parameter.from(ent);
-		String op = pop.asString(ctx);
-		
-		if ( op.equals("name") ) {
-			/*
-			if ( ctx.hasArgs() ) {
-				m.setDisplayName(getArgOrFizzle(ctx, 0, StringParameter.class).asString());
-				itm.setItemMeta(m);
-			}
-			*/
-			String name = ent.getType().getName();
-			if ( name == null ) return null;
-			return Parameter.from(name);
-		} else if ( op.equals("teleport") ) {
-			return teleportOpreation(ent, ctx);
-		} else if ( op.equals("still") ) {
-			ent.setVelocity(new Vector(0,0,0));
-			ent.setFallDistance(0.0f);
-			return Parameter.from(true);
-		}
-		
-		
-		
-		fizzle("Invalid operation " + op);
-		return null; //Never executed.
- 	}
+	public Parameter affect(BlockParameter target, Context ctx) {
+		return affect(target.cast(LocationParameter.class), ctx);
+	}
 	
+	public Parameter nameOperation(org.bukkit.entity.Entity ent, Context ctx) {
+		String name = ent.getType().getName();
+		if ( name == null ) return null;
+		return Parameter.from(name);	
+	}
 	
-	public Parameter teleportOpreation(org.bukkit.entity.Entity ent, Context ctx) {
+	public Parameter stillOperation(org.bukkit.entity.Entity ent, Context ctx) {
+		ent.setVelocity(new Vector(0,0,0));
+		ent.setFallDistance(0.0f);
+		return Parameter.from(true);
+	}
+	
+	public Parameter tpOperation(org.bukkit.entity.Entity ent, Context ctx, Parameter location) {
+		return teleportOperation(ent, ctx, location);
+	}
+	
+	public Parameter teleportOperation(org.bukkit.entity.Entity ent, Context ctx, Parameter location) {
 		LivingEntity lent = null;
 		if ( ent instanceof LivingEntity ) lent = (LivingEntity) ent;
 		
-		if ( ctx.hasArgs() ) {
-			Parameter location = ctx.getArgs().get(0);
+		if ( location != null ) {
 			if ( location.asEntity() != null ) {
 				ent.teleport(location.asEntity(), TeleportCause.COMMAND);
 			} else if ( location.asLocation() != null ) {
@@ -104,6 +91,16 @@ public class Entity extends Spell  {
 				loc.setYaw(ent.getLocation().getYaw());
 				ent.teleport(loc, TeleportCause.COMMAND);
 				
+			} else if ( location.asString() != null ) {
+				String l = location.asString();
+				if ( l.equals("spawn") ) {
+					ent.teleport(ent.getWorld().getSpawnLocation(), TeleportCause.COMMAND);
+				} else if ( l.equals("home") ) {
+					
+					if (!(ent instanceof Player)) fizzle("Only players have homes.");
+					ent.teleport(((Player) ent).getBedSpawnLocation(), TeleportCause.COMMAND);
+				}
+						
 			}
 		}
 		

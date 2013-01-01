@@ -22,8 +22,18 @@ public class Proc extends TCLCommand {
 		Parameter pargs = ctx.get("argNames");
 		Parameter pbody = ctx.get("body");
 		
-		final String[] xargs = pargs.asString().split(" ");
+		String[] xargs = null;
+		if ( pargs.asString().length() > 0 ) { 
+			xargs = pargs.asString().split(" ");
+		} else {
+			xargs = new String[0];
+		}
+		
+		System.out.println("Argz: " + xargs.length);
+		System.out.println("Give |" + pargs.asString() + "|" );
+		
 		final String bodystr = pbody.asString();
+		final String[] cxargs = xargs;
 		
 		TCLCommand proc = new TCLCommand() {
 
@@ -31,7 +41,7 @@ public class Proc extends TCLCommand {
 			public Parameter execute(Context ctx) { return this.extendedExecute(ctx).getValue(); }
 			
 			@Override
-			public String[] getArguments() { return xargs; }
+			public String[] getArguments() { return cxargs; }
 			
 			@Override
 			public EvaluationResult extendedExecute(Context ctx) {

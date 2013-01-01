@@ -12,7 +12,7 @@ public class IntegerParameter extends Parameter {
 	}
 
 	@Override
-	public Class getUnderlyingType() { return Integer.class; }
+	public Class<Integer> getUnderlyingType() { return Integer.class; }
 	
 	@Override
 	public Double asDouble(Context ctx) {
@@ -39,4 +39,6 @@ public class IntegerParameter extends Parameter {
 	public Material asMaterial(Context ctx) {
 		return Material.getMaterial((int)self);
 	}
+	
+
 }

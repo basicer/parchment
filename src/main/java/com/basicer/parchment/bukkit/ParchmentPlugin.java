@@ -220,7 +220,7 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 				BookMeta b = (BookMeta) holding.getItemMeta();
 
 				if (e.getClickedBlock() != null && e.getClickedBlock().getType() == org.bukkit.Material.BOOKSHELF) {
-					// b.unlock();
+					holding.setType(org.bukkit.Material.BOOK_AND_QUILL);
 					e.setCancelled(true);
 					return;
 				}

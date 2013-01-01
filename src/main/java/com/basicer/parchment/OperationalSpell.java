@@ -25,20 +25,28 @@ public class OperationalSpell<T extends Parameter> extends Spell {
 	}
 	
 	private <U> Parameter dispatch(Class<U> type, T target, Context ctx, Queue<Parameter> args) {
-		System.out.println("a");
-		Object o = target.getUnderlyingValue();
+
 		if ( target == null ) fizzle("No target.");
+		Object o = target.getUnderlyingValue();
+		
 		if ( !type.isInstance(o) ) fizzle("Target mismatch");
-		System.out.println("b");
+
 		U obj = (U) o;
 		if ( args.size() < 1 ) return target;
-		System.out.println("c");
+
 		Method[] methods = this.getClass().getMethods();
 		
+		Parameter out = null;
 		while ( args.size() > 0 ) {
 			Parameter operation = args.poll();
 			String op = operation.asString();
+			
 			if ( op == null ) fizzle("Operation not a string.");
+			if ( op.startsWith("-") ) op = op.substring(1, op.length());
+			if ( op.equals("self") ) {
+				out = target;
+				continue;
+			}
 			Method m = null;
 			for ( Method mc : methods ) {
 				if ( !mc.getName().equals(op + "Operation") ) continue;
@@ -53,16 +61,18 @@ public class OperationalSpell<T extends Parameter> extends Spell {
 			for ( int i = 2; i < method_args.length; ++i ) {
 				if ( args.size() < 1 ) break;
 				Parameter p = args.peek();
+				if ( p.asString() != null && p.asString().startsWith("-") ) break;
 				
 				args.poll();
 				if ( method_types[i].equals(Parameter.class)) {
 					method_args[i] = p;
 				} else {
 					method_args[i] = p.cast(method_types[i]);
+					if ( method_args[i] == null ) fizzle(op + " expected " + method_types[i].getSimpleName() + ", got " + p.getClass().getSimpleName());
 				}
 			}
 			try {
-				return (Parameter)m.invoke(this, method_args);
+				out = (Parameter)m.invoke(this, method_args);
 			} catch (IllegalAccessException e) {
 				throw new RuntimeException(e);
 			} catch (IllegalArgumentException e) {
@@ -78,7 +88,7 @@ public class OperationalSpell<T extends Parameter> extends Spell {
 		}
 		
 		
-		return target;
+		return out;
 		
 	}
 	

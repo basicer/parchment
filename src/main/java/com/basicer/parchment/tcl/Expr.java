@@ -6,6 +6,7 @@ import java.util.Queue;
 import com.basicer.parchment.Context;
 import com.basicer.parchment.TCLCommand;
 import com.basicer.parchment.TCLParser;
+import com.basicer.parchment.parameters.DoubleParameter;
 import com.basicer.parchment.parameters.Parameter;
 
 import java.io.PushbackReader;
@@ -31,6 +32,8 @@ public class Expr extends TCLCommand {
 		return parse(tokens, tokens.poll(), 0);
 	}
 	
+	
+	//TODO: Doesn't handle ()'s
 	public static Parameter parse(Queue<Parameter> tokens, Parameter lhs, int min) {
 		while ( true ) {
 			if ( tokens.size() < 1 ) return lhs;
@@ -50,6 +53,8 @@ public class Expr extends TCLCommand {
 			}
 			
 			lhs = evaluate(lhs, op, rhs);
+
+			System.out.println(lhs.toString());
 		}
 	}
 	
@@ -57,12 +62,23 @@ public class Expr extends TCLCommand {
 		String op = pop.asString();
 		System.out.println("EVAL: " + (lhs == null ? "null" : lhs.toString()) + " " + op + " " + (rhs == null ? "null" : rhs.toString()));
 		
-		if ( op.equals("+") ) return Parameter.from(lhs.asDouble() + rhs.asDouble());
-		if ( op.equals("-") ) return Parameter.from(lhs.asDouble() - rhs.asDouble());
+		//TODO: Downcasting is not how TCL works, we need to look at the input arguments.
+		if ( op.equals("+") ) return Parameter.from(lhs.asDouble() + rhs.asDouble()).downCastIfPossible();
+		if ( op.equals("-") ) return Parameter.from(lhs.asDouble() - rhs.asDouble()).downCastIfPossible();
 		if ( op.equals("%") ) return Parameter.from(lhs.asInteger() % rhs.asInteger());
-		if ( op.equals("*") ) return Parameter.from(lhs.asDouble() * rhs.asDouble());
-		if ( op.equals("/") ) return Parameter.from(lhs.asDouble() / rhs.asDouble());	
-		if ( op.equals("**") ) return Parameter.from(Math.pow(lhs.asDouble(),rhs.asDouble()));
+		if ( op.equals("*") ) return Parameter.from(lhs.asDouble() * rhs.asDouble()).downCastIfPossible();
+		if ( op.equals("/") ) return Parameter.from(lhs.asDouble() / rhs.asDouble()).downCastIfPossible();	
+		if ( op.equals("**") ) return Parameter.from(Math.pow(lhs.asDouble(),rhs.asDouble())).downCastIfPossible();
+		
+		//TODO: TCL Says > and < work on strings.
+		if ( op.equals(">") ) return Parameter.from(lhs.asDouble() > rhs.asDouble());
+		if ( op.equals(">=") ) return Parameter.from(lhs.asDouble() >= rhs.asDouble());
+		if ( op.equals("<") ) return Parameter.from(lhs.asDouble() < rhs.asDouble());
+		if ( op.equals("<=") ) return Parameter.from(lhs.asDouble() <= rhs.asDouble());
+		
+		if ( op.equals("||") ) return Parameter.from(lhs.asBoolean() || rhs.asBoolean());
+		if ( op.equals("&&") ) return Parameter.from(lhs.asBoolean() && rhs.asBoolean());
+		
 		
 		if ( op.equals("eq") ) return Parameter.from(testEquality(lhs,rhs));
 		if ( op.equals("ne") ) return Parameter.from(!testEquality(lhs,rhs));
@@ -92,13 +108,20 @@ public class Expr extends TCLCommand {
 			case '%':
 				System.out.println("OP " + x + " 2");
 				return 13;
+			case '<':
+			case '>':
+				return 10;
 			default:
 				System.out.println("OP " + x + "");
 				return -1;
 		}
 		
 		if ( x.equals("**") ) return 14;
+		if ( x.equals(">=") || x.equals("<=") ) return 13;
 		if ( x.equals("==") || x.equals("!=") ) return 9;
+		if ( x.equals("eq") || x.equals("ne") ) return 8;
+		if ( x.equals("&&") ) return 3;
+		if ( x.equals("||") ) return 2;
 		
 		return 0;
 	}

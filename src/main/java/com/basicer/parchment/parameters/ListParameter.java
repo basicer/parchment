@@ -13,7 +13,7 @@ import com.basicer.parchment.Context;
 public class ListParameter extends Parameter {
 
 	@Override
-	public Class getUnderlyingType() { return List.class; }
+	public Class<List> getUnderlyingType() { return List.class; }
 	
 	private List<Parameter> self;
 	ListParameter(List<Parameter> self) {

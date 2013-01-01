@@ -10,7 +10,7 @@ public class SpellParameter extends Parameter {
 	}
 	
 	@Override
-	public Class getUnderlyingType() { return Spell.class; }
+	public Class<Spell> getUnderlyingType() { return Spell.class; }
 	
 	public Spell asSpell(Context ctx) { return self; }
 	

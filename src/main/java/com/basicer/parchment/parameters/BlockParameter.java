@@ -21,7 +21,7 @@ public class BlockParameter extends Parameter {
 	}
 	
 	@Override
-	public Class getUnderlyingType() { return Block.class; }
+	public Class<Block> getUnderlyingType() { return Block.class; }
 
 	
 	@Override

@@ -12,7 +12,7 @@ public class ServerParameter extends Parameter {
 	}
 	
 	@Override
-	public Class getUnderlyingType() { return Server.class; }
+	public Class<Server> getUnderlyingType() { return Server.class; }
 	
 	public Server asServer(Context ctx) { return self; }
 }

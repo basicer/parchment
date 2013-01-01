@@ -8,10 +8,11 @@ import com.basicer.parchment.Context;
 
 
 
-public class EntityParameter extends Parameter {
+public class LivingEntityParameter extends EntityParameter {
 
-	private Entity self;
-	EntityParameter(Entity self) {
+	private LivingEntity self;
+	LivingEntityParameter(LivingEntity self) {
+		super(self);
 		this.self = self;
 	}
 	
@@ -30,15 +31,14 @@ public class EntityParameter extends Parameter {
 	
 	@Override
 	public LivingEntity asLivingEntity(Context ctx) {
-		if ( !(self instanceof LivingEntity)) return null;
-		return (LivingEntity) self;
+		return self;
 		
 	}
 
 	@Override
 	public String asString(Context ctx) {
 		Location l = self.getLocation();
-		return "[Entity T:" + self.getType().name() + " @ " + self.getWorld().getName() + "/" 
+		return "[LivingEntity T:" + self.getType().name() + " @ " + self.getWorld().getName() + "/" 
 				+ l.getBlockX() + "," + l.getBlockY() + "," + l.getBlockZ() +
 				"]";
 	}

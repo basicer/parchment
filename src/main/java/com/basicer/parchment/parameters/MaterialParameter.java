@@ -12,7 +12,7 @@ public class MaterialParameter extends Parameter {
 	}
 	
 	@Override
-	public Class getUnderlyingType() { return Material.class; }
+	public Class<Material> getUnderlyingType() { return Material.class; }
 	
 	@Override
 	public String asString(Context ctx) { return self.name(); }

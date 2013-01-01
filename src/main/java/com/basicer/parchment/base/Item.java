@@ -176,6 +176,7 @@ public class Item extends OperationalSpell<ItemParameter>  {
 		if ( name.equals("FORTUNE") ) return Enchantment.LOOT_BONUS_BLOCKS;
 		if ( name.equals("LOOTING") ) return Enchantment.LOOT_BONUS_MOBS;
 		if ( name.equals("INFINITE") ) return Enchantment.ARROW_INFINITE;
+		if ( name.equals("INFINITY") ) return Enchantment.ARROW_INFINITE;
 		if ( name.equals("UNBREAKING") ) return Enchantment.DURABILITY;
 		if ( name.equals("SILKTOUCH") ) return Enchantment.SILK_TOUCH;
 		if ( name.equals("PUNCH") ) return Enchantment.KNOCKBACK;

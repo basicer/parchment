@@ -11,7 +11,7 @@ public class LocationParameter extends Parameter {
 	}
 	
 	@Override
-	public Class getUnderlyingType() { return Location.class; }
+	public Class<Location> getUnderlyingType() { return Location.class; }
 	
 	@Override
 	public Location asLocation(Context ctx, SelectionMode mode) {

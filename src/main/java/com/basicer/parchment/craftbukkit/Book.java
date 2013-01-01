@@ -23,41 +23,20 @@ public class Book {
     public static String readSpell(org.bukkit.inventory.ItemStack itm) {
     	if ( itm == null ) return null;
     	
-    	Field fhandle;
-		try {
-			fhandle = CraftItemStack.class.getDeclaredField("handle");
-	    	fhandle.setAccessible(true);
-	    	Object o = fhandle.get(itm);
-	    	net.minecraft.server.v1_4_6.ItemStack nis = (net.minecraft.server.v1_4_6.ItemStack)o;
-	    	if ( nis.getTag() == null ) return null;
-	    	return nis.getTag().getString("binding");
-		} catch (NoSuchFieldException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;   	
+    	NBTTagCompound tag = getTag(itm, false);
+    	if ( tag == null ) return null;
+    	return tag.getString("binding");
     }
     
-    public static void setSpell(org.bukkit.inventory.ItemStack cis, String value) {
-    	if ( cis == null ) return;
-    	
+    private static NBTTagCompound getTag(org.bukkit.inventory.ItemStack cis, boolean set_if_empty) {
     	Field fhandle;
 		try {
 			fhandle = CraftItemStack.class.getDeclaredField("handle");
 	    	fhandle.setAccessible(true);
 	    	Object o = fhandle.get(cis);
 	    	net.minecraft.server.v1_4_6.ItemStack nis = (net.minecraft.server.v1_4_6.ItemStack)o;
-	    	if ( nis.getTag() == null ) nis.setTag(new NBTTagCompound());
-	    	nis.getTag().setString("binding", value);
+	    	if ( nis.getTag() == null && set_if_empty ) nis.setTag(new NBTTagCompound());
+	    	return nis.getTag();
 	    	
 		} catch (NoSuchFieldException e) {
 			// TODO Auto-generated catch block
@@ -72,6 +51,14 @@ public class Book {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		return null;
+    }
+    
+    public static void setSpell(org.bukkit.inventory.ItemStack cis, String value) {
+    	if ( cis == null ) return;
+    	
+    	getTag(cis,true).setString("binding", value);
+	    	
     }
     
     public static Book createFromBukkitItemStack(org.bukkit.inventory.ItemStack base) {
@@ -107,16 +94,6 @@ public class Book {
         
     }
     
-    public boolean isLocked() {
-        return base.getType() == Material.WRITTEN_BOOK;
-    }
-    
-    public void unlock() {
-        if ( !isLocked() ) return;
-        base.setType(org.bukkit.Material.BOOK_AND_QUILL);
-        handle.getTag().o("name");
-        handle.getTag().o("author");
-    }
     
     
     

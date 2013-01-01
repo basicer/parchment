@@ -16,16 +16,24 @@ public class StringParameter extends Parameter {
 	}
 
 	@Override
-	public Class getUnderlyingType() { return String.class; }
+	public Class<String> getUnderlyingType() { return String.class; }
 	
 	@Override
 	public Double asDouble(Context ctx) {
-		return Double.parseDouble(self);
+		try { 
+			return Double.parseDouble(self);
+		} catch (NumberFormatException ex) {
+			return null;
+		}
 	}
 	
 	@Override
 	public Integer asInteger(Context ctx) {
-		return (int)((double)asDouble(ctx));
+		try {
+			return (int)(Double.parseDouble(self));
+		} catch (NumberFormatException ex) {
+			return null;
+		}
 	}
 	
 	@Override

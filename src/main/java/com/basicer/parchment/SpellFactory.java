@@ -34,6 +34,7 @@ public class SpellFactory {
 		addBuiltinCommand(Proc.class);
 		addBuiltinCommand(Expr.class);
 		addBuiltinCommand(If.class);
+		addBuiltinCommand(While.class);
 		addBuiltinCommand(Return.class);
 		addBuiltinCommand(Break.class);
 		

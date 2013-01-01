@@ -37,7 +37,7 @@ public class Block extends OperationalSpell<BlockParameter> {
 		if ( w == null ) fizzleTarget("No world to resolve location target");
 		org.bukkit.block.Block block = w.getBlockAt(target.asLocation());
 		if ( block == null ) fizzleTarget("Not an block.");
-		return this.doaffect((BlockParameter)Parameter.from(block), ctx);
+		return this.doaffect(Parameter.from(block), ctx);
  	}
 	
 

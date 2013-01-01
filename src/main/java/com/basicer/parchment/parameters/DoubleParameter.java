@@ -1,7 +1,6 @@
 package com.basicer.parchment.parameters;
 
 import com.basicer.parchment.Context;
-import com.basicer.parchment.TCLCommand;
 
 public class DoubleParameter extends Parameter {
 	private double self;
@@ -11,7 +10,7 @@ public class DoubleParameter extends Parameter {
 	}
 
 	@Override
-	public Class getUnderlyingType() { return Double.class; }
+	public Class<Double> getUnderlyingType() { return Double.class; }
 	
 	@Override
 	public Double asDouble(Context ctx) {
@@ -28,4 +27,12 @@ public class DoubleParameter extends Parameter {
 	public String asString(Context ctx) {
 		return "" + self;
 	}
+
+	public Parameter downCastIfPossible() {
+		if ( (int)self == self ) {
+			return Parameter.from((int) self);
+		}
+		return this;
+	}
+	
 }

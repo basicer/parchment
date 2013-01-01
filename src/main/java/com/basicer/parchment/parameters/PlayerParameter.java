@@ -1,5 +1,6 @@
 package com.basicer.parchment.parameters;
 
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -7,7 +8,7 @@ import org.bukkit.inventory.ItemStack;
 import com.basicer.parchment.Context;
 
 
-public class PlayerParameter extends EntityParameter {
+public class PlayerParameter extends LivingEntityParameter {
 
 	private Player self;
 	PlayerParameter(Player self) {
@@ -15,9 +16,8 @@ public class PlayerParameter extends EntityParameter {
 		this.self = self;
 	}
 	
-	@SuppressWarnings("rawtypes")
 	@Override
-	public Class getUnderlyingType() { return Player.class; }
+	public Class<? extends Entity> getUnderlyingType() { return Player.class; }
 	
 	@Override
 	public Player asPlayer(Context ctx) { return self; }
