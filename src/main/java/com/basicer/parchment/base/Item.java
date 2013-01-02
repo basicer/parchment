@@ -197,20 +197,22 @@ public class Item extends OperationalSpell<ItemParameter>  {
 				}
 			}
 			ctx.sendDebugMessage("LEN " + pth.length);
-			Object data = tag.unproxy().getClass().getField("data").get(tag.unproxy());
+			
+			
+			try {
+				Object data = tag.unproxy().getClass().getField("data").get(tag.unproxy());
+				return Parameter.fromObject(data);
+			} catch (NoSuchFieldException ex) {
+				return Parameter.from(tag.toString());
+			}
 			//net.minecraft.server.v1_4_6.NBTTagCompound x = new net.minecraft.server.v1_4_6.NBTTagCompound();
 			
-			Parameter out = Parameter.fromObject(data);
-			ctx.sendDebugMessage("Value:" + tag + " / " + data.toString() + " / " + data.getClass().getName());
-			return out;
 			
 		} catch ( UndeclaredThrowableException ex ) {
 			throw new RuntimeException(ex.getCause());
 		} catch (IllegalArgumentException ex) {
 			throw new RuntimeException(ex.getCause());
 		} catch (IllegalAccessException ex) {
-			throw new RuntimeException(ex.getCause());
-		} catch (NoSuchFieldException ex) {
 			throw new RuntimeException(ex.getCause());
 		} catch (SecurityException ex) {
 			throw new RuntimeException(ex.getCause());

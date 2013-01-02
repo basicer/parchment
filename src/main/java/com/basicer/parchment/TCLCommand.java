@@ -25,10 +25,6 @@ public abstract class TCLCommand {
 			boolean	noise;
 		}
 		
-		for ( int i = 0; i < params.length; ++i ) {
-			System.out.println("-> " + i + " " + params[i].asString());
-		}
-		
 		String[] args = this.getArguments();
 		Context put = ctx.createSubContext();
 		boolean and_args = false;
@@ -76,7 +72,6 @@ public abstract class TCLCommand {
 			if ( nfo.required ) ++required;
 		}
 		
-		System.out.println("Given: " + given + ", required: " + required);
 		int ptr = 1;
 		for ( int i = 0; i < xargs.size(); ++i ) {
 			ParamInfo nfo = xargs.get(i);

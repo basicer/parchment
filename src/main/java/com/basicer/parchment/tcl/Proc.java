@@ -29,8 +29,6 @@ public class Proc extends TCLCommand {
 			xargs = new String[0];
 		}
 		
-		System.out.println("Argz: " + xargs.length);
-		System.out.println("Give |" + pargs.asString() + "|" );
 		
 		final String bodystr = pbody.asString();
 		final String[] cxargs = xargs;
@@ -46,7 +44,7 @@ public class Proc extends TCLCommand {
 			@Override
 			public EvaluationResult extendedExecute(Context ctx) {
 				EvaluationResult r = TCLParser.evaluate(bodystr, ctx);
-				if ( r.getCode() == Code.BREAK ) {
+				if ( r.getCode() == Code.RETURN ) {
 					r.setCode(Code.OK);
 				}
 				return r;

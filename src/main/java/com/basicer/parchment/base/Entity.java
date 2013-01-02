@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.BlockFace;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -76,6 +77,12 @@ public class Entity extends OperationalSpell<EntityParameter>  {
 		if ( location != null ) {
 			if ( location.asEntity() != null ) {
 				ent.teleport(location.asEntity(), TeleportCause.COMMAND);
+			} else if ( location.asBlock() != null ) {
+				org.bukkit.block.Block bloc = location.asBlock();
+				Location loc = bloc.getRelative(BlockFace.UP).getLocation();
+				loc.setPitch(ent.getLocation().getPitch());
+				loc.setYaw(ent.getLocation().getYaw());
+				ent.teleport(loc, TeleportCause.COMMAND);
 			} else if ( location.asLocation() != null ) {
 				Location loc = location.asLocation();
 				loc.setPitch(ent.getLocation().getPitch());
@@ -86,7 +93,12 @@ public class Entity extends OperationalSpell<EntityParameter>  {
 				
 				double distance = location.asDouble();
 				List<org.bukkit.block.Block> blocks = lent.getLastTwoTargetBlocks(null, (int)distance + 1);
-				Location loc = blocks.get(0).getLocation();
+				org.bukkit.block.Block bloc = blocks.get(1);
+				
+				bloc = bloc.getRelative(BlockFace.UP);
+				if ( !bloc.isEmpty() ) bloc = blocks.get(0);
+				
+				Location loc = bloc.getLocation();
 				loc.setPitch(ent.getLocation().getPitch());
 				loc.setYaw(ent.getLocation().getYaw());
 				ent.teleport(loc, TeleportCause.COMMAND);
