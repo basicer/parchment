@@ -148,6 +148,20 @@ public abstract class Parameter implements Iterable<Parameter> {
 	public static MaterialParameter from(Material m)	{ return m == null ? null : new MaterialParameter(m); }
 	public static LocationParameter from(Location l)	{ return l == null ? null : new LocationParameter(l); }
 	
+	public static Parameter fromObject(Object data) {
+		Class datatype = data.getClass();
+		
+		if ( datatype == Short.class ) 			return Parameter.from(((Short)data).intValue());
+		else if ( datatype == String.class ) 	return Parameter.from(((String)data).toString());
+		else if ( datatype == Integer.class )	return Parameter.from((Integer) data);
+		else if ( datatype == Double.class ) 	return Parameter.from((Double) data);
+		else if ( datatype == Float.class ) 	return Parameter.from(((Float) data).doubleValue());
+		else if ( datatype == Boolean.class ) 	return Parameter.from(((Boolean) data).booleanValue());
+		
+		return Parameter.from(data.toString());
+		 
+	}
+	
 	public static Parameter from(Block block, BlockFace face) {
 		if ( block == null ) return null;
 		if ( face == null ) return from(block);

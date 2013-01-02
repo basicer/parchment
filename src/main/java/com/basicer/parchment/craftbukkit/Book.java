@@ -8,6 +8,10 @@ import org.bukkit.Material;
 
 import org.bukkit.craftbukkit.v1_4_6.inventory.*;
 
+
+import com.basicer.parchment.unsafe.ParchmentNBTTagCompound;
+import com.basicer.parchment.unsafe.ParchmentNBTTagCompoundImpl;
+
 import net.minecraft.server.v1_4_6.*;
 
 
@@ -22,42 +26,20 @@ public class Book {
     
     public static String readSpell(org.bukkit.inventory.ItemStack itm) {
     	if ( itm == null ) return null;
-    	
-    	NBTTagCompound tag = getTag(itm, false);
+    	 
+    	ParchmentNBTTagCompound tag = ParchmentNBTTagCompoundImpl.getTag(itm, false);
     	if ( tag == null ) return null;
+    	
+    	NBTTagList l = new NBTTagList();
+    	NBTTagCompound c = new NBTTagCompound();
+    	l.get(arg0)
     	return tag.getString("binding");
+    	
     }
     
-    private static NBTTagCompound getTag(org.bukkit.inventory.ItemStack cis, boolean set_if_empty) {
-    	Field fhandle;
-		try {
-			fhandle = CraftItemStack.class.getDeclaredField("handle");
-	    	fhandle.setAccessible(true);
-	    	Object o = fhandle.get(cis);
-	    	net.minecraft.server.v1_4_6.ItemStack nis = (net.minecraft.server.v1_4_6.ItemStack)o;
-	    	if ( nis.getTag() == null && set_if_empty ) nis.setTag(new NBTTagCompound());
-	    	return nis.getTag();
-	    	
-		} catch (NoSuchFieldException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
-    }
     
     public static void setSpell(org.bukkit.inventory.ItemStack cis, String value) {
-    	if ( cis == null ) return;
-    	
-    	getTag(cis,true).setString("binding", value);
+    	ParchmentNBTTagCompoundImpl.getTag(cis, true).setString("binding", value);
 	    	
     }
     

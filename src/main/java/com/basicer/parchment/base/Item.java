@@ -1,7 +1,10 @@
 package com.basicer.parchment.base;
 
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.ArrayList;
 import java.util.Map;
+
+import net.minecraft.server.NBTBase;
 
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -21,6 +24,12 @@ import com.basicer.parchment.parameters.MaterialParameter;
 import com.basicer.parchment.parameters.Parameter;
 import com.basicer.parchment.parameters.PlayerParameter;
 import com.basicer.parchment.parameters.StringParameter;
+import com.basicer.parchment.unsafe.ParchmentNBTBase;
+import com.basicer.parchment.unsafe.ParchmentNBTTagCompound;
+import com.basicer.parchment.unsafe.ParchmentNBTTagCompoundImpl;
+import com.basicer.parchment.unsafe.ParchmentNBTTagList;
+import com.basicer.parchment.unsafe.ProxyFactory;
+
 
 public class Item extends OperationalSpell<ItemParameter>  {
 
@@ -158,7 +167,56 @@ public class Item extends OperationalSpell<ItemParameter>  {
 		return Parameter.createList(aout);
 	}
 	
-	
+	public Parameter testOperation(ItemStack itm, Context ctx, StringParameter path) {
+		try {
+			ctx.sendDebugMessage("Starting...");
+			ParchmentNBTBase tag = ParchmentNBTTagCompoundImpl.getTag(itm, false);
+			String spath = path.asString();
+			ctx.sendDebugMessage("1 " +spath);
+			
+						
+			String[] pth = spath.split("\\.");
+			for ( int i = 0; i < pth.length; ++i) {
+				if ( tag instanceof ParchmentNBTTagCompound ) {
+					ParchmentNBTTagCompound tagc = (ParchmentNBTTagCompound) tag;
+				 	tag = tagc.get(pth[i]);
+				 	
+				} else if ( tag instanceof ParchmentNBTTagList ) { 
+					ParchmentNBTTagList tagl = (ParchmentNBTTagList) tag;
+					tag = tagl.get(Integer.parseInt(pth[i]));
+
+				} else {
+					ctx.sendDebugMessage("Invalid path");
+					return Parameter.from(false);
+				}
+				
+				if ( tag.getTypeId() == 10 ) {
+					tag = ProxyFactory.createProxy(ParchmentNBTTagCompound.class, tag.unproxy());
+				} else if ( tag.getTypeId() == 9 ) {
+					tag = ProxyFactory.createProxy(ParchmentNBTTagList.class, tag.unproxy());
+				}
+			}
+			ctx.sendDebugMessage("LEN " + pth.length);
+			Object data = tag.unproxy().getClass().getField("data").get(tag.unproxy());
+			//net.minecraft.server.v1_4_6.NBTTagCompound x = new net.minecraft.server.v1_4_6.NBTTagCompound();
+			
+			Parameter out = Parameter.fromObject(data);
+			ctx.sendDebugMessage("Value:" + tag + " / " + data.toString() + " / " + data.getClass().getName());
+			return out;
+			
+		} catch ( UndeclaredThrowableException ex ) {
+			throw new RuntimeException(ex.getCause());
+		} catch (IllegalArgumentException ex) {
+			throw new RuntimeException(ex.getCause());
+		} catch (IllegalAccessException ex) {
+			throw new RuntimeException(ex.getCause());
+		} catch (NoSuchFieldException ex) {
+			throw new RuntimeException(ex.getCause());
+		} catch (SecurityException ex) {
+			throw new RuntimeException(ex.getCause());
+		}
+		
+	}
 	
 	public static Enchantment ParseEnchantment(String name) {
 		name = name.toUpperCase();
