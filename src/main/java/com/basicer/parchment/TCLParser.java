@@ -164,7 +164,15 @@ public class TCLParser {
 						currentp = evaulateBracketExpression(s, ctx);
 					} else if (c == '$') {
 						s.unread(r);
-						currentp = evaulateVariable(s, ctx);
+						//TODO : We might want to force this to be a string
+						Parameter var = evaulateVariable(s, ctx);
+						if ( currentp != null ) { 
+							current.append(currentp.asString());
+							empty = false;
+							currentp = null;
+						}
+						if ( empty ) currentp = var;
+						else current.append(var.asString());
 					} else
 						append = true;
 				} else {
@@ -193,8 +201,14 @@ public class TCLParser {
 						
 					} else if (c == '$') {
 						s.unread(r);
-						currentp = evaulateVariable(s, ctx);
-						empty = false;
+						Parameter var = evaulateVariable(s, ctx);
+						if ( currentp != null ) { 
+							current.append(currentp.asString());
+							empty = false;
+							currentp = null;
+						}
+						if ( empty ) currentp = var;
+						else current.append(var.asString());
 					} else if ( c == '#' && currentp == null && current.length() < 1 ) {
 						while ( c != '\n' ) {
 							r = s.read();

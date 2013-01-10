@@ -52,6 +52,12 @@
             <name>Comphenix Repository</name>
             <url>http://repo.comphenix.net/content/groups/public</url>
         </repository>
+        
+        <!-- SpoutPlugin  -->
+        <repository>
+    		<id>spout-repo</id>
+    		<url>http://repo.spout.org</url>
+		</repository>
     </repositories>
 
     <dependencies>
@@ -81,5 +87,10 @@
             <artifactId>minecraft-server</artifactId>
             <version>1.4.6</version>
         </dependency>
+        <dependency>
+    		<groupId>org.getspout</groupId>
+    		<artifactId>spoutplugin</artifactId>
+    		<version>1.4.6-R0.1-SNAPSHOT</version>
+		</dependency>
     </dependencies>
 </project>
