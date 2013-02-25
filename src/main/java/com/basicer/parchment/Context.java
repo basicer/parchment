@@ -83,7 +83,10 @@ public class Context {
 	
 	public TCLCommand getCommand(String name) {
 		if ( procs.containsKey(name)) return procs.get(name);
-		if ( spellfactory != null ) return spellfactory.get(name);
+		if ( spellfactory != null ) {
+			TCLCommand r = spellfactory.get(name);
+			if ( r != null ) return r;
+		}
 		if ( parent != null ) return parent.getCommand(name);
 		return null;
 		
@@ -232,10 +235,18 @@ public class Context {
 		procs.put(name, proc);
 		
 	}
-
+	
 	public boolean hasArgs() {
 		return this.getArgs().size() > 0;
 	}
+
+	public Context top() {
+		Context ctx = this;
+		while ( ctx.parent != null ) ctx = ctx.parent;
+		return ctx;
+	}
+
+
 
 
 	

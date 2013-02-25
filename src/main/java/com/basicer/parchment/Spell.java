@@ -28,8 +28,7 @@ public abstract class Spell extends TCLCommand {
 		return FirstParamaterTargetType.ExactMatch;
 	}
 	
-	public DefaultTargetType getDefaultTargetType(Context ctx) { 
-		String source = ctx.getSource();
+	public DefaultTargetType getDefaultTargetType(Context ctx, String source) { 
 		System.out.println("GDT " + this.getName());
 		if ( source == null || source.equals("command") || true ) {
 			//TODO: Caster might not be player, so this doesnt make much sense.
@@ -232,7 +231,7 @@ public abstract class Spell extends TCLCommand {
 		LivingEntity casterp = ctx.getCaster().asLivingEntity();
 		List<Block> sight = null;
 		int dist = 250;
-		switch ( this.getDefaultTargetType(ctx) ) {
+		switch ( this.getDefaultTargetType(ctx, ctx.getSource()) ) {
 			case None:
 				break;
 			case Self:

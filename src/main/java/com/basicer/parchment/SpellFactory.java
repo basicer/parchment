@@ -45,6 +45,8 @@ public class SpellFactory {
 		addBuiltinSpell(Explode.class);
 		addBuiltinSpell(Entity.class);
 		
+		addBuiltinSpell(Spout.class);
+		
 	}
 	
 	public void addCustomSpell(String name, ScriptedSpell spell) {

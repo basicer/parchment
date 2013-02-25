@@ -54,6 +54,7 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 
 	ProtocolManager	manager;
 	SpellFactory	spellfactory;
+	Context			commandctx;  //TODO: Replace with per player ctx
 
 	public void onDisable() {
 		Bukkit.getMessenger().unregisterIncomingPluginChannel(this);
@@ -67,7 +68,7 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 		pm.registerEvents(this, this);
 		getLogger().info("Framework Enabled");
 		spellfactory = new SpellFactory();
-
+		commandctx = new Context(); 
 		if (pm.getPlugin("ProtocolLib") != null) {
 			manager = ProtocolLibrary.getProtocolManager();
 		}
@@ -149,7 +150,7 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 
 		if (action == null)
 			return false;
-		Context ctx = new Context();
+		Context ctx = commandctx.createSubContext();
 		if (sender instanceof Player) {
 			Player p = (Player) sender;
 			ctx.setSpellFactory(spellfactory);
