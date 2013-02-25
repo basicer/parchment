@@ -14,9 +14,9 @@ public class ScriptedSpell extends Spell {
 	private HashMap<String, String> triggers;
 	
 	@Override
-	public DefaultTargetType getDefaultTargetType(Context ctx) {
+	public DefaultTargetType getDefaultTargetType(Context ctx, String source) {
 		Parameter p = this.spellStatic.get("defaultTargetType");
-		if ( p == null ) return super.getDefaultTargetType(ctx);
+		if ( p == null ) return super.getDefaultTargetType(ctx, source);
 		String s = p.asString();
 		if ( s == null ) return DefaultTargetType.None;
 		System.out.println("I see you want: " + s);
@@ -81,7 +81,7 @@ public class ScriptedSpell extends Spell {
 		String name = triggers.get("cast");
 		final Spell closure_s = this;
 		
-		DefaultTargetType tt = getDefaultTargetType(ctx);
+		DefaultTargetType tt = getDefaultTargetType(ctx,ctx.getSource());
 
 		Parameter target = null;
 		if ( tt != DefaultTargetType.None ) {

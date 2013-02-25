@@ -6,13 +6,10 @@ import java.lang.reflect.Field;
 
 import org.bukkit.Material;
 
-import org.bukkit.craftbukkit.v1_4_6.inventory.*;
-
 
 import com.basicer.parchment.unsafe.ParchmentNBTTagCompound;
 import com.basicer.parchment.unsafe.ParchmentNBTTagCompoundImpl;
 
-import net.minecraft.server.v1_4_6.*;
 
 
 /**
@@ -21,7 +18,6 @@ import net.minecraft.server.v1_4_6.*;
  */
 public class Book {
    
-    private ItemStack handle;
     private org.bukkit.inventory.ItemStack base;
     
     public static String readSpell(org.bukkit.inventory.ItemStack itm) {
@@ -30,9 +26,7 @@ public class Book {
     	ParchmentNBTTagCompound tag = ParchmentNBTTagCompoundImpl.getTag(itm, false);
     	if ( tag == null ) return null;
     	
-    	NBTTagList l = new NBTTagList();
-    	NBTTagCompound c = new NBTTagCompound();
-    	l.get(arg0)
+
     	return tag.getString("binding");
     	
     }
@@ -43,6 +37,7 @@ public class Book {
 	    	
     }
     
+    /*
     public static Book createFromBukkitItemStack(org.bukkit.inventory.ItemStack base) {
          return new Book(base);
     }
@@ -75,6 +70,7 @@ public class Book {
         return b.toString();
         
     }
+    */
     
     
     
