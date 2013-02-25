@@ -55,13 +55,13 @@ public class Expr extends TCLCommand {
 			
 			lhs = evaluate(lhs, op, rhs);
 
-			//System.out.println(lhs.toString());
+			System.err.println(lhs.toString());
 		}
 	}
 	
 	public static Parameter evaluate(Parameter lhs, Parameter pop, Parameter rhs) {
 		String op = pop.asString();
-		//System.out.println("EVAL: " + (lhs == null ? "null" : lhs.toString()) + " " + op + " " + (rhs == null ? "null" : rhs.toString()));
+		System.err.println("EVAL: " + (lhs == null ? "null" : lhs.toString()) + " " + op + " " + (rhs == null ? "null" : rhs.toString()));
 		
 		//TODO: Downcasting is not how TCL works, we need to look at the input arguments.
 		if ( op.equals("+") ) return Parameter.from(lhs.asDouble() + rhs.asDouble()).downCastIfPossible();
