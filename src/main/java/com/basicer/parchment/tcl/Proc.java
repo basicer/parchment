@@ -51,9 +51,9 @@ public class Proc extends TCLCommand {
 			}
 			
 		};
-		ctx.up(1).setCommand(pname.asString(), proc);
+		ctx.top().setCommand(pname.asString(), proc);
 		System.out.println("Registered proc " + pname.asString());
-		return Parameter.from("");
+		return Parameter.from(proc);
 		
 	}
 

@@ -28,15 +28,16 @@ public class ProxyFactory {
 						
 						//TODO: Memorize this
 						Class[] target_types = method.getParameterTypes();
-						
-
+						Annotation[][] annotations = method.getParameterAnnotations();
 						methodsearch:
 						for ( Method m : base.getClass().getMethods() ) {
 							if ( !m.getName().equals(method.getName()) ) continue;
 							Class[] canidate_types = m.getParameterTypes();
 							if ( target_types.length != canidate_types.length ) continue;
 							for ( int i = 0; i < target_types.length; ++i ) {
-								if ( method.getAnnotation(Unwrap.class) != null ) {
+								boolean should_unwrap = false;
+								for ( Annotation a : annotations[i] ) if ( a instanceof Unwrap ) should_unwrap = true;
+								if ( should_unwrap ) {
 									Object base = ((ProxyInterface) args[i]).unproxy();
 									if ( !canidate_types[i].isInstance(base) ) continue methodsearch;
 								} else {
@@ -46,18 +47,22 @@ public class ProxyFactory {
 							impl = m;
 							break;
 						}
+
+						if ( impl == null ) {
+							throw new Exception("Ducktype assertion failed, " + base.getClass().getName() + " can't be a " + type.getName() +
+								" because it has no method " + method.getName() );
+						}
 						
 						for ( int i = 0; i < target_types.length; ++i ) {
-							if ( method.getAnnotation(Unwrap.class) != null ) {
+							boolean should_unwrap = false;
+							for ( Annotation a : annotations[i] ) if ( a instanceof Unwrap ) should_unwrap = true;
+							if ( should_unwrap ) {
 								args[i] = ((ProxyInterface) args[i]).unproxy();
 							}
 						}
 						
 						
-						if ( impl == null ) {
-							throw new Exception("Ducktype assertion failed, " + base.getClass().getName() + " can't be a " + type.getName() +
-								" because it has no method " + method.getName() );
-						}
+
 						
 						try {
 							Object result = impl.invoke(base, args);

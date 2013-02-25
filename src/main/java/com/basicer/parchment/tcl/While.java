@@ -38,6 +38,7 @@ public class While extends TCLCommand {
 		}
 		if ( result.getCode() == Code.BREAK ) result.setCode(Code.OK);
 		if ( result.getCode() == Code.CONTINUE ) result.setCode(Code.OK);
+		
 		return result;
 		
 	}
