@@ -27,7 +27,7 @@ public class Expr extends TCLCommand {
 		PushbackReader s = new PushbackReader(new StringReader(expr));
 		Queue<Parameter> tokens = new LinkedList<Parameter>();
 		for ( Parameter p : e.parseLine(s, ctx) ) {
-			System.out.println("TKN " + p.asString());
+			//System.out.println("TKN " + p.asString());
 			tokens.add(p);
 		}
 		return parse(tokens, tokens.poll(), 0);
@@ -55,13 +55,13 @@ public class Expr extends TCLCommand {
 			
 			lhs = evaluate(lhs, op, rhs);
 
-			System.out.println(lhs.toString());
+			//System.out.println(lhs.toString());
 		}
 	}
 	
 	public static Parameter evaluate(Parameter lhs, Parameter pop, Parameter rhs) {
 		String op = pop.asString();
-		System.out.println("EVAL: " + (lhs == null ? "null" : lhs.toString()) + " " + op + " " + (rhs == null ? "null" : rhs.toString()));
+		//System.out.println("EVAL: " + (lhs == null ? "null" : lhs.toString()) + " " + op + " " + (rhs == null ? "null" : rhs.toString()));
 		
 		//TODO: Downcasting is not how TCL works, we need to look at the input arguments.
 		if ( op.equals("+") ) return Parameter.from(lhs.asDouble() + rhs.asDouble()).downCastIfPossible();
@@ -102,18 +102,15 @@ public class Expr extends TCLCommand {
 		switch ( x.charAt(0) ) {
 			case '+':
 			case '-':
-				System.out.println("OP " + x + " 1");
 				return 12;
 			case '*':
 			case '/':
 			case '%':
-				System.out.println("OP " + x + " 2");
 				return 13;
 			case '<':
 			case '>':
 				return 10;
 			default:
-				System.out.println("OP " + x + "");
 				return -1;
 		}
 		

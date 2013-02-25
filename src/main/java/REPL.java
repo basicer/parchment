@@ -35,7 +35,8 @@ public class REPL {
 		ctx.setSpellFactory(spellfactory);
 		ctx.setSource("command");
 		
-		new TCLEngine(b.toString(), ctx).step();
+		TCLEngine x = new TCLEngine(b.toString(), ctx);
+		while (x.step()) { 	}
 	}
 
 }

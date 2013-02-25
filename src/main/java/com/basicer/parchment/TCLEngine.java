@@ -24,22 +24,33 @@ public class TCLEngine {
 		this.ctx = ctx;
 	}
 	
+	EvaluationResult result = null;
 	public boolean step() {
-		evaluate(sourcecode, ctx);
-		return false;
+		
+		while ( true ) {
+			Parameter[] pargs = parseLine(sourcecode, ctx);
+			if ( pargs == null) return false;
+			if ( pargs.length < 1 ) continue;
+			//for (Parameter p : pargs) {
+			//	ctx.sendDebugMessage("[P] " + p.toString());
+			//}
+			
+			result = evaluate(pargs, ctx);
+			if ( result.getCode() != Code.OK ) return false;
+			return true;
+			//ctx.sendDebugMessage("[R] " + result.toString());
+		}
+
 	}
 
-	public EvaluationResult evaluate(String cmd, Context ctx) {
-		PushbackReader r = new PushbackReader(new StringReader(cmd));
-		return evaluate(r, ctx);
+	public EvaluationResult evaluate(String s, Context ctx) {
+		return evaluate(new PushbackReader(new StringReader(s)), ctx);
 	}
 	
 	public EvaluationResult evaluate(PushbackReader r, Context ctx) {
 		EvaluationResult result = null;
-		boolean done = false;
 		while ( true ) {
 			Parameter[] pargs = parseLine(r, ctx);
-			if ( done ) continue;
 			if ( pargs == null) break;
 			if ( pargs.length < 1 ) continue;
 			//for (Parameter p : pargs) {
