@@ -16,7 +16,7 @@ import com.basicer.parchment.Spell.FizzleException;
 import com.basicer.parchment.Context;
 import com.basicer.parchment.SpellFactory;
 import com.basicer.parchment.TCLCommand;
-import com.basicer.parchment.TCLParser;
+import com.basicer.parchment.TCLUtils;
 
 import com.basicer.parchment.craftbukkit.Book;
 import com.basicer.parchment.parameters.Parameter;
@@ -172,7 +172,7 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 				b.append(qargs.poll());
 			}
 
-			TCLParser.evaluate(b.toString(), ctx);
+			TCLUtils.evaluate(b.toString(), ctx);
 		} else if (action.equals("run")) {
 			String file = qargs.poll() + ".tcl";
 			File folder = findDirectory(this.getDataFolder(), "runnable");
@@ -184,7 +184,7 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 			PushbackReader reader;
 			try {
 				reader = new PushbackReader(new InputStreamReader(new FileInputStream(rfile)));
-				TCLParser.evaluate(reader, ctx);
+				TCLUtils.evaluate(reader, ctx);
 			} catch (FileNotFoundException e) {
 				sender.sendMessage("Unknown file 2 " + file);
 			}

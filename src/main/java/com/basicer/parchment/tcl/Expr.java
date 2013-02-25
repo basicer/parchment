@@ -5,7 +5,8 @@ import java.util.Queue;
 
 import com.basicer.parchment.Context;
 import com.basicer.parchment.TCLCommand;
-import com.basicer.parchment.TCLParser;
+import com.basicer.parchment.TCLEngine;
+import com.basicer.parchment.TCLUtils;
 import com.basicer.parchment.parameters.DoubleParameter;
 import com.basicer.parchment.parameters.Parameter;
 
@@ -21,11 +22,11 @@ public class Expr extends TCLCommand {
 		return parse(q, q.poll(), 0);
 	}
 	
-	public static Parameter eval(String expr, Context ctx) {
+	public static Parameter eval(String expr, Context ctx, TCLEngine e) {
 		
 		PushbackReader s = new PushbackReader(new StringReader(expr));
 		Queue<Parameter> tokens = new LinkedList<Parameter>();
-		for ( Parameter p : TCLParser.parseLine(s, ctx) ) {
+		for ( Parameter p : e.parseLine(s, ctx) ) {
 			System.out.println("TKN " + p.asString());
 			tokens.add(p);
 		}

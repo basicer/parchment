@@ -103,7 +103,7 @@ public abstract class TCLCommand {
 		return put;
 	}
 
-	public EvaluationResult extendedExecute(Context c2) {
+	public EvaluationResult extendedExecute(Context c2, TCLEngine e) {
 		return new EvaluationResult(this.execute(c2));
 	}
 }

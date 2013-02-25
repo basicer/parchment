@@ -32,7 +32,7 @@ public class ScriptedSpell extends Spell {
 		triggers = new HashMap<String, String>();
 		spellStatic.put("this", Parameter.from(this));
 		spellStatic.setSpellFactory(f);
-		TCLParser.evaluate(source, this.spellStatic);
+		TCLUtils.evaluate(source, this.spellStatic);
 		spellStatic.setSpellFactory(null);
 	}
 
@@ -42,7 +42,7 @@ public class ScriptedSpell extends Spell {
 		triggers = new HashMap<String, String>();
 		spellStatic.put("this", Parameter.from(this));
 		spellStatic.setSpellFactory(f);
-		TCLParser.evaluate(source, this.spellStatic);
+		TCLUtils.evaluate(source, this.spellStatic);
 		spellStatic.setSpellFactory(null);
 	}
 

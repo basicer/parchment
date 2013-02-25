@@ -4,7 +4,8 @@ import com.basicer.parchment.Context;
 import com.basicer.parchment.EvaluationResult;
 import com.basicer.parchment.EvaluationResult.Code;
 import com.basicer.parchment.TCLCommand;
-import com.basicer.parchment.TCLParser;
+import com.basicer.parchment.TCLEngine;
+import com.basicer.parchment.TCLUtils;
 import com.basicer.parchment.parameters.Parameter;
 
 public class Proc extends TCLCommand {
@@ -36,14 +37,14 @@ public class Proc extends TCLCommand {
 		TCLCommand proc = new TCLCommand() {
 
 			@Override
-			public Parameter execute(Context ctx) { return this.extendedExecute(ctx).getValue(); }
+			public Parameter execute(Context ctx) { return this.extendedExecute(ctx, null).getValue(); }
 			
 			@Override
 			public String[] getArguments() { return cxargs; }
 			
 			@Override
-			public EvaluationResult extendedExecute(Context ctx) {
-				EvaluationResult r = TCLParser.evaluate(bodystr, ctx);
+			public EvaluationResult extendedExecute(Context ctx, TCLEngine engine) {
+				EvaluationResult r = engine.evaluate(bodystr, ctx);
 				if ( r.getCode() == Code.RETURN ) {
 					r.setCode(Code.OK);
 				}
