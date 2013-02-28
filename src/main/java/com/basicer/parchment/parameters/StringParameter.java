@@ -38,32 +38,8 @@ public class StringParameter extends Parameter {
 	
 	@Override
 	public String asString(Context ctx) { return self; }
+
 	
-	
-	public Player asPlayer(Context ctx) {
-		if ( ctx == null ) return null;
-		Server s = ctx.getServer();
-		if ( s == null ) return null;
-		System.out.println("Server s looks for " + self);
-		return s.getPlayer(self);
-		
-	}
-	
-	
-	public World asWorld(Context ctx) {
-		if ( ctx == null ) return null;
-		Server s = ctx.getServer();
-		if ( s == null ) return null;
-		
-		return Bukkit.getWorld(self);		
-	}
-	
-	
-	public Material asMaterial(Context ctx) {
-		Material m = Material.matchMaterial(self);
-		if ( m == null ) return null;
-		return m;
-	}
 	
 }
 

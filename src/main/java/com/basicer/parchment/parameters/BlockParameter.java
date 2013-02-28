@@ -9,16 +9,10 @@ import com.basicer.parchment.Context;
 
 public class BlockParameter extends Parameter {
 	private Block self;
-	private BlockFace extra;
 	
 	
 	BlockParameter(Block self) {
 		this.self = self;
-	}
-	
-	BlockParameter(Block self, BlockFace extra) {
-		this.self = self;
-		this.extra = extra;
 	}
 	
 	@Override

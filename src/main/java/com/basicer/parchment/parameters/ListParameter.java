@@ -34,7 +34,7 @@ public class ListParameter extends Parameter {
 		return out;
 	}
 	
-	
+/*	
 	public LivingEntity asLivingEntity(Context ctx) {
 		if ( self.size() != 1 ) return null;
 		Parameter p = self.get(0);
@@ -65,6 +65,8 @@ public class ListParameter extends Parameter {
 		if ( p == null ) return null;
 		return p.as(Block.class);
 	}
+
+	*/
 	
 	@Override
 	public String asString(Context ctx) {

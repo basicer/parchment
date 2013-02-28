@@ -1,5 +1,6 @@
 package com.basicer.parchment.parameters;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.World;
 
@@ -22,5 +23,12 @@ public class WorldParameter extends Parameter {
 	@Override
 	public String asString(Context ctx) { return self.getName(); }
 	
+	public static World asWorld(StringParameter str, Context ctx) {
+		if ( ctx == null ) return null;
+		Server s = ctx.getServer();
+		if ( s == null ) return null;
+		
+		return Bukkit.getWorld(str.asString(ctx));		
+	}
 	
 }

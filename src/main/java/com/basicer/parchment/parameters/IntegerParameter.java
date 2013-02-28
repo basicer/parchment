@@ -35,10 +35,7 @@ public class IntegerParameter extends Parameter {
 		return ( self != 0 );
 	}
 	
-	
-	public Material asMaterial(Context ctx) {
-		return Material.getMaterial((int)self);
-	}
+
 	
 
 }

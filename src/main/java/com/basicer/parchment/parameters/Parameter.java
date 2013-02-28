@@ -158,14 +158,26 @@ public abstract class Parameter implements Iterable<Parameter> {
 		} catch (IllegalAccessException e) {
 			throw new RuntimeException(e);
 		}
-		
-		
+
 	}
 	
 	public <T extends Parameter> T cast(Class<T> type, Context ctx) {
 		if ( type.isInstance(this) ) return (T) this;
 		
 		Method m;
+		
+		try {
+			System.out.println("Trying Static Caster | " + type + " | " + this.getClass());
+			m = type.getMethod("castFrom", this.getClass(), Context.class);
+			System.out.println("I survived");
+			//System.out.println("Using Static Caster" + type);
+			//return (T)m.invoke(null, this, ctx);
+		} catch ( Exception ex ) {
+			
+		}
+		
+		System.out.println("Trying COnstrucotr Caster" + type);
+		
 		try {
 			System.out.println("Har we go casting " + this + " to " + type);
 			Class<?> oc = type.getDeclaredField("self").getType();
@@ -226,7 +238,6 @@ public abstract class Parameter implements Iterable<Parameter> {
 			for ( Constructor con : cons ) {
 				Class[] types = con.getParameterTypes();
 				if ( types.length != 1 ) return null;
-				System.out.println("Checking " + type.getSimpleName() + " ::" + con.toString());
 				if ( strict ) {
 					if ( types[0] != type ) return null;
 				} else { 
@@ -266,12 +277,14 @@ public abstract class Parameter implements Iterable<Parameter> {
 			if ( result != null ) return result;
 		}
 		
-		
 		throw new RuntimeException("Failed cast on " + type.getSimpleName());
-		
-		
+
 	}
 	
+	public static Parameter from(Object o, Object... args ) {
+		System.out.println("WARNING| IMPLEMENT EXTRA ARGUEMENTS");
+		return from(o);
+	}
 	
 	public static Parameter fromObject(Object data) {
 		Class datatype = data.getClass();
@@ -285,12 +298,6 @@ public abstract class Parameter implements Iterable<Parameter> {
 		
 		return Parameter.from(data.toString());
 		 
-	}
-	
-	public static Parameter from(Block block, BlockFace face) {
-		if ( block == null ) return null;
-		if ( face == null ) return from(block);
-		return new BlockParameter(block, face);
 	}
 	
 	public static Parameter createList(Parameter[] list) {
