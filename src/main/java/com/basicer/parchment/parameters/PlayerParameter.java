@@ -30,6 +30,4 @@ public class PlayerParameter extends LivingEntityParameter {
 
 	
 	public ItemStack asItemStack(Context ctx) { return self.getItemInHand(); }
-	
-	 
 }

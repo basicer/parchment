@@ -3,9 +3,9 @@ package com.basicer.parchment.parameters;
 import com.basicer.parchment.Context;
 
 public class DoubleParameter extends Parameter {
-	private double self;
+	private Double self;
 	
-	public DoubleParameter(double self) {
+	public DoubleParameter(Double self) {
 		this.self = self;
 	}
 
@@ -19,7 +19,7 @@ public class DoubleParameter extends Parameter {
 	
 	
 	public Integer asInteger(Context ctx) {
-		return Integer.valueOf((int) self);
+		return Integer.valueOf(self.intValue());
 	}
 	
 	
@@ -29,8 +29,8 @@ public class DoubleParameter extends Parameter {
 	}
 
 	public Parameter downCastIfPossible() {
-		if ( (int)self == self ) {
-			return Parameter.from((int) self);
+		if ( self.intValue() == self.doubleValue() ) {
+			return Parameter.from(self.intValue());
 		}
 		return this;
 	}

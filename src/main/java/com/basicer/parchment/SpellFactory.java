@@ -18,18 +18,12 @@ public class SpellFactory {
 		commands = new Hashtable<String,TCLCommand>();
 	}
 	
-	public void load() {
-		
-		
+	public void loadTCLOnly() {
 		addBuiltinCommand(PutS.class);
 		addBuiltinCommand(Set.class);
 		addBuiltinCommand(Concat.class);
-		addBuiltinCommand(SCommand.class);
-		addBuiltinCommand(PCommand.class);
-		addBuiltinCommand(Color.class);
-		addBuiltinCommand(Bind.class);
+
 		addBuiltinCommand(Upvar.class);
-		addBuiltinCommand(Expand.class);
 		
 		addBuiltinCommand(Proc.class);
 		addBuiltinCommand(Expr.class);
@@ -37,6 +31,20 @@ public class SpellFactory {
 		addBuiltinCommand(While.class);
 		addBuiltinCommand(Return.class);
 		addBuiltinCommand(Break.class);
+		addBuiltinCommand(Cast.class);
+	}
+	
+	public void load() {
+		
+		
+		loadTCLOnly();
+		addBuiltinCommand(Expand.class);
+		addBuiltinCommand(SCommand.class);
+		addBuiltinCommand(PCommand.class);
+		addBuiltinCommand(Color.class);
+		addBuiltinCommand(Bind.class);
+		
+
 		
 		addBuiltinSpell(Item.class);
 		addBuiltinSpell(Block.class);

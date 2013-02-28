@@ -19,8 +19,7 @@ import com.basicer.parchment.TCLCommand;
 import com.basicer.parchment.TCLUtils;
 
 import com.basicer.parchment.craftbukkit.Book;
-import com.basicer.parchment.parameters.Parameter;
-import com.basicer.parchment.parameters.PlayerParameter;
+import com.basicer.parchment.parameters.*;
 import com.basicer.parchment.spells.Heal;
 
 import org.bukkit.Bukkit;
@@ -68,6 +67,18 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 		pm.registerEvents(this, this);
 		getLogger().info("Framework Enabled");
 		spellfactory = new SpellFactory();
+		
+		Parameter.RegisterParamaterType(PlayerParameter.class);
+		Parameter.RegisterParamaterType(LivingEntityParameter.class);
+		Parameter.RegisterParamaterType(BlockParameter.class);
+		Parameter.RegisterParamaterType(EntityParameter.class);
+		
+		Parameter.RegisterParamaterType(LocationParameter.class);
+		Parameter.RegisterParamaterType(MaterialParameter.class);
+		Parameter.RegisterParamaterType(ServerParameter.class);
+		Parameter.RegisterParamaterType(SpellParameter.class);
+		Parameter.RegisterParamaterType(WorldParameter.class);
+		
 		commandctx = new Context(); 
 		if (pm.getPlugin("ProtocolLib") != null) {
 			manager = ProtocolLibrary.getProtocolManager();

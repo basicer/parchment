@@ -19,10 +19,10 @@ public class EntityParameter extends Parameter {
 	public Class<? extends Entity> getUnderlyingType() { return Entity.class; }
 	
 	
-	public Location asLocation(Context ctx, SelectionMode mode) {
+
+	public Location asLocation(Context ctx) {
 		return self.getLocation();
 	}
-
 	
 	public Entity asEntity(Context ctx) {
 		return self;

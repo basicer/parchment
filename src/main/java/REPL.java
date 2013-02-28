@@ -22,7 +22,7 @@ public class REPL {
 		String line = null;
 		Context commandctx = new Context(); 
 		SpellFactory spellfactory = new SpellFactory();
-		spellfactory.load();
+		spellfactory.loadTCLOnly();
 		StringBuilder b = new StringBuilder();
 		while ( (line = in.readLine()) != null ) {
 			b.append(line);

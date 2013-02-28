@@ -5,9 +5,9 @@ import org.bukkit.Material;
 import com.basicer.parchment.Context;
 
 public class IntegerParameter extends Parameter {
-	private int self;
+	private Integer self;
 	
-	public IntegerParameter(int self) {
+	public IntegerParameter(Integer self) {
 		this.self = self;
 	}
 

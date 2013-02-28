@@ -19,10 +19,6 @@ public class LivingEntityParameter extends EntityParameter {
 	@Override
 	public Class<? extends Entity> getUnderlyingType() { return Entity.class; }
 	
-	@Override
-	public Location asLocation(Context ctx, SelectionMode mode) {
-		return self.getLocation();
-	}
 
 	@Override
 	public Entity asEntity(Context ctx) {

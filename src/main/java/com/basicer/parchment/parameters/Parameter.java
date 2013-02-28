@@ -5,8 +5,11 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -21,7 +24,7 @@ import com.basicer.parchment.TCLCommand;
 
 public abstract class Parameter implements Iterable<Parameter> {
 
-	public enum SelectionMode { DEFAULT, HIT, LOOKING, STANDING };
+	//public enum SelectionMode { DEFAULT, HIT, LOOKING, STANDING };
 	
 
 	/*
@@ -71,8 +74,22 @@ public abstract class Parameter implements Iterable<Parameter> {
 	public final boolean asBoolean()		{ return asBoolean(null); }
 	public boolean asBoolean(Context ctx) 		{ return false; }	
 
-	
-	
+	private static List<Class<? extends Parameter>> registeredTypes;
+
+	public static void RegisterParamaterType(Class<? extends Parameter> type)
+	{
+		if ( registeredTypes == null ) registeredTypes = new LinkedList<Class<? extends Parameter>>();
+		if ( !registeredTypes.contains(type)) registeredTypes.add(type);
+		
+	}
+
+	{
+		RegisterParamaterType(StringParameter.class);
+		RegisterParamaterType(DelegateParameter.class);
+		RegisterParamaterType(IntegerParameter.class);
+		RegisterParamaterType(DoubleParameter.class);
+	}
+
 	
 	public <T> T as(Class<T> type) {
 		return as(type, null);
@@ -108,18 +125,19 @@ public abstract class Parameter implements Iterable<Parameter> {
 		return cast(type, null);
 	}
 	
+	public Parameter castByString(String name) {
+		Class<? extends Parameter> type = classForName(name);
+		System.out.println("Resolved Type " + name + " to " + type);
+		return cast(type);
+	}
+	
 	private static Class<? extends Parameter> classForName(String s) {
 		
-		if ( s.equals("Player") ) return PlayerParameter.class;
-		else if ( s.equals("Location") ) return LocationParameter.class;
-		else if ( s.equals("String") ) return StringParameter.class;
-		else if ( s.equals("Server") ) return ServerParameter.class;
-		else if ( s.equals("Block") ) return BlockParameter.class;
-		else if ( s.equals("Double") ) return DoubleParameter.class;
-		else if ( s.equals("Entity") ) return EntityParameter.class;
-		else if ( s.equals("Item") ) return ItemParameter.class;
-		else if ( s.equals("World") ) return WorldParameter.class;
-		
+		if ( registeredTypes == null ) return null;
+		String match = s + "Parameter";
+		for ( Class<? extends Parameter> c : registeredTypes ) {
+			if ( c.getSimpleName().equals(match) ) return c;
+		}
 		return null;
 	}
 	
@@ -149,7 +167,7 @@ public abstract class Parameter implements Iterable<Parameter> {
 		
 		Method m;
 		try {
-			System.out.println("Har we go");
+			System.out.println("Har we go casting " + this + " to " + type);
 			Class<?> oc = type.getDeclaredField("self").getType();
 			Object o = this.as(oc);
 			if ( o == null ) {
@@ -200,36 +218,54 @@ public abstract class Parameter implements Iterable<Parameter> {
 
 */
 	
+	private static Parameter tryParamCast(Object o, Class<? extends Parameter> type, boolean strict)
+	{
+		Class<?> xtype = o.getClass();
+		try {
+			Constructor[] cons = type.getDeclaredConstructors();
+			for ( Constructor con : cons ) {
+				Class[] types = con.getParameterTypes();
+				if ( types.length != 1 ) return null;
+				System.out.println("Checking " + type.getSimpleName() + " ::" + con.toString());
+				if ( strict ) {
+					if ( types[0] != type ) return null;
+				} else { 
+					if ( !types[0].isAssignableFrom(xtype) ) return null;
+				}
+				con.setAccessible(true);
+				return (Parameter) con.newInstance(o);
+			}
+			return null;
+		} catch (SecurityException e) {
+			throw new RuntimeException(e);
+		} catch (InstantiationException e) {
+			throw new RuntimeException(e);
+		} catch (IllegalAccessException e) {
+			throw new RuntimeException(e);
+		} catch (IllegalArgumentException e) {
+			throw new RuntimeException(e);
+		} catch (InvocationTargetException e) {
+			throw new RuntimeException(e);
+		}
+	
+	}
+	
 	public static Parameter from(Object o)
 	{
 		Class type = o.getClass();
-		Class[] loaded = { PlayerParameter.class, LivingEntityParameter.class, LocationParameter.class, MaterialParameter.class, ServerParameter.class, WorldParameter.class, SpellParameter.class, DelegateParameter.class };
-		
-		//Todo: Cache this
-		for ( Class c : loaded ) {
-			try {
-				Constructor[] cons = c.getDeclaredConstructors();
-				for ( Constructor con : cons ) {
-					System.out.println("Checking " + c.getSimpleName() + " ::" + con.toString());
-					Class[] types = con.getParameterTypes();
-					if ( types.length != 1 ) continue;
-					if ( !types[0].isAssignableFrom(type) ) continue;
-					con.setAccessible(true);
-					return (Parameter) con.newInstance(o);
-				}
-			} catch (SecurityException e) {
-				continue;
-			} catch (InstantiationException e) {
-				throw new RuntimeException(e);
-			} catch (IllegalAccessException e) {
-				throw new RuntimeException(e);
-			} catch (IllegalArgumentException e) {
-				throw new RuntimeException(e);
-			} catch (InvocationTargetException e) {
-				throw new RuntimeException(e);
-			}
-			
+		if ( registeredTypes == null ) return null;
+		//Todo: Cache this and sort it.
+		for ( Class c : registeredTypes ) {
+			Parameter result = tryParamCast(o, c, true);
+			if ( result != null ) return result;
 		}
+
+		System.err.println("Uh, so that wasnt any good, lets try this.");
+		for ( Class c2 : registeredTypes ) {
+			Parameter result = tryParamCast(o, c2, false);
+			if ( result != null ) return result;
+		}
+		
 		
 		throw new RuntimeException("Failed cast on " + type.getSimpleName());
 		
