@@ -32,12 +32,13 @@ public class PlayerParameter extends LivingEntityParameter {
 	
 	public ItemStack asItemStack(Context ctx) { return self.getItemInHand(); }
 	
-	public static Player castFrom(StringParameter from, Context ctx) {
+	public static PlayerParameter castFrom(StringParameter from, Context ctx) {
 		if ( ctx == null ) return null;
 		Server s = ctx.getServer();
 		if ( s == null ) return null;
 		System.out.println("Server s looks for " + from.asString());
-		return s.getPlayer(from.asString());
-		
+		Player p = s.getPlayer(from.asString());
+		if ( p == null ) return null;
+		return new PlayerParameter(p);
 	}
 }

@@ -23,14 +23,16 @@ public class MaterialParameter extends Parameter {
 	
 	public Material asMaterial(Context ctx) { return self; }
 	
-	public static Material castFrom(StringParameter str, Context ctx) {
+	public static MaterialParameter castFrom(StringParameter str, Context ctx) {
 		org.bukkit.Material m = org.bukkit.Material.matchMaterial(str.asString(ctx));
 		if ( m == null ) return null;
-		return m;
+		return new MaterialParameter(m);
 	}
 	
-	public static Material castFrom(IntegerParameter i, Context ctx) {
-			return Material.getMaterial(i.asInteger().intValue());
+	public static MaterialParameter castFrom(IntegerParameter i, Context ctx) {
+			Material m = Material.getMaterial(i.asInteger().intValue());
+			if ( m == null ) return null;
+			return new MaterialParameter(m);
 	}
 	
 }

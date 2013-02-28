@@ -127,8 +127,12 @@ public abstract class Parameter implements Iterable<Parameter> {
 	
 	public Parameter castByString(String name) {
 		Class<? extends Parameter> type = classForName(name);
-		System.out.println("Resolved Type " + name + " to " + type);
 		return cast(type);
+	}
+	
+	public Parameter castByString(String name, Context ctx) {
+		Class<? extends Parameter> type = classForName(name);
+		return cast(type, ctx);
 	}
 	
 	private static Class<? extends Parameter> classForName(String s) {
@@ -167,13 +171,15 @@ public abstract class Parameter implements Iterable<Parameter> {
 		Method m;
 		
 		try {
-			System.out.println("Trying Static Caster | " + type + " | " + this.getClass());
-			m = type.getMethod("castFrom", this.getClass(), Context.class);
+			System.out.println("Trying Static Caster | " + type + " from " + this.getClass());
+			m = type.getDeclaredMethod("castFrom", this.getClass(), Context.class);
 			System.out.println("I survived");
 			//System.out.println("Using Static Caster" + type);
-			//return (T)m.invoke(null, this, ctx);
+			T out = (T)m.invoke(null, this, ctx);
+			System.out.println("Using Static Caster" + type + " | " + out);
+			return out;
 		} catch ( Exception ex ) {
-			
+			ex.printStackTrace(System.out);
 		}
 		
 		System.out.println("Trying COnstrucotr Caster" + type);
