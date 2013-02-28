@@ -20,7 +20,7 @@ public class Heal extends Spell {
 	public String[] getArguments() { return new String[] {"amount?"}; }
 	
 	public Parameter affect(PlayerParameter target, Context ctx) {
-		LivingEntity ltarget = target.asLivingEntity();
+		LivingEntity ltarget = target.as(LivingEntity.class);
 		if ( ltarget == null ) fizzle();
 		 
 		double health = ltarget.getHealth() / 2.0;
@@ -35,7 +35,7 @@ public class Heal extends Spell {
  	}
 
 	public Parameter affect(EntityParameter target, Context ctx) {
-		LivingEntity ltarget = target.asLivingEntity();
+		LivingEntity ltarget = target.as(LivingEntity.class);
 		if ( ltarget == null ) fizzle("Entity null or not alive");
 		 
 		double health = ltarget.getHealth() / 2.0;

@@ -15,17 +15,18 @@ public class Bind extends TCLCommand {
 	@Override
 	public Parameter execute(Context ctx) {
 		Parameter t = ctx.resolve("this");
+		System.out.println("This = " + t);
 		if ( t == null ) return Parameter.from(false);
 		SpellParameter tt = t.cast(SpellParameter.class);
 		if ( tt == null ) return Parameter.from(false);
 		
-		Spell s = tt.asSpell();
+		Spell s = tt.as(Spell.class);
 		if ( s == null ) return Parameter.from(false);
 		if ( !( s instanceof ScriptedSpell )) return Parameter.from(false);
 
 		ScriptedSpell ss = (ScriptedSpell) s;
 		ss.setTrigger(ctx.get("trigger").asString(), ctx.get("procedure").asString());
-		
+		System.out.println("Bound " + ctx.get("trigger").asString()  + " as " + ctx.get("procedure").asString());
 		return Parameter.from(true);
 		
 	}

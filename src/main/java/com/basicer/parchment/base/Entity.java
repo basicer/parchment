@@ -45,9 +45,9 @@ public class Entity extends OperationalSpell<EntityParameter>  {
 	}
 	
 	public Parameter affect(LocationParameter target, Context ctx) {
-		for ( org.bukkit.entity.Entity e : target.asLocation().getWorld().getEntities() ) {
-			if ( e.getLocation().distanceSquared(target.asLocation()) < 4 ) {
-				return this.doaffect(Parameter.from(e), ctx);
+		for ( org.bukkit.entity.Entity e : target.as(Location.class).getWorld().getEntities() ) {
+			if ( e.getLocation().distanceSquared(target.as(Location.class)) < 4 ) {
+				return this.doaffect((EntityParameter)Parameter.from(e), ctx);
 			}
 		}
 		fizzle("No entities fond there");
@@ -100,19 +100,19 @@ public class Entity extends OperationalSpell<EntityParameter>  {
 		if ( ent instanceof LivingEntity ) lent = (LivingEntity) ent;
 		
 		if ( location != null ) {
-			if ( location.asEntity() != null ) {
-				ent.teleport(location.asEntity(), TeleportCause.COMMAND);
-			} else if ( location.asBlock() != null ) {
-				org.bukkit.block.Block bloc = location.asBlock();
+			if ( location.as(Entity.class) != null ) {
+				ent.teleport(location.as(org.bukkit.entity.Entity.class), TeleportCause.COMMAND);
+			} else if ( location.as(Block.class) != null ) {
+				org.bukkit.block.Block bloc = location.as(org.bukkit.block.Block.class);
 				Location loc = bloc.getRelative(BlockFace.UP).getLocation();
 				loc.setPitch(ent.getLocation().getPitch());
 				loc.setYaw(ent.getLocation().getYaw());
 				ent.teleport(loc, TeleportCause.COMMAND);
-			} else if ( location.asLocation() != null ) {
-				Location loc = location.asLocation();
+			} else if ( location.as(Location.class) != null ) {
+				Location loc = location.as(Location.class);
 				loc.setPitch(ent.getLocation().getPitch());
 				loc.setYaw(ent.getLocation().getYaw());
-				ent.teleport(location.asLocation(), TeleportCause.COMMAND);
+				ent.teleport(location.as(Location.class), TeleportCause.COMMAND);
 			} else if ( location.asDouble() != null ) {
 				if ( lent == null ) fizzle("Can only use distance based teleports on living entities");
 				

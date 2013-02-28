@@ -18,7 +18,7 @@ public class StringParameter extends Parameter {
 	@Override
 	public Class<String> getUnderlyingType() { return String.class; }
 	
-	@Override
+	
 	public Double asDouble(Context ctx) {
 		try { 
 			return Double.parseDouble(self);
@@ -27,7 +27,7 @@ public class StringParameter extends Parameter {
 		}
 	}
 	
-	@Override
+	
 	public Integer asInteger(Context ctx) {
 		try {
 			return (int)(Double.parseDouble(self));
@@ -39,7 +39,7 @@ public class StringParameter extends Parameter {
 	@Override
 	public String asString(Context ctx) { return self; }
 	
-	@Override
+	
 	public Player asPlayer(Context ctx) {
 		if ( ctx == null ) return null;
 		Server s = ctx.getServer();
@@ -49,7 +49,7 @@ public class StringParameter extends Parameter {
 		
 	}
 	
-	@Override
+	
 	public World asWorld(Context ctx) {
 		if ( ctx == null ) return null;
 		Server s = ctx.getServer();
@@ -58,7 +58,7 @@ public class StringParameter extends Parameter {
 		return Bukkit.getWorld(self);		
 	}
 	
-	@Override
+	
 	public Material asMaterial(Context ctx) {
 		Material m = Material.matchMaterial(self);
 		if ( m == null ) return null;

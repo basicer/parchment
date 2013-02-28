@@ -112,14 +112,14 @@ public class Item extends OperationalSpell<ItemParameter>  {
 	
 	public Parameter materialOperation(ItemStack itm, Context ctx, MaterialParameter mat) {
 		if ( mat != null ) {
-			itm.setType(mat.asMaterial());
+			itm.setType(mat.as(Material.class));
 		}
 		return Parameter.from(itm.getType());
 	}
 	
 	public Parameter typeOperation(ItemStack itm, Context ctx, MaterialParameter mat) {
 		if ( mat != null ) {
-			itm.setType(mat.asMaterial());
+			itm.setType(mat.as(Material.class));
 		}
 		return Parameter.from(itm.getType());
 	}

@@ -13,10 +13,13 @@ public class LocationParameter extends Parameter {
 	@Override
 	public Class<Location> getUnderlyingType() { return Location.class; }
 	
+	/*
 	@Override
 	public Location asLocation(Context ctx, SelectionMode mode) {
 		return self;
 	}
+	*/
+	
 	@Override
 	public String asString(Context ctx) {
 		return "[Location T:" + self.getWorld().getName() + "/" 

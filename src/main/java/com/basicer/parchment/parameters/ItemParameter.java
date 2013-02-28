@@ -15,10 +15,10 @@ public class ItemParameter extends Parameter {
 	@Override
 	public Class<ItemStack> getUnderlyingType() { return ItemStack.class; }
 	
-	@Override
+	
 	public ItemStack asItemStack(Context ctx) { return self; }
 	
-	@Override
+	
 	public String asString(Context ctx) { 
 		ItemMeta m = self.getItemMeta();
 		if ( m != null && m.getDisplayName() != null ) return m.getDisplayName();

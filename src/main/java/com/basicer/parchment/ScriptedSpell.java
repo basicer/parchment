@@ -78,7 +78,9 @@ public class ScriptedSpell extends Spell {
 	
 	@Override
 	public Parameter cast(final Context ctx) {
+		
 		String name = triggers.get("cast");
+		System.out.println("LeCasting : " + name);
 		final Spell closure_s = this;
 		
 		DefaultTargetType tt = getDefaultTargetType(ctx,ctx.getSource());

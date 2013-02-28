@@ -19,7 +19,7 @@ public class Affect extends TCLCommand {
 		SpellParameter tt = t.cast(SpellParameter.class);
 		if ( tt == null ) return Parameter.from(false);
 		
-		Spell s = tt.asSpell();
+		Spell s = tt.as(Spell.class);
 		if ( s == null ) return Parameter.from(false);
 		if ( !( s instanceof ScriptedSpell )) return Parameter.from(false);
 

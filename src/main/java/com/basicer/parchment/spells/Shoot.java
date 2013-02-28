@@ -9,7 +9,7 @@ public class Shoot extends Spell {
 	
 	@Override
 	public Parameter cast(Context ctx) {
-		LivingEntity ent = ctx.getCaster().asLivingEntity();
+		LivingEntity ent = ctx.getCaster().as(LivingEntity.class);
 		if ( ent == null ) fizzle();
 		ent.launchProjectile(Arrow.class);
 		return null;

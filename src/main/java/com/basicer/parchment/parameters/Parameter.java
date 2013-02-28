@@ -1,6 +1,9 @@
 package com.basicer.parchment.parameters;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -21,14 +24,16 @@ public abstract class Parameter implements Iterable<Parameter> {
 	public enum SelectionMode { DEFAULT, HIT, LOOKING, STANDING };
 	
 
+	/*
 	public final Location asLocation() { return asLocation(null, SelectionMode.DEFAULT); }
 	public final Location asLocation(SelectionMode mode) { return asLocation(null, mode); }
+	
 	
 	public final LivingEntity asLivingEntity() { return asLivingEntity(null); }
 	public final Entity asEntity() 			{ return asEntity(null); }
 	public final Player asPlayer() 			{ return asPlayer(null); }
 	public final String asString() 			{ return asString(null); }
-	public final Double asDouble() 			{ return asDouble(null); }
+	
 	public final Integer asInteger() 		{ return asInteger(null); }
 	public final boolean asBoolean()		{ return asBoolean(null); }
 	public final World asWorld() 			{ return asWorld(null); }
@@ -42,7 +47,7 @@ public abstract class Parameter implements Iterable<Parameter> {
 	public Entity asEntity(Context ctx) 		{ return null; }
 	public Player asPlayer(Context ctx) 		{ return null; }
 	public String asString(Context ctx) 		{ return null; }
-	public Double asDouble(Context ctx) 		{ return null; }
+	
 	public Integer asInteger(Context ctx) 		{ return null; }
 	public boolean asBoolean(Context ctx) 		{ return false; }	
 	public World asWorld(Context ctx) 			{ return null; }
@@ -52,6 +57,52 @@ public abstract class Parameter implements Iterable<Parameter> {
 	public Block asBlock(Context ctx) 			{ return null; }
 	public Material asMaterial(Context ctx)		{ return null; }
 	public Location asLocation(Context ctx, SelectionMode mode)	{ return null; }
+	*/
+	
+	public final Double asDouble() 			{ return asDouble(null); }
+	public Double asDouble(Context ctx) 		{ return null; }
+	
+	public final String asString() 			{ return asString(null); }
+	public String asString(Context ctx) 		{ return null; }
+	
+	public final Integer asInteger() 		{ return asInteger(null); }
+	public Integer asInteger(Context ctx) 		{ return null; }
+	
+	public final boolean asBoolean()		{ return asBoolean(null); }
+	public boolean asBoolean(Context ctx) 		{ return false; }	
+
+	
+	
+	
+	public <T> T as(Class<T> type) {
+		return as(type, null);
+	}
+	
+	public <T> T as(Class<T> type, Context ctx) {
+		Method nfo;
+		try {
+			nfo = this.getClass().getMethod("as" + type.getSimpleName(), Context.class);
+		} catch ( NoSuchMethodException ex ) {
+			System.out.println("Warning no conversion from " + getClass().getSimpleName() + " to " + type.getSimpleName());
+			return null;
+		}
+		if ( nfo == null ) {
+			System.out.println("Warning no conversion from " + getClass().getSimpleName() + " to " + type.getSimpleName());
+			return null;
+		}
+		Object r;
+		try {
+			r = nfo.invoke(this, ctx);
+		} catch (IllegalAccessException e) {
+			throw new RuntimeException(e);
+		} catch (IllegalArgumentException e) {
+			throw new RuntimeException(e);
+		} catch (InvocationTargetException e) {
+			throw new RuntimeException(e);
+		}
+		if ( type.isInstance(r) ) return (T) r;
+		return null;
+	}
 	
 	public <T extends Parameter> T cast(Class<T> type) {
 		return cast(type, null);
@@ -96,57 +147,95 @@ public abstract class Parameter implements Iterable<Parameter> {
 	public <T extends Parameter> T cast(Class<T> type, Context ctx) {
 		if ( type.isInstance(this) ) return (T) this;
 		
-		if ( type.equals(EntityParameter.class) ) {
-			return (T)Parameter.from(this.asEntity(ctx));
-		} else if ( type.equals(PlayerParameter.class) ) {
-			return (T)Parameter.from(this.asPlayer(ctx));
-		} else if ( type.equals(StringParameter.class) ) {
-			return (T)Parameter.from(this.asString(ctx));
-		} else if ( type.equals(DoubleParameter.class) ) {
-			return (T)Parameter.from(this.asDouble(ctx));
-		} else if ( type.equals(IntegerParameter.class) ) {
-			return (T)Parameter.from(this.asInteger(ctx));
-		} else if ( type.equals(WorldParameter.class) ) {
-			return (T)Parameter.from(this.asWorld(ctx));
-		} else if ( type.equals(ServerParameter.class) ) {
-			return (T)Parameter.from(this.asServer(ctx));
-		} else if ( type.equals(ItemParameter.class) ) {
-			return (T)Parameter.from(this.asItemStack(ctx));
-		} else if ( type.equals(SpellParameter.class) ) {
-			return (T)Parameter.from(this.asSpell(ctx));
-		} else if ( type.equals(MaterialParameter.class) ) {
-			return (T)Parameter.from(this.asMaterial(ctx));
-		} else if ( type.equals(LocationParameter.class) ) {
-			return (T)Parameter.from(this.asLocation(ctx, SelectionMode.DEFAULT));
-		} else if ( type.equals(LivingEntityParameter.class) ) {
-			return (T)Parameter.from(this.asLivingEntity(ctx));
+		Method m;
+		try {
+			System.out.println("Har we go");
+			Class<?> oc = type.getDeclaredField("self").getType();
+			Object o = this.as(oc);
+			if ( o == null ) {
+				return null;
+			}
+			
+			Constructor<?> con = type.getDeclaredConstructor(oc);
+			System.out.println("We are " + getClass().getSimpleName() + " : " + this.asString());
+			System.out.println("Use " + con.toString() + " with param type " + oc);
+			con.setAccessible(true);
+			
+			return (T) con.newInstance(o);
+
+		} catch (Exception e) {
+			throw new RuntimeException(e);
 		}
-		
-		return null;
+	
 	}
 
 	public Class<? extends Parameter> getHomogeniousType() {
 		return this.getClass();
 	}
 	
+	
 	// Factory methods
-	public static PlayerParameter 	from(Player p) 		{ return p == null ? null : new PlayerParameter(p); }
-	public static EntityParameter 	from(Entity e) 		{ return e == null ? null : new EntityParameter(e); }
-	public static LivingEntityParameter from(LivingEntity e) { return e == null ? null : new LivingEntityParameter(e); }
+	
 	public static StringParameter 	from(String s) 		{ return s == null ? null : new StringParameter(s); }
 	public static DoubleParameter 	from(double d) 		{ return new DoubleParameter(d); }
 	public static DoubleParameter 	from(Double d)		{ return d == null ? null : new DoubleParameter(d); }
 	public static IntegerParameter 	from(int i) 		{ return new IntegerParameter(i); }
 	public static IntegerParameter 	from(Integer i)		{ return i == null ? null : new IntegerParameter(i); }
+	public static IntegerParameter 	from(boolean b)		{ return new IntegerParameter(b ? 1 : 0); }
+	
+	
+/*
+	public static PlayerParameter 	from(Player p) 		{ return p == null ? null : new PlayerParameter(p); }
+	public static EntityParameter 	from(Entity e) 		{ return e == null ? null : new EntityParameter(e); }
+	public static LivingEntityParameter from(LivingEntity e) { return e == null ? null : new LivingEntityParameter(e); }
 	public static WorldParameter 	from(World w) 		{ return w == null ? null : new WorldParameter(w); }
 	public static ServerParameter 	from(Server s) 		{ return s == null ? null : new ServerParameter(s); }
 	public static ItemParameter 	from(ItemStack i) 	{ return i == null ? null : new ItemParameter(i); }
 	public static SpellParameter 	from(Spell s) 		{ return s == null ? null : new SpellParameter(s); }
-	public static IntegerParameter 	from(boolean b)		{ return new IntegerParameter(b ? 1 : 0); }
-	public static DelegateParameter from(TCLCommand d)	{ return d == null ? null : new DelegateParameter(d); }
+	
+	
 	public static BlockParameter 	from(Block b)	    { return b == null ? null : new BlockParameter(b); }
 	public static MaterialParameter from(Material m)	{ return m == null ? null : new MaterialParameter(m); }
 	public static LocationParameter from(Location l)	{ return l == null ? null : new LocationParameter(l); }
+
+*/
+	
+	public static Parameter from(Object o)
+	{
+		Class type = o.getClass();
+		Class[] loaded = { PlayerParameter.class, LivingEntityParameter.class, LocationParameter.class, MaterialParameter.class, ServerParameter.class, WorldParameter.class, SpellParameter.class, DelegateParameter.class };
+		
+		//Todo: Cache this
+		for ( Class c : loaded ) {
+			try {
+				Constructor[] cons = c.getDeclaredConstructors();
+				for ( Constructor con : cons ) {
+					System.out.println("Checking " + c.getSimpleName() + " ::" + con.toString());
+					Class[] types = con.getParameterTypes();
+					if ( types.length != 1 ) continue;
+					if ( !types[0].isAssignableFrom(type) ) continue;
+					con.setAccessible(true);
+					return (Parameter) con.newInstance(o);
+				}
+			} catch (SecurityException e) {
+				continue;
+			} catch (InstantiationException e) {
+				throw new RuntimeException(e);
+			} catch (IllegalAccessException e) {
+				throw new RuntimeException(e);
+			} catch (IllegalArgumentException e) {
+				throw new RuntimeException(e);
+			} catch (InvocationTargetException e) {
+				throw new RuntimeException(e);
+			}
+			
+		}
+		
+		throw new RuntimeException("Failed cast on " + type.getSimpleName());
+		
+		
+	}
+	
 	
 	public static Parameter fromObject(Object data) {
 		Class datatype = data.getClass();

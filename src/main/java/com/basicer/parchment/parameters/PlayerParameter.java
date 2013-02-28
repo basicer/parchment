@@ -19,7 +19,7 @@ public class PlayerParameter extends LivingEntityParameter {
 	@Override
 	public Class<? extends Entity> getUnderlyingType() { return Player.class; }
 	
-	@Override
+	
 	public Player asPlayer(Context ctx) { return self; }
 	
 	@Override
@@ -28,7 +28,7 @@ public class PlayerParameter extends LivingEntityParameter {
 	@Override
 	public String asString(Context ctx) { return self.getName(); }
 
-	@Override
+	
 	public ItemStack asItemStack(Context ctx) { return self.getItemInHand(); }
 	
 	 

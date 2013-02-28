@@ -24,15 +24,18 @@ public class BlockParameter extends Parameter {
 	public Class<Block> getUnderlyingType() { return Block.class; }
 
 	
-	@Override
+	
 	public Block asBlock(Context ctx) { return self; }
 	
-	@Override
+	
 	public Location asLocation(Context ctx, SelectionMode mode) {
 		return self.getLocation();
 	}
 	
-	@Override
+	public Location asLocation(Context ctx) {
+		return self.getLocation();
+	}
+	
 	public String asString(Context ctx) {
 		Location l = self.getLocation();
 		return "[Block T:" + self.getType().name() + " @ " + self.getWorld().getName() + "/" 

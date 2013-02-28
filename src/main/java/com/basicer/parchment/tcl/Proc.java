@@ -37,7 +37,7 @@ public class Proc extends TCLCommand {
 		TCLCommand proc = new TCLCommand() {
 
 			@Override
-			public Parameter execute(Context ctx) { return this.extendedExecute(ctx, null).getValue(); }
+			public Parameter execute(Context ctx) { return this.extendedExecute(ctx, new TCLEngine("", ctx)).getValue(); } //TODO: THIS IS HORRIBLY WRONG
 			
 			@Override
 			public String[] getArguments() { return cxargs; }

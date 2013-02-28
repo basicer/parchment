@@ -13,7 +13,7 @@ public class Spout extends Spell {
 
 	public Parameter affect(PlayerParameter who, Context ctx) {
 		
-		Player p = who.asPlayer();
+		Player p = who.as(Player.class);
 		SpoutPlayer sp = (SpoutPlayer) p;
 		Button b = new GenericButton();
 		b.setWidth(10);

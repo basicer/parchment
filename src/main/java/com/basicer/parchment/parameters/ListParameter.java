@@ -34,36 +34,36 @@ public class ListParameter extends Parameter {
 		return out;
 	}
 	
-	@Override
+	
 	public LivingEntity asLivingEntity(Context ctx) {
 		if ( self.size() != 1 ) return null;
 		Parameter p = self.get(0);
 		if ( p == null ) return null;
-		return p.asLivingEntity();
+		return p.as(LivingEntity.class);
 	}
 
-	@Override
+	
 	public Entity asEntity(Context ctx) {
 		if ( self.size() != 1 ) return null;
 		Parameter p = self.get(0);
 		if ( p == null ) return null;
-		return p.asEntity();
+		return p.as(Entity.class);
 	}
 
-	@Override
+	
 	public Player asPlayer(Context ctx) {
 		if ( self.size() != 1 ) return null;
 		Parameter p = self.get(0);
 		if ( p == null ) return null;
-		return p.asPlayer();
+		return p.as(Player.class);
 	}
 	
-	@Override
+	
 	public Block asBlock(Context ctx) {
 		if ( self.size() != 1 ) return null;
 		Parameter p = self.get(0);
 		if ( p == null ) return null;
-		return p.asBlock();
+		return p.as(Block.class);
 	}
 	
 	@Override

@@ -12,18 +12,18 @@ public class DoubleParameter extends Parameter {
 	@Override
 	public Class<Double> getUnderlyingType() { return Double.class; }
 	
-	@Override
+	
 	public Double asDouble(Context ctx) {
 		return self;
 	}
 	
-	@Override
+	
 	public Integer asInteger(Context ctx) {
 		return Integer.valueOf((int) self);
 	}
 	
 	
-	@Override
+	
 	public String asString(Context ctx) {
 		return "" + self;
 	}

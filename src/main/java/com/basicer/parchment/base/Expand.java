@@ -40,7 +40,7 @@ public class Expand extends Spell {
 		
 		ArrayList<Location> locations = new ArrayList<Location>();
 		for ( Parameter p : target ) {
-			Location loc = p.asLocation();
+			Location loc = p.as(Location.class);
 			if ( loc != null ) locations.add(loc);
 		}
 		
@@ -50,7 +50,7 @@ public class Expand extends Spell {
 		if ( args.peek() != null ) {
 			ArrayList<Location> n = new ArrayList<Location>();
 			
-			Location loc = target.asLocation();
+			Location loc = target.as(Location.class);
 			int ammount = args.poll().asInteger();
 			for ( int x = loc.getBlockX() - ammount; x <= loc.getBlockX() + ammount; ++x ) {
 				for ( int z = loc.getBlockZ() - ammount; z <= loc.getBlockZ() + ammount; ++z ) {

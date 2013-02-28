@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.bukkit.Server;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 
 import com.basicer.parchment.parameters.ListParameter;
 import com.basicer.parchment.parameters.Parameter;
@@ -125,7 +126,7 @@ public class Context {
 	public World getWorld() {
 		Parameter w = resolve("world");
 		if ( w == null ) return null;
-		return w.asWorld();
+		return w.as(World.class);
 	}
 
 	public void setWorld(Parameter target) {
@@ -135,7 +136,7 @@ public class Context {
 	public Server getServer() {
 		Parameter s = resolve("server");
 		if ( s == null ) return null;
-		return s.asServer();
+		return s.as(Server.class);
 	}
 
 	public void setServer(Parameter target) {
@@ -155,7 +156,7 @@ public class Context {
 	public void sendDebugMessage(String msg) {
 		Parameter p = getCaster();
 		if ( p != null ) {
-			p.asPlayer().sendMessage(msg);
+			p.as(Player.class).sendMessage(msg);
 		} else {
 			System.out.println(msg);
 		}

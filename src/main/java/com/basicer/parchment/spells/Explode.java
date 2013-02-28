@@ -23,7 +23,7 @@ public class Explode extends Spell {
 	public String[] getArguments() { return new String[] { "power?" }; }
 
 	public Parameter affect(Parameter location, Context ctx) {
-		Location l = location.asLocation();
+		Location l = location.as(Location.class);
 		
 		double power = 10;
 		Parameter powerp = ctx.get("power");
