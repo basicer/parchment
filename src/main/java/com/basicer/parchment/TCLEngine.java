@@ -169,7 +169,7 @@ public class TCLEngine {
 				//}
 				if (append) {
 					if (currentp != null) {
-						current.append(currentp.asString());
+						current.append(currentp.asString(ctx));
 						currentp = null;
 					}
 					if (c == '\\')
@@ -182,9 +182,11 @@ public class TCLEngine {
 				
 			}
 			
-			if (currentp != null) {
+			if (currentp != null && current.length() == 0) {
 				out.add(currentp);
 			} else if (!empty) {
+				if (currentp != null) 
+					current.append(currentp.asString(ctx));
 				out.add(Parameter.from(current.toString()));
 			} 
 			
