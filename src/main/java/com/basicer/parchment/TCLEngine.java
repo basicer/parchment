@@ -24,7 +24,7 @@ public class TCLEngine {
 		this.ctx = ctx;
 	}
 	
-	EvaluationResult result = null;
+	private EvaluationResult result = null;
 	public boolean step() {
 		
 		while ( true ) {
@@ -196,6 +196,12 @@ public class TCLEngine {
 
 		if ( at_end && out.size() < 1 ) return null;
 		return out.toArray(new Parameter[0]);
+	}
+
+	public Parameter getResult() {
+		// TODO Auto-generated method stub
+		if ( result == null ) return null;
+		return result.getValue();
 	}
 
 	

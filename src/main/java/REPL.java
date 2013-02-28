@@ -18,25 +18,41 @@ public class REPL {
 	public static void main(String[] args) throws IOException {
 		InputStreamReader converter = new InputStreamReader(System.in);
 		BufferedReader in = new BufferedReader(converter);
-
-		String line = null;
 		Context commandctx = new Context(); 
+		String line = null;
+		
 		SpellFactory spellfactory = new SpellFactory();
 		spellfactory.loadTCLOnly();
+		commandctx.setSpellFactory(spellfactory);
 		StringBuilder b = new StringBuilder();
-		while ( (line = in.readLine()) != null ) {
-			b.append(line);
-			b.append("\n");
+		
+		Console c = System.console();
+		if ( c == null ) {
+			
+			while ( (line = in.readLine()) != null ) {
+				b.append(line);
+				b.append("\n");
+			}
+			
+			execute(b.toString(), commandctx);
+		} else {
+			
+			while ( (line = c.readLine("TCL> ")) != null ) {
+				c.printf("-> %s\n", execute(line, commandctx));
+			}
 		}
-		
-		
-		Context ctx = commandctx.createSubContext();
-		
-		ctx.setSpellFactory(spellfactory);
-		ctx.setSource("command");
-		
-		TCLEngine x = new TCLEngine(b.toString(), ctx);
-		while (x.step()) { 	}
 	}
 
+	public static Parameter execute(String s, Context pctx)
+	{
+		Context ctx = pctx.createSubContext();
+		
+
+		ctx.setSource("command");
+		
+		TCLEngine x = new TCLEngine(s, ctx);
+		while (x.step()) { 	}
+		return x.getResult();
+	}
+	
 }

@@ -171,21 +171,21 @@ public abstract class Parameter implements Iterable<Parameter> {
 		Method m;
 		
 		try {
-			System.out.println("Trying Static Caster | " + type + " from " + this.getClass());
+			System.err.println("Trying Static Caster | " + type + " from " + this.getClass());
 			m = type.getDeclaredMethod("castFrom", this.getClass(), Context.class);
-			System.out.println("I survived");
+			System.err.println("I survived");
 			//System.out.println("Using Static Caster" + type);
 			T out = (T)m.invoke(null, this, ctx);
-			System.out.println("Using Static Caster" + type + " | " + out);
+			System.err.println("Using Static Caster" + type + " | " + out);
 			return out;
 		} catch ( Exception ex ) {
-			ex.printStackTrace(System.out);
+
 		}
 		
-		System.out.println("Trying COnstrucotr Caster" + type);
+		System.err.println("Trying Construcotr Caster" + type);
 		
 		try {
-			System.out.println("Har we go casting " + this + " to " + type);
+			System.err.println("Har we go casting " + this + " to " + type);
 			Class<?> oc = type.getDeclaredField("self").getType();
 			Object o = this.as(oc);
 			if ( o == null ) {
@@ -193,8 +193,8 @@ public abstract class Parameter implements Iterable<Parameter> {
 			}
 			
 			Constructor<?> con = type.getDeclaredConstructor(oc);
-			System.out.println("We are " + getClass().getSimpleName() + " : " + this.asString());
-			System.out.println("Use " + con.toString() + " with param type " + oc);
+			System.err.println("We are " + getClass().getSimpleName() + " : " + this.asString());
+			System.err.println("Use " + con.toString() + " with param type " + oc);
 			con.setAccessible(true);
 			
 			return (T) con.newInstance(o);
