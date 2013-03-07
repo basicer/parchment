@@ -20,6 +20,10 @@ public class LocationParameter extends Parameter {
 	}
 	*/
 	
+	public Location asLocation(Context ctx) {
+		return self;
+	}
+	
 	@Override
 	public String asString(Context ctx) {
 		return "[Location T:" + self.getWorld().getName() + "/" 
