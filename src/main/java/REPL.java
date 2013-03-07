@@ -28,7 +28,7 @@ public class REPL {
 		
 		Console c = System.console();
 		if ( c == null ) {
-			
+			System.out.println();
 			while ( (line = in.readLine()) != null ) {
 				b.append(line);
 				b.append("\n");

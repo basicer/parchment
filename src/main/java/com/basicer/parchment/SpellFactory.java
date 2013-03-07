@@ -54,7 +54,7 @@ public class SpellFactory {
 		addBuiltinSpell(Explode.class);
 		addBuiltinSpell(Entity.class);
 		
-		addBuiltinSpell(Spout.class);
+		
 		
 	}
 	
@@ -62,7 +62,7 @@ public class SpellFactory {
 		commands.put(name, spell);
 	}
 	
-	private <T extends Spell> void addBuiltinSpell(Class<T> spell) {
+	public <T extends Spell> void addBuiltinSpell(Class<T> spell) {
 		try {
 			commands.put(spell.getSimpleName().toLowerCase(), spell.newInstance());
 		} catch (InstantiationException e) {
@@ -72,7 +72,7 @@ public class SpellFactory {
 		}
 	}
 	
-	private <T extends TCLCommand> void addBuiltinCommand(Class<T> cmd) {
+	public <T extends TCLCommand> void addBuiltinCommand(Class<T> cmd) {
 		try {
 			commands.put(cmd.getSimpleName().toLowerCase(), cmd.newInstance());
 		} catch (InstantiationException e) {

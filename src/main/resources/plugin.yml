@@ -2,7 +2,7 @@
 name: Parchment
 main: com.basicer.parchment.bukkit.ParchmentPlugin
 version: 0.1
-softdepend: [ProtocolLib]
+softdepend: [ProtocolLib, Spout]
 commands:
   parchment:
     description: Debug commands for parchment.

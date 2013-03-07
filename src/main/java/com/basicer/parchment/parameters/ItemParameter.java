@@ -8,7 +8,7 @@ import com.basicer.parchment.Context;
 public class ItemParameter extends Parameter {
 
 	private ItemStack self;
-	ItemParameter(ItemStack self) {
+	public ItemParameter(ItemStack self) {
 		this.self = self;
 	}
 	

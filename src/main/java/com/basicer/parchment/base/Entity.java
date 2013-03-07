@@ -144,5 +144,23 @@ public class Entity extends OperationalSpell<EntityParameter>  {
 		return Parameter.from(ent.getLocation());
 	}
 	
+	public Parameter clearOperation(org.bukkit.entity.Entity ent, Context ctx) {
+		Player pent = toPlayer(ent);
+		pent.getInventory().clear();
+		return Parameter.from(pent);
+	}
+	
+	
+	protected LivingEntity toLivingEntity(org.bukkit.entity.Entity ent) {
+		if ( ent instanceof LivingEntity ) return (LivingEntity)ent;
+		fizzle("Operation only valid on Living Entities");
+		return null;
+	}
+	
+	protected Player toPlayer(org.bukkit.entity.Entity ent) {
+		if ( ent instanceof Player ) return (Player)ent;
+		fizzle("Operation only valid on Players");
+		return null;
+	}
 	
 }

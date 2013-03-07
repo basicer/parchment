@@ -277,7 +277,6 @@ public abstract class Parameter implements Iterable<Parameter> {
 			if ( result != null ) return result;
 		}
 
-		System.err.println("Uh, so that wasnt any good, lets try this.");
 		for ( Class c2 : registeredTypes ) {
 			Parameter result = tryParamCast(o, c2, false);
 			if ( result != null ) return result;

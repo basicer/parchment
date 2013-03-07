@@ -20,7 +20,7 @@ public class ParchmentNBTTagCompoundImpl  {
 			fhandle = p.getClass().getDeclaredField("handle");
 			fhandle.setAccessible(true);
 			Object o = fhandle.get(p);
-
+			if ( o == null ) throw new RuntimeException("Bucket object has no handle");
 			tagGetter = o.getClass().getMethod("getTag");
 			Object otag = tagGetter.invoke(o);
 

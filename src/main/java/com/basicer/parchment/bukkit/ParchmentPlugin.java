@@ -21,6 +21,7 @@ import com.basicer.parchment.TCLUtils;
 import com.basicer.parchment.craftbukkit.Book;
 import com.basicer.parchment.parameters.*;
 import com.basicer.parchment.spells.Heal;
+import com.basicer.parchment.spells.Spout;
 
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
@@ -61,6 +62,7 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 
 	}
 
+	
 	public void onEnable() {
 		this.saveDefaultConfig();
 		PluginManager pm = this.getServer().getPluginManager();
@@ -78,6 +80,7 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 		Parameter.RegisterParamaterType(ServerParameter.class);
 		Parameter.RegisterParamaterType(SpellParameter.class);
 		Parameter.RegisterParamaterType(WorldParameter.class);
+		Parameter.RegisterParamaterType(ItemParameter.class);
 		
 		commandctx = new Context(); 
 		if (pm.getPlugin("ProtocolLib") != null) {
@@ -87,11 +90,16 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 		Bukkit.getMessenger().registerIncomingPluginChannel(this, "MC|BEdit", this);
 
 		File base = this.getDataFolder();
-		File scripts = findDirectory(base, "spells");
+		File scripts = FSUtils.findDirectory(base, "spells");
 		if (scripts == null)
 			return;
 
 		spellfactory.load();
+		
+		if ( pm.getPlugin("Spout") != null ) {
+			spellfactory.addBuiltinSpell(Spout.class);
+		}
+		
 		for (File s : scripts.listFiles()) {
 			if (s.isDirectory())
 				continue;
@@ -113,39 +121,6 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 
 	}
 
-	private static File findFile(File folder, String file) {
-		if (folder == null)
-			return null;
-		File rfile = null;
-		for (File f : folder.listFiles()) {
-			if (f.isDirectory())
-				continue;
-			if (!f.canRead())
-				continue;
-			if (f.getName().equals(file)) {
-				rfile = f;
-				break;
-			}
-		}
-		return rfile;
-	}
-
-	private static File findDirectory(File folder, String file) {
-		if (folder == null)
-			return null;
-		File rfile = null;
-		for (File f : folder.listFiles()) {
-			if (!f.isDirectory())
-				continue;
-			if (!f.canRead())
-				continue;
-			if (f.getName().equals(file)) {
-				rfile = f;
-				break;
-			}
-		}
-		return rfile;
-	}
 
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 
@@ -186,8 +161,8 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 			TCLUtils.evaluate(b.toString(), ctx);
 		} else if (action.equals("run")) {
 			String file = qargs.poll() + ".tcl";
-			File folder = findDirectory(this.getDataFolder(), "runnable");
-			File rfile = findFile(folder, file);
+			File folder = FSUtils.findDirectory(this.getDataFolder(), "runnable");
+			File rfile = FSUtils.findFile(folder, file);
 			if (rfile == null) {
 				sender.sendMessage("Unknown file " + file);
 				return true;
@@ -217,18 +192,14 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 		ItemStack holding = p.getItemInHand();
 
 		TCLCommand s = null;
+		Context ctx = new Context();
+		ctx.setSpellFactory(spellfactory);
+		ctx.setCaster(Parameter.from(p));
+		ctx.setWorld(Parameter.from(p.getWorld()));
+		ctx.setServer(Parameter.from(p.getServer()));
+		
 		if (e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK) {
-
-			if (holding.getType() != org.bukkit.Material.BOOK_AND_QUILL & holding.getType() != org.bukkit.Material.WRITTEN_BOOK) {
-				// p.sendMessage("MATERIAL IS " + holding.getType().toString());
-				String ss = Book.readSpell(holding);
-				if ( ss == null ) {
-					p.sendMessage("Your blade is dull");
-					return;
-				}
-				p.sendMessage("Your blade is: " + ss);
-				s = spellfactory.get(ss);
-			} else {
+			if (holding.getType() == org.bukkit.Material.BOOK_AND_QUILL || holding.getType() == org.bukkit.Material.WRITTEN_BOOK) {
 				BookMeta b = (BookMeta) holding.getItemMeta();
 
 				if (e.getClickedBlock() != null && e.getClickedBlock().getType() == org.bukkit.Material.BOOKSHELF) {
@@ -266,20 +237,53 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 				// e.getClickedBlock().breakNaturally(e.getPlayer().getItemInHand());
 
 				s = new ScriptedSpell(new PushbackReader(new StringReader(action)), spellfactory);
-			}
-			Context ctx = new Context();
-			ctx.setSpellFactory(spellfactory);
-			ctx.setCaster(Parameter.from(p));
-			ctx.setWorld(Parameter.from(p.getWorld()));
-			ctx.setServer(Parameter.from(p.getServer()));
-			ctx.setSource("wand");
+			
 
-			Parameter[] ws = new Parameter[1];
-			ws[0] = Parameter.from("want");
-			Context ctx2 = s.bindContext(ws, ctx);
-			s.execute(ctx2);
-			e.setCancelled(true);
+				ctx.setSource("wand");
+	
+				Parameter[] ws = new Parameter[1];
+				ws[0] = Parameter.from("want");
+				Context ctx2 = s.bindContext(ws, ctx);
+				s.execute(ctx2);
+				e.setCancelled(true);
+				return;
+			}
 		}
+		
+		// p.sendMessage("MATERIAL IS " + holding.getType().toString());
+		
+		String ss = Book.readSpell(holding);
+		if ( ss == null ) {
+			p.sendMessage("Your blade is dull");
+			e.setCancelled(false);
+			return;
+		}
+		
+		p.sendMessage("Your blade is: " + ss + "/" + ss.length());
+		
+		TCLCommand cmd = spellfactory.get(ss);
+		if ( cmd == null ) return;
+		Spell scmd = (Spell) cmd;
+		ctx.setSource("item");
+		Parameter[] ws = new Parameter[1];
+		ws[0] = Parameter.from("want");
+		Context ctx2 = scmd.bindContext(ws, ctx);
+		String binding = "cast";
+		switch ( e.getAction() ) {
+			case LEFT_CLICK_AIR:
+			case LEFT_CLICK_BLOCK:
+				binding = "cast";
+				break;
+			case RIGHT_CLICK_AIR:
+			case RIGHT_CLICK_BLOCK:
+				binding = "alt";
+				break;
+		}
+		scmd.executeBinding(binding, ctx2);
+		e.setCancelled(true);
+		
+		
+		
 
 	}
 
