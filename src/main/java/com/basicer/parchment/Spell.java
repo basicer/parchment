@@ -13,7 +13,7 @@ import java.util.List;
 
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
+
 
 import com.basicer.parchment.Context.ParameterPtr;
 import com.basicer.parchment.parameters.*;
@@ -113,10 +113,15 @@ public abstract class Spell extends TCLCommand {
 	}
 
 	public Parameter execute(Context ctx) {
+		return executeBinding("cast", ctx);
+	}
+	
+	public Parameter executeBinding(String name, Context ctx) {
 		try {
 			Parameter targets = ctx.getTarget();
-			System.out.println("EXEC " + getName() + " with target " + 
+			System.out.println("EXEC " + getName() + ":" + name + " with target " + 
 					(targets == null ? "null" : targets.toString()));
+			if ( !name.equals("cast") ) fizzle("Can only use cast binding on this spell.");
 			return this.cast(ctx);
 		} catch ( FizzleException fizzle ) {
 			ctx.sendDebugMessage("The spell fizzles: " + fizzle.getMessage());

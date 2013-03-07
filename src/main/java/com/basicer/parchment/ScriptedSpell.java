@@ -75,11 +75,15 @@ public class ScriptedSpell extends Spell {
 		return out;
 	}
 
+	@Override
+	public Parameter cast(Context ctx) {
+		return executeBinding("cast", ctx);
+	}
 	
 	@Override
-	public Parameter cast(final Context ctx) {
+	public Parameter executeBinding(String binding, final Context ctx) {
 		
-		String name = triggers.get("cast");
+		String name = triggers.get(binding);
 		System.out.println("LeCasting : " + name);
 		final Spell closure_s = this;
 		
