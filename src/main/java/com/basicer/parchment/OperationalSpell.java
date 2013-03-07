@@ -34,7 +34,8 @@ public class OperationalSpell<T extends Parameter> extends Spell {
 		U obj = (U) o;
 		if ( args.size() < 1 ) return target;
 
-		Method[] methods = this.getClass().getMethods();
+		Class<?> c = this.getClass();
+		Method[] methods = c.getMethods();
 		
 		Parameter out = null;
 		while ( args.size() > 0 ) {
@@ -46,6 +47,24 @@ public class OperationalSpell<T extends Parameter> extends Spell {
 			if ( op.equals("self") ) {
 				out = target;
 				continue;
+			} else if ( op.equals("new") ) {
+				try {
+					Method m = this.getClass().getMethod("create", Context.class);
+					U ni = (U) m.invoke(this, ctx);
+					obj = ni;
+					out = Parameter.from(obj);
+					continue;
+				} catch (NoSuchMethodException e) {
+					fizzle("No such operation: " + op);
+				} catch (SecurityException e) {
+					throw new RuntimeException(e);
+				} catch (IllegalAccessException e) {
+					throw new RuntimeException(e);
+				} catch (IllegalArgumentException e) {
+					throw new RuntimeException(e);
+				} catch (InvocationTargetException e) {
+					throw new RuntimeException(e);
+				}
 			}
 			Method m = null;
 			for ( Method mc : methods ) {
@@ -67,7 +86,7 @@ public class OperationalSpell<T extends Parameter> extends Spell {
 				if ( method_types[i].equals(Parameter.class)) {
 					method_args[i] = p;
 				} else {
-					method_args[i] = p.cast(method_types[i]);
+					method_args[i] = p.cast(method_types[i], ctx);
 					if ( method_args[i] == null ) fizzle(op + " expected " + method_types[i].getSimpleName() + ", got " + p.getClass().getSimpleName());
 				}
 			}

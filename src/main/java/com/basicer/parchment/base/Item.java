@@ -20,6 +20,8 @@ import com.basicer.parchment.craftbukkit.Book;
 import com.basicer.parchment.parameters.DoubleParameter;
 import com.basicer.parchment.parameters.IntegerParameter;
 import com.basicer.parchment.parameters.ItemParameter;
+import com.basicer.parchment.parameters.LivingEntityParameter;
+import com.basicer.parchment.parameters.LocationParameter;
 import com.basicer.parchment.parameters.MaterialParameter;
 import com.basicer.parchment.parameters.Parameter;
 import com.basicer.parchment.parameters.PlayerParameter;
@@ -42,11 +44,16 @@ public class Item extends OperationalSpell<ItemParameter>  {
 		return super.doaffect(target, ctx);
 	}
 	
+	public ItemStack create(Context ctx) {
+		return new org.bukkit.inventory.ItemStack(0);
+	}
+	
 	public Parameter bindOperation(ItemStack itm, Context ctx, StringParameter bind) {
 		if ( bind != null ) {
 			Book.setSpell(itm, bind.asString());
 		}
-		return Parameter.from(Book.readSpell(itm));
+		String bound = Book.readSpell(itm);
+		return Parameter.from(bound == null ? "null" : bound);
 	}
 	
 	public Parameter ammountOperation(ItemStack itm, Context ctx, IntegerParameter amnt) {
@@ -142,6 +149,20 @@ public class Item extends OperationalSpell<ItemParameter>  {
 		return Parameter.from(m.getDisplayName());
 	}
 	
+	public Parameter dropOperation(ItemStack itm, Context ctx, Parameter where) {
+		LocationParameter loc = where.cast(LocationParameter.class, ctx);
+		if ( loc == null ) {
+			PlayerParameter p = where.cast(PlayerParameter.class, ctx);
+			if ( p != null ) loc = p.cast(LocationParameter.class, ctx);
+		}
+		
+		if ( loc == null ) fizzle("Couldnt convert " + where.asString() + " to location");
+		ctx.getWorld().dropItem(loc.asLocation(ctx), itm);
+		
+		
+		return loc;
+	}
+	
 	public Parameter enchantOperation(ItemStack itm, Context ctx, StringParameter name, Parameter level) {
 		if ( name != null ) {
 			Enchantment enc = ParseEnchantment(name.asString());
@@ -165,6 +186,12 @@ public class Item extends OperationalSpell<ItemParameter>  {
 			aout[idx++] = Parameter.from(e.getName() + ":" + itm.getEnchantmentLevel(e));
 		}
 		return Parameter.createList(aout);
+	}
+	
+	public Parameter giveOperation(ItemStack itm, Context ctx, PlayerParameter to) {
+		if ( to == null ) fizzle("You must pick someone to give the item to.");
+		to.asPlayer(ctx).getInventory().addItem(itm);
+		return Parameter.from(itm);
 	}
 	
 	public Parameter testOperation(ItemStack itm, Context ctx, StringParameter path) {
@@ -196,8 +223,7 @@ public class Item extends OperationalSpell<ItemParameter>  {
 					tag = ProxyFactory.createProxy(ParchmentNBTTagList.class, tag.unproxy());
 				}
 			}
-			ctx.sendDebugMessage("LEN " + pth.length);
-			
+
 			
 			try {
 				Object data = tag.unproxy().getClass().getField("data").get(tag.unproxy());
@@ -239,7 +265,7 @@ public class Item extends OperationalSpell<ItemParameter>  {
 		if ( name.equals("INFINITY") ) return Enchantment.ARROW_INFINITE;
 		if ( name.equals("UNBREAKING") ) return Enchantment.DURABILITY;
 		if ( name.equals("SILKTOUCH") ) return Enchantment.SILK_TOUCH;
-		if ( name.equals("PUNCH") ) return Enchantment.KNOCKBACK;
+		if ( name.equals("PUNCH") ) return Enchantment.ARROW_KNOCKBACK;
 		
 		return null;
 	}
