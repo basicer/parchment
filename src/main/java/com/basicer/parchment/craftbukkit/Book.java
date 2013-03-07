@@ -26,7 +26,7 @@ public class Book {
     	ParchmentNBTTagCompound tag = ParchmentNBTTagCompoundImpl.getTag(itm, false);
     	if ( tag == null ) return null;
     	
-
+    	if ( !tag.hasKey("binding") ) return null;
     	return tag.getString("binding");
     	
     }
