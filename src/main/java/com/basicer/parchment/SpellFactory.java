@@ -53,6 +53,7 @@ public class SpellFactory {
 		addBuiltinSpell(Shoot.class);
 		addBuiltinSpell(Explode.class);
 		addBuiltinSpell(Entity.class);
+		addBuiltinSpell(Player.class);
 		
 		
 		
