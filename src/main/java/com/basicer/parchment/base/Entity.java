@@ -58,19 +58,19 @@ public class Entity extends OperationalSpell<EntityParameter>  {
 		return affect(target.cast(LocationParameter.class), ctx);
 	}
 	
-	public Parameter nameOperation(org.bukkit.entity.Entity ent, Context ctx) {
+	public static Parameter nameOperation(org.bukkit.entity.Entity ent, Context ctx) {
 		String name = ent.getType().getName();
 		if ( name == null ) return null;
 		return Parameter.from(name);	
 	}
 	
-	public Parameter stillOperation(org.bukkit.entity.Entity ent, Context ctx) {
+	public static Parameter stillOperation(org.bukkit.entity.Entity ent, Context ctx) {
 		ent.setVelocity(new Vector(0,0,0));
 		ent.setFallDistance(0.0f);
 		return Parameter.from(true);
 	}
 	
-	public Parameter addpotionOperation(org.bukkit.entity.Entity ent, Context ctx, StringParameter name, DoubleParameter dur, IntegerParameter power)
+	public static Parameter addpotionOperation(org.bukkit.entity.Entity ent, Context ctx, StringParameter name, DoubleParameter dur, IntegerParameter power)
 	{
 		if ( !( ent instanceof LivingEntity )) fizzle("Operation requires living Entity");
 		LivingEntity lent = (LivingEntity) ent;
@@ -81,7 +81,7 @@ public class Entity extends OperationalSpell<EntityParameter>  {
 		return Parameter.from(ent);
 	}
 	
-	public Parameter clearpotionsOperation(org.bukkit.entity.Entity ent, Context ctx) {
+	public static Parameter clearpotionsOperation(org.bukkit.entity.Entity ent, Context ctx) {
 		if ( !( ent instanceof LivingEntity )) fizzle("Operation requires living Entity");
 		LivingEntity lent = (LivingEntity) ent;
 		for ( PotionEffect e : lent.getActivePotionEffects() ) {
@@ -91,11 +91,18 @@ public class Entity extends OperationalSpell<EntityParameter>  {
 	}
 	
 	
-	public Parameter tpOperation(org.bukkit.entity.Entity ent, Context ctx, Parameter location) {
+	public static Parameter tpOperation(org.bukkit.entity.Entity ent, Context ctx, Parameter location) {
 		return teleportOperation(ent, ctx, location);
 	}
 	
-	public Parameter teleportOperation(org.bukkit.entity.Entity ent, Context ctx, Parameter location) {
+	
+	public static Parameter ignightOperation(org.bukkit.entity.Entity ent, Context ctx) {
+		ent.setFireTicks(10 * 15);
+		return Parameter.from(ent);
+	}
+	
+	
+	public static Parameter teleportOperation(org.bukkit.entity.Entity ent, Context ctx, Parameter location) {
 		LivingEntity lent = null;
 		if ( ent instanceof LivingEntity ) lent = (LivingEntity) ent;
 		
@@ -144,23 +151,9 @@ public class Entity extends OperationalSpell<EntityParameter>  {
 		return Parameter.from(ent.getLocation());
 	}
 	
-	public Parameter clearOperation(org.bukkit.entity.Entity ent, Context ctx) {
-		Player pent = toPlayer(ent);
-		pent.getInventory().clear();
-		return Parameter.from(pent);
-	}
+
 	
-	
-	protected LivingEntity toLivingEntity(org.bukkit.entity.Entity ent) {
-		if ( ent instanceof LivingEntity ) return (LivingEntity)ent;
-		fizzle("Operation only valid on Living Entities");
-		return null;
-	}
-	
-	protected Player toPlayer(org.bukkit.entity.Entity ent) {
-		if ( ent instanceof Player ) return (Player)ent;
-		fizzle("Operation only valid on Players");
-		return null;
-	}
+
+
 	
 }

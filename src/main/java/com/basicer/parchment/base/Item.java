@@ -2,6 +2,7 @@ package com.basicer.parchment.base;
 
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 import net.minecraft.server.NBTBase;
@@ -9,6 +10,7 @@ import net.minecraft.server.NBTBase;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -44,55 +46,58 @@ public class Item extends OperationalSpell<ItemParameter>  {
 		return super.doaffect(target, ctx);
 	}
 	
-	public ItemStack create(Context ctx) {
-		return new org.bukkit.inventory.ItemStack(0);
+	public static ItemStack create(Context ctx) {
+		org.bukkit.inventory.ItemStack isc = new org.bukkit.inventory.ItemStack(0);
+		return isc;
+		
 	}
 	
-	public Parameter bindOperation(ItemStack itm, Context ctx, StringParameter bind) {
-		if ( bind != null ) {
+	public static Parameter bindOperation(ItemStack itm, Context ctx, StringParameter bind) {
+
+		if ( bind != null ) {			
 			Book.setSpell(itm, bind.asString());
 		}
 		String bound = Book.readSpell(itm);
 		return Parameter.from(bound == null ? "null" : bound);
 	}
 	
-	public Parameter ammountOperation(ItemStack itm, Context ctx, IntegerParameter amnt) {
+	public static Parameter ammountOperation(ItemStack itm, Context ctx, IntegerParameter amnt) {
 		return amountOperation(itm, ctx, amnt);
 	}
 	
-	public Parameter amtOperation(ItemStack itm, Context ctx, IntegerParameter amnt) {
+	public static Parameter amtOperation(ItemStack itm, Context ctx, IntegerParameter amnt) {
 		return amountOperation(itm, ctx, amnt);
 	}
 		
-	public Parameter amountOperation(ItemStack itm, Context ctx, IntegerParameter amnt) {
+	public static Parameter amountOperation(ItemStack itm, Context ctx, IntegerParameter amnt) {
 		if ( amnt != null ) {
 			itm.setAmount(amnt.asInteger());
 		}
 		return Parameter.from(itm.getAmount());
 	}
 	
-	public Parameter damageOperation(ItemStack itm, Context ctx, IntegerParameter dmg) {
+	public static Parameter damageOperation(ItemStack itm, Context ctx, IntegerParameter dmg) {
 		if ( dmg != null ) {
 			itm.setDurability((short)((int)dmg.asInteger()));
 		}
 		return Parameter.from(itm.getDurability());
 	}
 	
-	public Parameter dmgOperation(ItemStack itm, Context ctx, IntegerParameter dmg) {
+	public static Parameter dmgOperation(ItemStack itm, Context ctx, IntegerParameter dmg) {
 		return damageOperation(itm, ctx, dmg);
 	}
 	
-	public Parameter durabilityOperation(ItemStack itm, Context ctx, IntegerParameter dmg) {
+	public static Parameter durabilityOperation(ItemStack itm, Context ctx, IntegerParameter dmg) {
 		return damageOperation(itm, ctx, dmg);
 	}
 	
 	
-	public Parameter fixOperation(ItemStack itm, Context ctx) {
+	public static Parameter fixOperation(ItemStack itm, Context ctx) {
 		itm.setDurability((short)0);
 		return Parameter.from(itm.getDurability());
 	}
 	
-	public Parameter loreOperation(ItemStack itm, Context ctx, StringParameter lore) {
+	public static Parameter loreOperation(ItemStack itm, Context ctx, StringParameter lore) {
 		ItemMeta m = itm.getItemMeta();
 		if ( lore != null ) {
 			String[] lores = lore.asString().split("\r?\n");
@@ -113,34 +118,34 @@ public class Item extends OperationalSpell<ItemParameter>  {
 		
 	}
 	
-	public Parameter repairOperation(ItemStack itm, Context ctx) {
+	public static Parameter repairOperation(ItemStack itm, Context ctx) {
 		return fixOperation(itm, ctx);
 	}
 	
-	public Parameter materialOperation(ItemStack itm, Context ctx, MaterialParameter mat) {
+	public static Parameter materialOperation(ItemStack itm, Context ctx, MaterialParameter mat) {
 		if ( mat != null ) {
 			itm.setType(mat.as(Material.class));
 		}
 		return Parameter.from(itm.getType());
 	}
 	
-	public Parameter typeOperation(ItemStack itm, Context ctx, MaterialParameter mat) {
+	public static Parameter typeOperation(ItemStack itm, Context ctx, MaterialParameter mat) {
 		if ( mat != null ) {
 			itm.setType(mat.as(Material.class));
 		}
 		return Parameter.from(itm.getType());
 	}
 	
-	public Parameter maxOperation(ItemStack itm, Context ctx) {
+	public static Parameter maxOperation(ItemStack itm, Context ctx) {
 		return moreOperation(itm, ctx);
 	}
 	
-	public Parameter moreOperation(ItemStack itm, Context ctx) {
+	public static Parameter moreOperation(ItemStack itm, Context ctx) {
 		itm.setAmount(itm.getMaxStackSize());
 		return Parameter.from(itm.getAmount());
 	}
 	
-	public Parameter nameOperation(ItemStack itm, Context ctx, StringParameter name) {
+	public static Parameter nameOperation(ItemStack itm, Context ctx, StringParameter name) {
 		ItemMeta m = itm.getItemMeta();
 		if ( name != null ) {
 			m.setDisplayName(name.asString());
@@ -149,11 +154,16 @@ public class Item extends OperationalSpell<ItemParameter>  {
 		return Parameter.from(m.getDisplayName());
 	}
 	
-	public Parameter dropOperation(ItemStack itm, Context ctx, Parameter where) {
+	public static Parameter dropOperation(ItemStack itm, Context ctx, Parameter where) {
 		LocationParameter loc = where.cast(LocationParameter.class, ctx);
 		if ( loc == null ) {
 			PlayerParameter p = where.cast(PlayerParameter.class, ctx);
-			if ( p != null ) loc = p.cast(LocationParameter.class, ctx);
+			if ( p != null ) {
+				loc = p.cast(LocationParameter.class, ctx);
+				if ( loc != null ) {
+					loc = (LocationParameter)Parameter.from(loc.asLocation(ctx).add(0, 2, 0));
+				}
+			}
 		}
 		
 		if ( loc == null ) fizzle("Couldnt convert " + where.asString() + " to location");
@@ -163,7 +173,7 @@ public class Item extends OperationalSpell<ItemParameter>  {
 		return loc;
 	}
 	
-	public Parameter enchantOperation(ItemStack itm, Context ctx, StringParameter name, Parameter level) {
+	public static Parameter enchantOperation(ItemStack itm, Context ctx, StringParameter name, Parameter level) {
 		if ( name != null ) {
 			Enchantment enc = ParseEnchantment(name.asString());
 			
@@ -188,13 +198,35 @@ public class Item extends OperationalSpell<ItemParameter>  {
 		return Parameter.createList(aout);
 	}
 	
-	public Parameter giveOperation(ItemStack itm, Context ctx, PlayerParameter to) {
+	public static Parameter giveOperation(ItemStack itm, Context ctx, PlayerParameter to) {
 		if ( to == null ) fizzle("You must pick someone to give the item to.");
 		to.asPlayer(ctx).getInventory().addItem(itm);
 		return Parameter.from(itm);
 	}
 	
-	public Parameter testOperation(ItemStack itm, Context ctx, StringParameter path) {
+	public static Parameter forceInvOperation(ItemStack itm, Context ctx, PlayerParameter to, IntegerParameter slot) {
+		if ( to == null ) fizzle("You must pick someone to give the item to.");
+		Inventory i = to.asPlayer(ctx).getInventory();
+		i.setItem(slot.asInteger(), itm);
+		ItemStack io = i.getItem(slot.asInteger());
+		return Parameter.from(io);
+	}
+	
+	public static Parameter equipOperation(ItemStack itm, Context ctx, PlayerParameter to, StringParameter p ) {
+		if ( to == null ) fizzle("You must pick someone to give the item to.");
+		String ps = p.asString();
+		if ( ps.equalsIgnoreCase("helmet") ) {
+			to.asPlayer(ctx).getEquipment().setHelmet(itm);
+		} else if ( ps.equalsIgnoreCase("chest") ) {
+			to.asPlayer(ctx).getEquipment().setChestplate(itm);
+		} else {
+			ctx.sendDebugMessage("Where is the " + ps);
+		}
+		return Parameter.from(itm);
+		
+	}
+	
+	public static Parameter testOperation(ItemStack itm, Context ctx, StringParameter path) {
 		try {
 			ctx.sendDebugMessage("Starting...");
 			ParchmentNBTBase tag = ParchmentNBTTagCompoundImpl.getTag(itm, false);

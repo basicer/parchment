@@ -3,6 +3,7 @@ package com.basicer.parchment.craftbukkit;
 
 
 import java.lang.reflect.Field;
+import java.util.HashMap;
 
 import org.bukkit.Material;
 
@@ -19,10 +20,15 @@ import com.basicer.parchment.unsafe.ParchmentNBTTagCompoundImpl;
 public class Book {
    
     private org.bukkit.inventory.ItemStack base;
+    private static HashMap<org.bukkit.inventory.ItemStack, String> bindings;
     
     public static String readSpell(org.bukkit.inventory.ItemStack itm) {
+    	if ( bindings == null ) return null;
     	if ( itm == null ) return null;
-    	 
+    	String s = bindings.get(itm);
+    	
+    	if ( s != null ) return s;
+    	
     	ParchmentNBTTagCompound tag = ParchmentNBTTagCompoundImpl.getTag(itm, false);
     	if ( tag == null ) return null;
     	
@@ -33,9 +39,33 @@ public class Book {
     
     
     public static void setSpell(org.bukkit.inventory.ItemStack cis, String value) {
-    	ParchmentNBTTagCompoundImpl.getTag(cis, true).setString("binding", value);
-	    	
+    	
+    	if ( bindings == null ) bindings = new HashMap<org.bukkit.inventory.ItemStack, String>();
+    	bindings.put(cis, value);
+    	if ( !cis.hasItemMeta() ) cis.setItemMeta(cis.getItemMeta());
+    	
+    	try {
+    		ParchmentNBTTagCompound tag = ParchmentNBTTagCompoundImpl.getTag(cis, true);
+    		System.out.println("Try Bind...");
+    		if ( tag == null ) return;
+    		System.out.println("Blamoo");
+        	tag.setString("binding", value);
+
+    	} catch ( Exception ex ) {
+    		
+    	}
+	    
     }
+    
+    public static void ensureSpellWritten(org.bukkit.inventory.ItemStack cis) {
+    	if ( bindings == null ) return;
+    	String s = bindings.get(cis);
+    	System.out.println("Annnd...");
+    	if ( s == null ) return;
+    	System.out.println("Boom... " + s + " / " + cis.getClass().getName());
+    	setSpell(cis, s);
+    }
+    
     
     /*
     public static Book createFromBukkitItemStack(org.bukkit.inventory.ItemStack base) {

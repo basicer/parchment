@@ -10,6 +10,8 @@ import com.basicer.parchment.parameters.Parameter;
 
 public class OperationalSpell<T extends Parameter> extends Spell {
 	
+	public Class<? extends OperationalSpell<?>> getBaseClass() { return null; }
+	
 	@Override
 	public String[] getArguments() { return new String[] { "args" }; }
 
@@ -35,7 +37,7 @@ public class OperationalSpell<T extends Parameter> extends Spell {
 		if ( args.size() < 1 ) return target;
 
 		Class<?> c = this.getClass();
-		Method[] methods = c.getMethods();
+		
 		
 		Parameter out = null;
 		while ( args.size() > 0 ) {
@@ -66,11 +68,10 @@ public class OperationalSpell<T extends Parameter> extends Spell {
 					throw new RuntimeException(e);
 				}
 			}
-			Method m = null;
-			for ( Method mc : methods ) {
-				if ( !mc.getName().equals(op + "Operation") ) continue;
-				m = mc;
-			}
+			Method m = locateMethod(c, op);
+			//TODO: This only goes one level deep
+			if ( m == null && getBaseClass() != null ) m = locateMethod(getBaseClass(), op);
+
 			
 			if ( m == null ) fizzle("No such operation: " + op);
 			Class[] method_types = m.getParameterTypes();
@@ -92,6 +93,11 @@ public class OperationalSpell<T extends Parameter> extends Spell {
 			}
 			try {
 				out = (Parameter)m.invoke(this, method_args);
+				Object ov = out.getUnderlyingValue();
+				if ( type.isInstance(ov) ) {
+					System.err.println("Obj now " + ov);
+					obj = (U)ov;
+				}
 			} catch (IllegalAccessException e) {
 				throw new RuntimeException(e);
 			} catch (IllegalArgumentException e) {
@@ -109,6 +115,16 @@ public class OperationalSpell<T extends Parameter> extends Spell {
 		
 		return out;
 		
+	}
+	
+	private static Method locateMethod(Class<?> c, String op) {
+		Method[] methods = c.getMethods();
+		for ( Method mc : methods ) {
+			if ( !mc.getName().equals(op + "Operation") ) continue;
+			return mc;
+		}
+		
+		return null;
 	}
 	
 }

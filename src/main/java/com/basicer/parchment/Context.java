@@ -156,7 +156,7 @@ public class Context {
 	public void sendDebugMessage(String msg) {
 		Parameter p = getCaster();
 		if ( p != null ) {
-			p.as(Player.class).sendMessage(msg);
+			p.as(Player.class).sendRawMessage(msg);
 		} else {
 			System.out.println(msg);
 		}

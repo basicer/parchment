@@ -141,10 +141,15 @@ public abstract class Spell extends TCLCommand {
 	}
 	
 	public Parameter cast(Context ctx) {
-		return Spell.defaultCastBehavior(this, ctx);
+		//By default a casted spell applies it affector to the target.
+		return affect(ctx);
+	}
+	
+	public Parameter affect(Context ctx) {
+		return Spell.applyAffectors(this, ctx);
 	}
 		
-	protected static Parameter defaultCastBehavior(Spell s, Context ctx) {
+	protected static Parameter applyAffectors(Spell s, Context ctx) {
 		List<Class<? extends Parameter>> list = s.getAffectors();
 		
 		System.out.println("TI " + s.getName() + " with target " + 
@@ -197,15 +202,15 @@ public abstract class Spell extends TCLCommand {
 		
 	}
 	
-	protected void fizzle() {
+	protected static void fizzle() {
 		throw new FizzleException();
 	}
 	
-	protected void fizzle(String why) {
+	protected static void fizzle(String why) {
 		throw new FizzleException(why);
 	}
 	
-	protected void fizzleTarget(String string) {
+	protected static void fizzleTarget(String string) {
 		fizzle("Invalid target: " + string);
 		
 	}
@@ -306,7 +311,7 @@ public abstract class Spell extends TCLCommand {
 	}
 	
 	
-	public class FizzleException extends RuntimeException {
+	public static class FizzleException extends RuntimeException {
 
 		private static final long	serialVersionUID	= 4163289662961586743L;
 

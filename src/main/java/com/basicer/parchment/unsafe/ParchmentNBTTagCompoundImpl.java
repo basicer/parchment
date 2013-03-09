@@ -13,6 +13,7 @@ public class ParchmentNBTTagCompoundImpl  {
 
 
 	public static ParchmentNBTTagCompound getTag(Object p, boolean set_if_empty) {
+		System.err.println("Okah So, type of p is " + p.getClass().getName());
 		Field fhandle;
 		Method tagGetter;
 		Method tagSetter;

@@ -43,7 +43,7 @@ public class Block extends OperationalSpell<BlockParameter> {
 	
 
 
-	public Parameter materialOperation(org.bukkit.block.Block block, Context ctx, MaterialParameter type) {
+	public static Parameter materialOperation(org.bukkit.block.Block block, Context ctx, MaterialParameter type) {
 		if ( type != null ) {
 			block.setType(type.as(Material.class));
 		}
@@ -51,15 +51,15 @@ public class Block extends OperationalSpell<BlockParameter> {
 	}
 	
 	
-	public Parameter typeOperation(org.bukkit.block.Block block, Context ctx, MaterialParameter type) {
+	public static Parameter typeOperation(org.bukkit.block.Block block, Context ctx, MaterialParameter type) {
 		return materialOperation(block, ctx, type);
 	}
 	
-	public Parameter breakOperation(org.bukkit.block.Block block, Context ctx) {
+	public static Parameter breakOperation(org.bukkit.block.Block block, Context ctx) {
 		return Parameter.from(block.breakNaturally());
 	}
 
-	public Parameter powerOperation(org.bukkit.block.Block block, Context ctx) {
+	public static Parameter powerOperation(org.bukkit.block.Block block, Context ctx) {
 		return Parameter.from(block.getBlockPower());
 	}
 	

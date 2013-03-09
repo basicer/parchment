@@ -81,6 +81,11 @@ public class ScriptedSpell extends Spell {
 	}
 	
 	@Override
+	public Parameter affect(Context ctx) {
+		return executeBinding("affect", ctx);
+	}
+	
+	@Override
 	public Parameter executeBinding(String binding, final Context ctx) {
 		
 		String name = triggers.get(binding);
@@ -94,12 +99,21 @@ public class ScriptedSpell extends Spell {
 			target = resolveTarget(ctx);
 		}
 
-		ctx.put("super", Parameter.from(new TCLCommand() {
-			@Override
-			public Parameter execute(Context ctx) {
-				return Spell.defaultCastBehavior(closure_s, ctx);
-			}
-		}));
+		if ( binding.equals("affect") ) {
+			ctx.put("super", Parameter.from(new TCLCommand() {
+				@Override
+				public Parameter execute(Context ctx) {
+					return Spell.applyAffectors(closure_s, ctx);
+				}
+			}));
+		} else if ( binding.equals("cast") ) {
+			ctx.put("super", Parameter.from(new TCLCommand() {
+				@Override
+				public Parameter execute(Context ctx) {
+					return closure_s.affect(ctx);
+				}
+			}));
+		}
 		if ( name != null ) {
 			System.out.println("-> DELEGATE TO " + name);
 			TCLCommand proc = ctx.getCommand(name);

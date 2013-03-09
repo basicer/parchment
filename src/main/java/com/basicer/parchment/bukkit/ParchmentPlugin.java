@@ -9,6 +9,7 @@ import java.io.StringReader;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.logging.Logger;
 
 import com.basicer.parchment.ScriptedSpell;
 import com.basicer.parchment.Spell;
@@ -27,6 +28,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.conversations.Conversation;
+import org.bukkit.conversations.ConversationContext;
+import org.bukkit.conversations.Prompt;
 import org.bukkit.craftbukkit.libs.jline.internal.Log.Level;
 
 import org.bukkit.entity.Arrow;
@@ -34,6 +38,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -42,6 +47,7 @@ import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.PluginMessageListener;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.yaml.snakeyaml.reader.StreamReader;
 
@@ -55,8 +61,10 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 	ProtocolManager	manager;
 	SpellFactory	spellfactory;
 	Context			commandctx;  //TODO: Replace with per player ctx
-
+	BukkitRunnable  loader;
+	
 	public void onDisable() {
+		loader.cancel();
 		Bukkit.getMessenger().unregisterIncomingPluginChannel(this);
 		getLogger().info("Framework Disabled");
 
@@ -89,10 +97,9 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 
 		Bukkit.getMessenger().registerIncomingPluginChannel(this, "MC|BEdit", this);
 
-		File base = this.getDataFolder();
-		File scripts = FSUtils.findDirectory(base, "spells");
-		if (scripts == null)
-			return;
+		final File base = this.getDataFolder();
+		
+		
 
 		spellfactory.load();
 		
@@ -100,24 +107,44 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 			spellfactory.addBuiltinSpell(Spout.class);
 		}
 		
-		for (File s : scripts.listFiles()) {
-			if (s.isDirectory())
-				continue;
-			if (!s.canRead())
-				continue;
-			if (!s.getName().endsWith(".tcl"))
-				continue;
-			String sname = s.getName().substring(0, (int) (s.getName().length() - 4));
-			try {
-				PushbackReader reader = new PushbackReader(new InputStreamReader(new FileInputStream(s)));
-				spellfactory.addCustomSpell(sname, new ScriptedSpell(reader, spellfactory));
-				this.getLogger().info("Loaded " + sname);
-			} catch (FileNotFoundException e) {
-				this.getLogger().warning("Couldnt load " + sname);
+		final Logger logger = this.getLogger();
+		loader = new BukkitRunnable() {
+			long wrote = 0;
+			public void run() {
+				File scripts = FSUtils.findDirectory(base, "spells");
+				if (scripts == null) return;
+				long best = 0;
+				for (File s : scripts.listFiles()) {
+					if (s.isDirectory())
+						continue;
+					if (!s.canRead())
+						continue;
+					if (!s.getName().endsWith(".tcl"))
+						continue;
+					long time = s.lastModified();
+					if ( time <= wrote ) continue;
+					if ( best < s.lastModified() ) best = s.lastModified();
+					
+					String sname = s.getName().substring(0, (int) (s.getName().length() - 4));
+					try {
+						PushbackReader reader = new PushbackReader(new InputStreamReader(new FileInputStream(s)));
+						spellfactory.addCustomSpell(sname, new ScriptedSpell(reader, spellfactory));
+						logger.info("Loaded " + sname + " / " + time);
+					} catch (FileNotFoundException e) {
+						logger.warning("Couldnt load " + sname);
 
+					}
+
+				}
+				if ( best > wrote ) wrote = best;
+
+				
 			}
-
-		}
+			
+		};
+		
+		loader.run();
+		loader.runTaskTimer(this, 100, 100);
 
 	}
 
@@ -130,13 +157,7 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 		Queue<String> qargs = new LinkedList<String>(Arrays.asList(args));
 		String action = label;
 
-		if (label.equals("parchment") || label.equals("p")) {
-			action = qargs.poll();
-		}
-
-		if (action == null)
-			return false;
-		Context ctx = commandctx.createSubContext();
+		final Context ctx = commandctx.createSubContext();
 		if (sender instanceof Player) {
 			Player p = (Player) sender;
 			ctx.setSpellFactory(spellfactory);
@@ -147,6 +168,48 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 		} else {
 			return false;
 		}
+		
+		if ( label.equals("scriptmode") ) {
+			if (!(sender instanceof Player)) return false;
+			final Player p = (Player) sender;
+			
+			p.beginConversation(new Conversation(this, p, new Prompt() {
+
+				public Prompt acceptInput(ConversationContext arg0, String arg1) {
+
+					if ( arg1.startsWith("/") ) arg1 = arg1.substring(1);
+					if ( arg1.equals("exit") ) return null;
+					Parameter r = null;
+					try { r = TCLUtils.evaluate(arg1, ctx); }
+					catch ( Exception ex ) {
+						
+					} catch ( Error ex ) {
+						
+					}
+					if ( r != null ) ctx.put("ans", r);
+					else ctx.put("ans", Parameter.from(""));
+					return this;
+				}
+
+				public boolean blocksForInput(ConversationContext arg0) {
+					return true;
+				}
+
+				public String getPromptText(ConversationContext arg0) {
+					return "TCL>";
+				}
+				
+			}));
+			return true;
+		}
+		
+		if (label.equals("parchment") || label.equals("p")) {
+			action = qargs.poll();
+		}
+
+		if (action == null) return false;
+		
+
 
 		if (action.equals("cast") || action.equals("c")) {
 			StringBuilder b = null;
@@ -185,12 +248,18 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 	@EventHandler
 	public void onPlayerMove(PlayerMoveEvent e) {
 	}
+	
+	@EventHandler
+	public void onItemSpawn(ItemSpawnEvent e) {
+		Book.ensureSpellWritten(e.getEntity().getItemStack());
+	}
+
 
 	@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent e) {
 		Player p = e.getPlayer();
 		ItemStack holding = p.getItemInHand();
-
+		if ( holding != null ) Book.ensureSpellWritten(holding);
 		TCLCommand s = null;
 		Context ctx = new Context();
 		ctx.setSpellFactory(spellfactory);
