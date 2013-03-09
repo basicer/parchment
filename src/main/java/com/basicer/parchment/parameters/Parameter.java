@@ -145,6 +145,14 @@ public abstract class Parameter implements Iterable<Parameter> {
 		return null;
 	}
 	
+	public Parameter index(String s) {
+		return Parameter.from("[INDEX: " + s + "]");
+	}
+	
+	public void writeIndex(String string, Parameter val) {
+		
+	}
+	
 	public abstract Class getUnderlyingType();
 	
 	public Object getUnderlyingValue() {
@@ -383,6 +391,7 @@ public abstract class Parameter implements Iterable<Parameter> {
 	public int hashCode() {
 		return this.asString().hashCode();
 	}
+	
 	
 
 	

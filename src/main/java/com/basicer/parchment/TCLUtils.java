@@ -53,6 +53,28 @@ public class TCLUtils {
 				b.append(c);
 		}
 	}
+	
+	public static void readArrayIndex(PushbackReader s, StringBuilder b) throws IOException {
+		int brackets = 1;
+		if (s.read() != '(')
+			throw new IOException("Expected (");
+		while (brackets > 0) {
+			int n = s.read();
+			if (n < 0)
+				throw new IOException("Unmathced ()'s");
+			char c = (char) n;
+
+			if (c == ')')
+				--brackets;
+			else if (c == '(')
+				++brackets;
+			else if (c == '{')
+				readCurlyBraceString(s, b);
+
+			if (brackets > 0)
+				b.append(c);
+		}
+	}
 
 
 
@@ -82,16 +104,13 @@ public class TCLUtils {
 		Parameter p = ctx.getRespectingGlobals(var);
 		
 		int r = s.read();
+		if ( r > 0 ) {
+			s.unread(r);
+		}
 		if ( (char)r == '(' ) {
 			StringBuilder b = new StringBuilder();
-			while (true) {
-				r = s.read();
-				if ( r < 0 || (char)r == ')' ) break;
-				b.append((char) r);
-			}
-			p = p.get(b.toString());
-		} else if ( r > 0 ) {
-			s.unread(r);
+			readArrayIndex(s, b);
+			return p.index(b.toString());
 		}
 
 		// return Parameter.from("[VAR: " + cmd.toString() + "]");
@@ -121,16 +140,17 @@ public class TCLUtils {
 		}
 	}
 
-	public static void evaluate(String s, Context ctx) {
+	public static Parameter evaluate(String s, Context ctx) {
 		TCLEngine e = new TCLEngine(s, ctx);
 		while ( e.step() ) {}
+		return e.getResult();
 		
 	}
 
-	public static void evaluate(PushbackReader s, Context ctx) {
+	public static Parameter evaluate(PushbackReader s, Context ctx) {
 		TCLEngine e = new TCLEngine(s, ctx);
 		while ( e.step() ) {}
-		
+		return e.getResult();
 	}
 
 }

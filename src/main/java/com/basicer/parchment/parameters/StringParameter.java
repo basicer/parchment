@@ -39,7 +39,15 @@ public class StringParameter extends Parameter {
 	@Override
 	public String asString(Context ctx) { return self; }
 
-	
+	@Override
+	public boolean asBoolean(Context ctx) {
+		if ( self.equalsIgnoreCase("true") ) return true;
+		if ( self.equalsIgnoreCase("on") ) return true;
+		if ( self.equalsIgnoreCase("off") ) return false;
+		if ( self.equalsIgnoreCase("false") ) return false;
+		return asInteger(ctx) != 0;
+		
+	}
 	
 }
 

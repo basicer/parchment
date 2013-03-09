@@ -1,7 +1,12 @@
 package com.basicer.parchment.tcl;
 
+import java.io.IOException;
+import java.io.PushbackReader;
+import java.io.StringReader;
+
 import com.basicer.parchment.Context;
 import com.basicer.parchment.TCLCommand;
+import com.basicer.parchment.TCLUtils;
 import com.basicer.parchment.parameters.Parameter;
 
 public class Set extends TCLCommand {
@@ -11,14 +16,46 @@ public class Set extends TCLCommand {
 	
 	@Override
 	public Parameter execute(Context ctx) {
-		String name = ctx.get("varName").asString();
+		String name = null;
 		Parameter val = ctx.get("value");
 		Context ctxu = ctx.up(1);
-		if ( val != null ) {
-			ctxu.put(name, val);
+		String index = null;
+		StringBuilder varb = new StringBuilder();
+		PushbackReader s = new PushbackReader(new StringReader("$" + ctx.get("varName").asString()));
+		
+		try { 
+			TCLUtils.readVariable(s, varb);
+			name = varb.toString();
+			varb = new StringBuilder();			
+			
+			int r = s.read();
+			if ( (char)r != '(' ) {
+				s.unread(r);
+				TCLUtils.readArrayIndex(s, varb);
+				index = varb.toString();
+			}
+		} catch ( IOException ex ) {
+			
 		}
 		
-		return ctxu.get(name);	
+		ctx.sendDebugMessage("SET " + name + " / " + index + " / "  + val);
+		
+		if ( index == null ) {
+			if ( val != null ) {
+				ctxu.put(name, val);
+			}
+			
+			return ctxu.get(name);	
+		}
+		
+		Parameter p = ctxu.get(name);
+		
+		StringBuilder b = new StringBuilder();
+		if ( val != null ) p.writeIndex(index, val);
+
+		return p.index(index);
+		
+		
 	}
 
 }
