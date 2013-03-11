@@ -1,7 +1,5 @@
 package com.basicer.parchment.parameters;
 
-import org.bukkit.Material;
-
 import com.basicer.parchment.Context;
 
 public class IntegerParameter extends Parameter {

@@ -110,6 +110,7 @@ public class TCLUtils {
 		if ( (char)r == '(' ) {
 			StringBuilder b = new StringBuilder();
 			readArrayIndex(s, b);
+			if ( p == null ) return null;
 			return p.index(b.toString());
 		}
 

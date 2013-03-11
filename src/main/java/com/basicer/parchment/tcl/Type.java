@@ -7,22 +7,27 @@ import com.basicer.parchment.EvaluationResult.Code;
 import com.basicer.parchment.TCLEngine;
 import com.basicer.parchment.parameters.Parameter;
 
-public class Cast extends TCLCommand {
+public class Type extends TCLCommand {
 
 	@Override
 	public Parameter execute(Context ctx) { 
 		Parameter what = ctx.get("what");
-		String type = ctx.get("type").asString();
+		Parameter type = ctx.get("type");
 		
-		Parameter out = what.castByString(type, ctx);
-		if ( out == null ) Parameter.from("null");
-		return out;
+		
+		if ( type != null ) {
+			Parameter out = what.castByString(type.asString(), ctx);
+			if ( out == null ) return Parameter.from("null");
+			return out;
+		}
+		
+		return Parameter.from(what.getClass().getSimpleName());
 		
 		
 	}
 
 	@Override
-	public String[] getArguments() { return new String[] { "what", "type" }; }
+	public String[] getArguments() { return new String[] { "what", "type?" }; }
 
 	
 	

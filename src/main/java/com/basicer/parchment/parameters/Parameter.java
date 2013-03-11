@@ -145,6 +145,10 @@ public abstract class Parameter implements Iterable<Parameter> {
 		return null;
 	}
 	
+	public Parameter index(int  n) {
+		return this;
+	}
+	
 	public Parameter index(String s) {
 		return Parameter.from("[INDEX: " + s + "]");
 	}

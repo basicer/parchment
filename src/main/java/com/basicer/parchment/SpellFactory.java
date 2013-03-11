@@ -29,10 +29,11 @@ public class SpellFactory {
 		addBuiltinCommand(Expr.class);
 		addBuiltinCommand(If.class);
 		addBuiltinCommand(Eval.class);
+		addBuiltinCommand(Uplevel.class);
 		addBuiltinCommand(While.class);
 		addBuiltinCommand(Return.class);
 		addBuiltinCommand(Break.class);
-		addBuiltinCommand(Cast.class);
+		addBuiltinCommand(Type.class);
 	}
 	
 	public void load() {

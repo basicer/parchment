@@ -27,6 +27,7 @@ import com.basicer.parchment.spells.Spout;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.ConversationContext;
@@ -60,7 +61,6 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 
 	ProtocolManager	manager;
 	SpellFactory	spellfactory;
-	Context			commandctx;  //TODO: Replace with per player ctx
 	BukkitRunnable  loader;
 	
 	public void onDisable() {
@@ -90,10 +90,15 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 		Parameter.RegisterParamaterType(WorldParameter.class);
 		Parameter.RegisterParamaterType(ItemParameter.class);
 		
-		commandctx = new Context(); 
+		
 		if (pm.getPlugin("ProtocolLib") != null) {
 			manager = ProtocolLibrary.getProtocolManager();
 		}
+		
+		CommandExecutor x = new ParchmentCommandExecutor(this);
+		getCommand("cast").setExecutor(x);
+		getCommand("parchment").setExecutor(x);
+		getCommand("scriptmode").setExecutor(x);
 
 		Bukkit.getMessenger().registerIncomingPluginChannel(this, "MC|BEdit", this);
 
@@ -148,101 +153,17 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 
 	}
 
-
-	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-
-		if (!sender.isOp())
-			return false;
-
-		Queue<String> qargs = new LinkedList<String>(Arrays.asList(args));
-		String action = label;
-
-		final Context ctx = commandctx.createSubContext();
-		if (sender instanceof Player) {
-			Player p = (Player) sender;
-			ctx.setSpellFactory(spellfactory);
-			ctx.setCaster(Parameter.from(p));
-			ctx.setWorld(Parameter.from(p.getWorld()));
-			ctx.setServer(Parameter.from(p.getServer()));
-			ctx.setSource("command");
-		} else {
-			return false;
-		}
-		
-		if ( label.equals("scriptmode") ) {
-			if (!(sender instanceof Player)) return false;
-			final Player p = (Player) sender;
-			
-			p.beginConversation(new Conversation(this, p, new Prompt() {
-
-				public Prompt acceptInput(ConversationContext arg0, String arg1) {
-
-					if ( arg1.startsWith("/") ) arg1 = arg1.substring(1);
-					if ( arg1.equals("exit") ) return null;
-					Parameter r = null;
-					try { r = TCLUtils.evaluate(arg1, ctx); }
-					catch ( Exception ex ) {
-						
-					} catch ( Error ex ) {
-						
-					}
-					if ( r != null ) ctx.put("ans", r);
-					else ctx.put("ans", Parameter.from(""));
-					return this;
-				}
-
-				public boolean blocksForInput(ConversationContext arg0) {
-					return true;
-				}
-
-				public String getPromptText(ConversationContext arg0) {
-					return "TCL>";
-				}
-				
-			}));
-			return true;
-		}
-		
-		if (label.equals("parchment") || label.equals("p")) {
-			action = qargs.poll();
-		}
-
-		if (action == null) return false;
-		
-
-
-		if (action.equals("cast") || action.equals("c")) {
-			StringBuilder b = null;
-			while (!qargs.isEmpty()) {
-				if (b == null)
-					b = new StringBuilder();
-				else
-					b.append(" ");
-				b.append(qargs.poll());
-			}
-
-			TCLUtils.evaluate(b.toString(), ctx);
-		} else if (action.equals("run")) {
-			String file = qargs.poll() + ".tcl";
-			File folder = FSUtils.findDirectory(this.getDataFolder(), "runnable");
-			File rfile = FSUtils.findFile(folder, file);
-			if (rfile == null) {
-				sender.sendMessage("Unknown file " + file);
-				return true;
-			}
-			PushbackReader reader;
-			try {
-				reader = new PushbackReader(new InputStreamReader(new FileInputStream(rfile)));
-				TCLUtils.evaluate(reader, ctx);
-			} catch (FileNotFoundException e) {
-				sender.sendMessage("Unknown file 2 " + file);
-			}
-
-		} else {
-			sender.sendMessage("Unknonw action " + action);
-		}
-
-		return true;
+	private Context createContext(Player p) {
+		Context ctx = new Context();
+		ctx.setSpellFactory(spellfactory);
+		ctx.setCaster(Parameter.from(p));
+		ctx.setWorld(Parameter.from(p.getWorld()));
+		ctx.setServer(Parameter.from(p.getServer()));
+		return ctx;
+	}
+	
+	public SpellFactory getSpellFactory() {
+		return spellfactory;
 	}
 
 	@EventHandler
@@ -261,11 +182,7 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 		ItemStack holding = p.getItemInHand();
 		if ( holding != null ) Book.ensureSpellWritten(holding);
 		TCLCommand s = null;
-		Context ctx = new Context();
-		ctx.setSpellFactory(spellfactory);
-		ctx.setCaster(Parameter.from(p));
-		ctx.setWorld(Parameter.from(p.getWorld()));
-		ctx.setServer(Parameter.from(p.getServer()));
+		Context ctx = createContext(p);
 		
 		if (e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK) {
 			if (holding.getType() == org.bukkit.Material.BOOK_AND_QUILL || holding.getType() == org.bukkit.Material.WRITTEN_BOOK) {
@@ -282,7 +199,6 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 					sb.append(b.getPage(i + 1));
 					sb.append("\n");
 				}
-				String action = sb.toString();
 				// p.sendMessage(action);
 				/*
 				 * if ( action.startsWith("bridge") ) { for (Block bl :
@@ -305,7 +221,7 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 
 				// e.getClickedBlock().breakNaturally(e.getPlayer().getItemInHand());
 
-				s = new ScriptedSpell(new PushbackReader(new StringReader(action)), spellfactory);
+				s = new ScriptedSpell(new PushbackReader(new StringReader(sb.toString())), spellfactory);
 			
 
 				ctx.setSource("wand");
@@ -347,6 +263,8 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 			case RIGHT_CLICK_BLOCK:
 				binding = "alt";
 				break;
+			case PHYSICAL:
+				return;
 		}
 		scmd.executeBinding(binding, ctx2);
 		e.setCancelled(true);

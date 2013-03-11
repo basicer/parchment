@@ -2,16 +2,13 @@ package com.basicer.parchment.parameters;
 
 import java.util.*;
 
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.block.*;
 
 import com.basicer.parchment.Context;
 
 
 public class ListParameter extends Parameter {
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public Class<List> getUnderlyingType() { return List.class; }
 	
@@ -100,9 +97,6 @@ public class ListParameter extends Parameter {
 		return new ArrayList<Parameter>(self);
 	}
 
-	public Parameter index(int i) {
-		return self.get(i);
-	}
 	
 
 

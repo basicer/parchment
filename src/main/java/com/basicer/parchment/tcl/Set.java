@@ -7,6 +7,7 @@ import java.io.StringReader;
 import com.basicer.parchment.Context;
 import com.basicer.parchment.TCLCommand;
 import com.basicer.parchment.TCLUtils;
+import com.basicer.parchment.parameters.DictionaryParameter;
 import com.basicer.parchment.parameters.Parameter;
 
 public class Set extends TCLCommand {
@@ -29,7 +30,7 @@ public class Set extends TCLCommand {
 			varb = new StringBuilder();			
 			
 			int r = s.read();
-			if ( (char)r != '(' ) {
+			if ( (char)r == '(' ) {
 				s.unread(r);
 				TCLUtils.readArrayIndex(s, varb);
 				index = varb.toString();
@@ -38,7 +39,7 @@ public class Set extends TCLCommand {
 			
 		}
 		
-		ctx.sendDebugMessage("SET " + name + " / " + index + " / "  + val);
+		//ctx.sendDebugMessage("SET " + name + " ? " + index);
 		
 		if ( index == null ) {
 			if ( val != null ) {
@@ -50,8 +51,14 @@ public class Set extends TCLCommand {
 		
 		Parameter p = ctxu.get(name);
 		
-		StringBuilder b = new StringBuilder();
-		if ( val != null ) p.writeIndex(index, val);
+		if ( p == null ) {
+			p = new DictionaryParameter();
+			ctxu.put(name, p);
+		}
+		
+		if ( val != null ) { 
+			p.writeIndex(index, val);
+		}
 
 		return p.index(index);
 		

@@ -5,24 +5,10 @@ import java.util.ArrayList;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.block.BlockFace;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-
 import com.basicer.parchment.Context;
 import com.basicer.parchment.OperationalSpell;
-import com.basicer.parchment.Spell;
-import com.basicer.parchment.Spell.DefaultTargetType;
-import com.basicer.parchment.parameters.BlockParameter;
-import com.basicer.parchment.parameters.DoubleParameter;
-import com.basicer.parchment.parameters.IntegerParameter;
-import com.basicer.parchment.parameters.ItemParameter;
-import com.basicer.parchment.parameters.LocationParameter;
-import com.basicer.parchment.parameters.MaterialParameter;
-import com.basicer.parchment.parameters.Parameter;
-import com.basicer.parchment.parameters.PlayerParameter;
-import com.basicer.parchment.parameters.StringParameter;
+import com.basicer.parchment.parameters.*;
+
 
 public class Block extends OperationalSpell<BlockParameter> {
 
