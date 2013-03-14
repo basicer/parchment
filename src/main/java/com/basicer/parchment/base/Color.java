@@ -1,7 +1,9 @@
 package com.basicer.parchment.base;
 
 import com.basicer.parchment.Context;
+import com.basicer.parchment.EvaluationResult;
 import com.basicer.parchment.TCLCommand;
+import com.basicer.parchment.TCLEngine;
 import com.basicer.parchment.parameters.Parameter;
 
 public class Color extends TCLCommand {
@@ -11,6 +13,10 @@ public class Color extends TCLCommand {
 	public String[] getArguments() { return new String[] { "color" }; }
 	
 	@Override
+	public EvaluationResult extendedExecute(Context ctx, TCLEngine engine) {
+		return new EvaluationResult(execute(ctx));
+	}
+	
 	public Parameter execute(Context ctx) {
 		String color = ctx.get("color").asString();
 		color = color.toLowerCase();

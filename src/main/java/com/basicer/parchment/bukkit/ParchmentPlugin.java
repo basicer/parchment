@@ -17,6 +17,7 @@ import com.basicer.parchment.Spell.FizzleException;
 import com.basicer.parchment.Context;
 import com.basicer.parchment.SpellFactory;
 import com.basicer.parchment.TCLCommand;
+import com.basicer.parchment.TCLEngine;
 import com.basicer.parchment.TCLUtils;
 
 import com.basicer.parchment.craftbukkit.Book;
@@ -229,7 +230,7 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 				Parameter[] ws = new Parameter[1];
 				ws[0] = Parameter.from("want");
 				Context ctx2 = s.bindContext(ws, ctx);
-				s.execute(ctx2);
+				s.extendedExecute(ctx2, null);
 				e.setCancelled(true);
 				return;
 			}
@@ -250,9 +251,10 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 		if ( cmd == null ) return;
 		Spell scmd = (Spell) cmd;
 		ctx.setSource("item");
-		Parameter[] ws = new Parameter[1];
-		ws[0] = Parameter.from("want");
-		Context ctx2 = scmd.bindContext(ws, ctx);
+		Parameter cancel = Parameter.from(e.isCancelled());
+		System.out.println(cancel.toString());
+		ctx.put("cancel", cancel);
+		
 		String binding = "cast";
 		switch ( e.getAction() ) {
 			case LEFT_CLICK_AIR:
@@ -266,8 +268,8 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 			case PHYSICAL:
 				return;
 		}
-		scmd.executeBinding(binding, ctx2);
-		e.setCancelled(true);
+		scmd.executeBinding(binding, ctx, null);
+		e.setCancelled(ctx.get("cancel").asBoolean());
 		
 		
 		

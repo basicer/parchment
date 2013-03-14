@@ -16,6 +16,7 @@ import org.bukkit.entity.LivingEntity;
 
 
 import com.basicer.parchment.Context.ParameterPtr;
+import com.basicer.parchment.EvaluationResult.Code;
 import com.basicer.parchment.parameters.*;
 
 public abstract class Spell extends TCLCommand {
@@ -59,7 +60,7 @@ public abstract class Spell extends TCLCommand {
 	
 	@Override
 	public Context bindContext(Parameter[] params, Context ctx) {
-		Context spellstatic = ctx.createBoundSubContext(spellStatic);
+		Context myspellstatic = ctx.createBoundSubContext(spellStatic);
 		if ( params.length > 1 ) {
 			Parameter test = params[1];
 			if ( test instanceof ListParameter) {
@@ -109,30 +110,33 @@ public abstract class Spell extends TCLCommand {
 			}
 		}
 		// TODO Auto-generated method stub
-		return super.bindContext(params, spellstatic);
+		return super.bindContext(params, myspellstatic);
 	}
 
-	public Parameter execute(Context ctx) {
-		return executeBinding("cast", ctx);
+	
+	@Override
+	public EvaluationResult extendedExecute(Context ctx, TCLEngine e) {
+		return executeBinding("cast", ctx, e);
 	}
 	
-	public Parameter executeBinding(String name, Context ctx) {
+	
+	public EvaluationResult executeBinding(String name, final Context ctx, final TCLEngine engine) {
 		try {
 			Parameter targets = ctx.getTarget();
 			System.out.println("EXEC " + getName() + ":" + name + " with target " + 
 					(targets == null ? "null" : targets.toString()));
 			if ( !name.equals("cast") ) fizzle("Can only use cast binding on this spell.");
-			return this.cast(ctx);
+			return new EvaluationResult(this.cast(ctx));
 		} catch ( FizzleException fizzle ) {
 			ctx.sendDebugMessage("The spell fizzles: " + fizzle.getMessage());
-			return Parameter.from("fizzle");
+			return EvaluationResult.makeError(fizzle.getMessage());
 		}
 	}
 	
 	protected List<Class<? extends Parameter>> getAffectors() {
 		List<Class<? extends Parameter>> list = new ArrayList<Class<? extends Parameter>>();
 		for ( Method m : this.getClass().getMethods() ) {
-			if ( m.getName() != "affect" ) continue;
+			if ( !m.getName().equals("affect") ) continue;
 			Class[] types = m.getParameterTypes();
 			list.add(types[0]);
 		}
@@ -142,13 +146,9 @@ public abstract class Spell extends TCLCommand {
 	
 	public Parameter cast(Context ctx) {
 		//By default a casted spell applies it affector to the target.
-		return affect(ctx);
-	}
-	
-	public Parameter affect(Context ctx) {
 		return Spell.applyAffectors(this, ctx);
 	}
-		
+	
 	protected static Parameter applyAffectors(Spell s, Context ctx) {
 		List<Class<? extends Parameter>> list = s.getAffectors();
 		
@@ -165,7 +165,7 @@ public abstract class Spell extends TCLCommand {
 		} else {
 			out = new ArrayList<Parameter>();
 		}
-		if ( targets == null ) s.fizzle();
+		if ( targets == null ) s.fizzle("Not target, but applying affector.");
 		ParameterPtr result;
 		targetloop:
 		for ( Parameter t : targets ) {

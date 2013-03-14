@@ -46,8 +46,13 @@ public class TCLUtils {
 				--brackets;
 			else if (c == '[')
 				++brackets;
-			else if (c == '{')
+			else if (c == '{') {
+				s.unread(n);
+				b.append('{');
 				readCurlyBraceString(s, b);
+				b.append('}');
+				continue;
+			}
 
 			if (brackets > 0)
 				b.append(c);
@@ -101,8 +106,9 @@ public class TCLUtils {
 		StringBuilder varb = new StringBuilder();
 		readVariable(s, varb);
 		String var = varb.toString();
+		if ( !ctx.hasRespectingGlobals(var) ) throw new IllegalArgumentException("Cant resolve variable " + var);
 		Parameter p = ctx.getRespectingGlobals(var);
-		
+		if ( p == null ) p = Parameter.from("");
 		int r = s.read();
 		if ( r > 0 ) {
 			s.unread(r);

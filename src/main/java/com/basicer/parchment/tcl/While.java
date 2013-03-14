@@ -15,9 +15,7 @@ public class While extends TCLCommand {
 	@Override
 	public String[] getArguments() { return new String[] { "test", "body" }; }
 
-	@Override
-	public Parameter execute(Context ctx) { throw new RuntimeException("Wrong while Invocation"); }
-	
+
 	@Override
 	public EvaluationResult extendedExecute(Context ctx, TCLEngine engine) {
 		Parameter expr = ctx.get("test");

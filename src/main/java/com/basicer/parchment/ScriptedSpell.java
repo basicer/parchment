@@ -27,6 +27,13 @@ public class ScriptedSpell extends Spell {
 	}
 
 
+	@Override
+	public EvaluationResult extendedExecute(Context ctx, TCLEngine e) {
+		//We need to throw out scripted spell's parameter context.
+		return executeBinding("cast", ctx.up(1), e, ctx.getArgs());
+	}
+	
+	
 	public ScriptedSpell(String source, SpellFactory f) {
 		super();
 		triggers = new HashMap<String, String>();
@@ -77,19 +84,19 @@ public class ScriptedSpell extends Spell {
 
 	@Override
 	public Parameter cast(Context ctx) {
-		return executeBinding("cast", ctx);
+		return executeBinding("cast", ctx, null, ctx.getArgs()).getValue(); //TODO: These would like an engine.
 	}
 	
-	@Override
-	public Parameter affect(Context ctx) {
-		return executeBinding("affect", ctx);
-	}
 	
 	@Override
-	public Parameter executeBinding(String binding, final Context ctx) {
+	public EvaluationResult executeBinding(String binding, final Context ctx, final TCLEngine engine) {
+		return executeBinding(binding, ctx, engine, new ArrayList<Parameter>());
+	}
+	
+	public EvaluationResult executeBinding(String binding, final Context ctx, final TCLEngine engine,  ArrayList<Parameter> argz) {
 		
 		String name = triggers.get(binding);
-		System.out.println("LeCasting : " + name);
+		System.out.println("LeCasting : " + name + " for " + binding);
 		final Spell closure_s = this;
 		
 		DefaultTargetType tt = getDefaultTargetType(ctx,ctx.getSource());
@@ -102,34 +109,33 @@ public class ScriptedSpell extends Spell {
 		if ( binding.equals("affect") ) {
 			ctx.put("super", Parameter.from(new TCLCommand() {
 				@Override
-				public Parameter execute(Context ctx) {
-					return Spell.applyAffectors(closure_s, ctx);
+				public EvaluationResult extendedExecute(Context ctx, TCLEngine e) {
+					return new EvaluationResult(Spell.applyAffectors(closure_s, ctx));
 				}
 			}));
 		} else if ( binding.equals("cast") ) {
 			ctx.put("super", Parameter.from(new TCLCommand() {
 				@Override
-				public Parameter execute(Context ctx) {
-					return closure_s.affect(ctx);
+				public EvaluationResult extendedExecute(Context ctx, TCLEngine e) {
+					return new EvaluationResult(closure_s.cast(ctx));
 				}
 			}));
 		}
 		if ( name != null ) {
 			System.out.println("-> DELEGATE TO " + name);
-			TCLCommand proc = ctx.getCommand(name);
-			ArrayList<Parameter> argz = ctx.getArgs();
+			TCLCommand proc = spellStatic.getCommand(name);
 			Parameter[] up = new Parameter[argz.size() + 1];
 			up[0] = Parameter.from(name);
 			for ( int i = 0; i < argz.size(); ++i) up[i+1] = argz.get(i);
 				
 			
-			Context ctx2 = proc.bindContext(up, ctx.up(1));
+			Context ctx2 = proc.bindContext(up, ctx.createBoundSubContext(spellStatic));
 			if ( target != null ) ctx2.setTarget(target);
-			return proc.execute(ctx2);
+			return proc.extendedExecute(ctx2, engine);
 			
 			
 		} else {
-			return super.cast(ctx);
+			return new EvaluationResult(super.cast(ctx));
 		}
 		
 	}
@@ -137,8 +143,7 @@ public class ScriptedSpell extends Spell {
 	
 
 	public Parameter affect(Parameter target, Context ctx) {
-		ctx.sendDebugMessage("And so it was");
-		return null;
+		return executeBinding("affect", ctx, null).getValue(); //TODO: These would like an engine.
 	}
 
 	

@@ -5,7 +5,9 @@ import java.io.PushbackReader;
 import java.io.StringReader;
 
 import com.basicer.parchment.Context;
+import com.basicer.parchment.EvaluationResult;
 import com.basicer.parchment.TCLCommand;
+import com.basicer.parchment.TCLEngine;
 import com.basicer.parchment.TCLUtils;
 import com.basicer.parchment.parameters.DictionaryParameter;
 import com.basicer.parchment.parameters.Parameter;
@@ -16,7 +18,7 @@ public class Set extends TCLCommand {
 	public String[] getArguments() { return new String[] { "varName", "value" }; }
 	
 	@Override
-	public Parameter execute(Context ctx) {
+	public EvaluationResult extendedExecute(Context ctx, TCLEngine e) {
 		String name = null;
 		Parameter val = ctx.get("value");
 		Context ctxu = ctx.up(1);
@@ -46,7 +48,7 @@ public class Set extends TCLCommand {
 				ctxu.put(name, val);
 			}
 			
-			return ctxu.get(name);	
+			return new EvaluationResult(ctxu.get(name));	
 		}
 		
 		Parameter p = ctxu.get(name);
@@ -60,7 +62,7 @@ public class Set extends TCLCommand {
 			p.writeIndex(index, val);
 		}
 
-		return p.index(index);
+		return new EvaluationResult(p.index(index));
 		
 		
 	}

@@ -56,6 +56,12 @@ public class Context {
 		return ptr.val;
 	}
 	
+	public boolean hasRespectingGlobals(String var) {
+		if ( has(var) ) return true;
+		if ( getRespectingGlobals(var) != null ) return true;
+		return false;
+	}
+	
 	public void put(String var, Parameter value) {
 		ParameterPtr nv = getRaw(var);
 		if ( nv != null ) {
@@ -170,7 +176,7 @@ public class Context {
 	
 	public Context createBoundSubContext(Context bound) {
 		Context ctx = new Context();
-		ctx.variables = bound.variables;
+		ctx.variables = new HashMap<String, ParameterPtr>(bound.variables);
 		ctx.parent = this;
 		ctx.procs = bound.procs;
 		return ctx;
@@ -246,6 +252,15 @@ public class Context {
 		while ( ctx.parent != null ) ctx = ctx.parent;
 		return ctx;
 	}
+
+	public boolean has(String name) {
+		ParameterPtr p = this.getRaw(name);
+		if ( p == null ) return false;
+		return true;
+		//return p.val != null;
+	}
+
+
 
 
 

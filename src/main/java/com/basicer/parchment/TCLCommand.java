@@ -11,8 +11,6 @@ import com.basicer.parchment.parameters.StringParameter;
 
 public abstract class TCLCommand {
 	
-	public abstract Parameter execute(Context ctx);
-	
 	public String getName() { return this.getClass().getSimpleName(); }
 	
 	public String[] getArguments() { return new String[] {"args"}; }
@@ -98,12 +96,14 @@ public abstract class TCLCommand {
 			throw new RuntimeException("Command " + getName() + " required " + required + " more arguements");
 		}
 		
+		for ( int i = 0; i < xargs.size(); ++i ) {
+			if ( !put.has(xargs.get(i).name) ) put.put(xargs.get(i).name, null);
+		}
+		
 		if ( and_args ) put.put("args", Parameter.createList(params, ptr, params.length - 1));
 		
 		return put;
 	}
 
-	public EvaluationResult extendedExecute(Context c2, TCLEngine e) {
-		return new EvaluationResult(this.execute(c2));
-	}
+	public abstract EvaluationResult extendedExecute(Context c2, TCLEngine e);
 }

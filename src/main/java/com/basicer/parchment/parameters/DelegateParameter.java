@@ -17,6 +17,6 @@ public class DelegateParameter extends Parameter {
 	public Class<TCLCommand> getUnderlyingType() { return TCLCommand.class; }
 	
 	public Parameter evaluate(Context ctx) {
-		return self.execute(ctx);
+		return self.extendedExecute(ctx, null).getValue();
 	}
 }

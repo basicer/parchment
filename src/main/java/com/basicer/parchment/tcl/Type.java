@@ -10,18 +10,18 @@ import com.basicer.parchment.parameters.Parameter;
 public class Type extends TCLCommand {
 
 	@Override
-	public Parameter execute(Context ctx) { 
+	public EvaluationResult extendedExecute(Context ctx, TCLEngine e) {
 		Parameter what = ctx.get("what");
 		Parameter type = ctx.get("type");
 		
 		
 		if ( type != null ) {
 			Parameter out = what.castByString(type.asString(), ctx);
-			if ( out == null ) return Parameter.from("null");
-			return out;
+			if ( out == null ) return new EvaluationResult(Parameter.from(""));
+			return new EvaluationResult(out);
 		}
 		
-		return Parameter.from(what.getClass().getSimpleName());
+		return new EvaluationResult(Parameter.from(what.getClass().getSimpleName()));
 		
 		
 	}

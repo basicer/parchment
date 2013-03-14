@@ -10,9 +10,6 @@ import com.basicer.parchment.parameters.Parameter;
 public class Return extends TCLCommand {
 
 	@Override
-	public Parameter execute(Context ctx) { throw new RuntimeException("Wrong break Invocation"); }
-
-	@Override
 	public String[] getArguments() { return new String[] { "result?" }; }
 
 	@Override

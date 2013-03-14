@@ -18,7 +18,7 @@ public class Proc extends TCLCommand {
 	
 	
 	@Override
-	public Parameter execute(Context ctx) {
+	public EvaluationResult extendedExecute(Context ctx, TCLEngine e) {
 		Parameter pname = ctx.get("name");
 		Parameter pargs = ctx.get("argNames");
 		Parameter pbody = ctx.get("body");
@@ -37,14 +37,13 @@ public class Proc extends TCLCommand {
 		TCLCommand proc = new TCLCommand() {
 
 			@Override
-			public Parameter execute(Context ctx) { return this.extendedExecute(ctx, new TCLEngine("", ctx)).getValue(); } //TODO: THIS IS HORRIBLY WRONG
-			
-			@Override
 			public String[] getArguments() { return cxargs; }
 			
 			@Override
 			public EvaluationResult extendedExecute(Context ctx, TCLEngine engine) {
+				if ( engine == null ) engine = new TCLEngine("", null);
 				EvaluationResult r = engine.evaluate(bodystr, ctx);
+				if ( r == null ) return EvaluationResult.OK;
 				if ( r.getCode() == Code.RETURN ) {
 					r.setCode(Code.OK);
 				}
@@ -54,7 +53,7 @@ public class Proc extends TCLCommand {
 		};
 		ctx.top().setCommand(pname.asString(), proc);
 		System.out.println("Registered proc " + pname.asString());
-		return Parameter.from(proc);
+		return new EvaluationResult(Parameter.from(proc));
 		
 	}
 

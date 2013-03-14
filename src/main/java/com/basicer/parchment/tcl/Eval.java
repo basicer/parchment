@@ -15,9 +15,6 @@ public class Eval extends TCLCommand {
 	public String[] getArguments() { return new String[] { "code" }; }
 
 	@Override
-	public Parameter execute(Context ctx) { throw new RuntimeException("Wrong Eval Invocation"); }
-	
-	@Override
 	public EvaluationResult extendedExecute(Context ctx, TCLEngine e) {
 		Parameter expr = ctx.get("code");
 		System.err.println(expr.asString());

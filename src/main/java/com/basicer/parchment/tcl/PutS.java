@@ -1,7 +1,9 @@
 package com.basicer.parchment.tcl;
 
 import com.basicer.parchment.Context;
+import com.basicer.parchment.EvaluationResult;
 import com.basicer.parchment.TCLCommand;
+import com.basicer.parchment.TCLEngine;
 import com.basicer.parchment.parameters.Parameter;
 
 public class PutS extends TCLCommand {
@@ -10,14 +12,14 @@ public class PutS extends TCLCommand {
 	public String[] getArguments() { return new String[] { "string" }; }
 
 	@Override
-	public Parameter execute(Context ctx) {
+	public EvaluationResult extendedExecute(Context ctx, TCLEngine e) {
 		Parameter s = ctx.get("string");
 		if ( s == null ) {
 			ctx.sendDebugMessage("null");
-			return null;
+			return EvaluationResult.OK;
 		}
 		ctx.sendDebugMessage(s.asString());
-		return s;
+		return new EvaluationResult(s);
 	}
 	
 	

@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import com.basicer.parchment.Context;
+import com.basicer.parchment.EvaluationResult;
 import com.basicer.parchment.TCLCommand;
 import com.basicer.parchment.TCLEngine;
 import com.basicer.parchment.TCLUtils;
@@ -17,9 +18,9 @@ import java.util.LinkedList;
 public class Expr extends TCLCommand {
 
 	@Override
-	public Parameter execute(Context ctx) {
+	public EvaluationResult extendedExecute(Context ctx, TCLEngine e) {
 		Queue<Parameter> q = new LinkedList<Parameter>(ctx.getArgs()); 
-		return parse(q, q.poll(), 0);
+		return new EvaluationResult(parse(q, q.poll(), 0));
 	}
 	
 	public static Parameter eval(String expr, Context ctx, TCLEngine e) {

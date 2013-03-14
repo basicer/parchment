@@ -9,9 +9,12 @@ public class EvaluationResult {
 	private Parameter value;
 	private Code code = Code.OK;
 	
+	public static final EvaluationResult OK = new EvaluationResult();
+	
 	public EvaluationResult() { }
 	public EvaluationResult(Parameter value) {
 		this.value = value;
+		this.code = Code.OK;
 	}
 	
 	public EvaluationResult(Parameter value, Code code) {
@@ -23,6 +26,9 @@ public class EvaluationResult {
 	public Code getCode() { return code; }
 	public void setCode(Code code) {
 		this.code = code;
+	}
+	public static EvaluationResult makeError(String string) {
+		return new EvaluationResult(Parameter.from(string), Code.ERROR);
 	}
 	
 }

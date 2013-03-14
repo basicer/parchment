@@ -1,9 +1,11 @@
 package com.basicer.parchment.base;
 
 import com.basicer.parchment.Context;
+import com.basicer.parchment.EvaluationResult;
 import com.basicer.parchment.ScriptedSpell;
 import com.basicer.parchment.Spell;
 import com.basicer.parchment.TCLCommand;
+import com.basicer.parchment.TCLEngine;
 import com.basicer.parchment.parameters.Parameter;
 import com.basicer.parchment.parameters.SpellParameter;
 
@@ -13,6 +15,10 @@ public class Bind extends TCLCommand {
 	public String[] getArguments() { return new String[] { "trigger", "procedure" }; }
 	
 	@Override
+	public EvaluationResult extendedExecute(Context ctx, TCLEngine engine) {
+		return new EvaluationResult(execute(ctx));
+	}
+		
 	public Parameter execute(Context ctx) {
 		Parameter t = ctx.resolve("this");
 		System.out.println("This = " + t);
