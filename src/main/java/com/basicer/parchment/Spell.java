@@ -30,23 +30,23 @@ public abstract class Spell extends TCLCommand {
 	}
 	
 	public DefaultTargetType getDefaultTargetType(Context ctx, String source) { 
-		System.out.println("GDT " + this.getName());
+		Debug.trace("GDT " + this.getName());
 		if ( source == null || source.equals("command") || true ) {
 			//TODO: Caster might not be player, so this doesnt make much sense.
 			if ( this.canAffect(PlayerParameter.class) ) {
-				System.out.println(this.getClass().getName() + " => Self");
+				Debug.trace(this.getClass().getName() + " => Self");
 				return DefaultTargetType.Self;
 			} else if ( this.canAffect(ItemParameter.class) ) {
-				System.out.println(this.getClass().getName() + " => Self");
+				Debug.trace(this.getClass().getName() + " => Self");
 				return DefaultTargetType.Self;
 			} else if ( this.canAffect(BlockParameter.class) ) {
-				System.out.println(this.getClass().getName() + " => TargetBlock");
+				Debug.trace(this.getClass().getName() + " => TargetBlock");
 				return DefaultTargetType.TargetBlock;
 			}
-			System.out.println(this.getClass().getName() + " => None");
+			Debug.trace(this.getClass().getName() + " => None");
 			return DefaultTargetType.None;
 		}
-		System.out.println(this.getClass().getName() + " => None");
+		Debug.trace(this.getClass().getName() + " => None");
 		return DefaultTargetType.None; 
 	}
 	
@@ -59,18 +59,18 @@ public abstract class Spell extends TCLCommand {
 	}
 	
 	@Override
-	public Context bindContext(Parameter[] params, Context ctx) {
-		Context myspellstatic = ctx.createBoundSubContext(spellStatic);
+	public Context bindContext(Parameter[] params, Context ctxi) {
+		Parameter targetOveride = null;
 		if ( params.length > 1 ) {
 			Parameter test = params[1];
 			if ( test instanceof ListParameter) {
 				if ( test.getHomogeniousType() != null ) {
 					test = ((ListParameter)test).index(0);
-					System.out.println("Casted list type");
+					Debug.trace("Casted list type");
 				}
 			}
 			if ( test != null ) {
-				switch ( getFirstParamaterTargetType(ctx) ) {
+				switch ( getFirstParamaterTargetType(ctxi) ) {
 					case Never:
 						test = null;
 						break;
@@ -83,11 +83,11 @@ public abstract class Spell extends TCLCommand {
 						List<Class<? extends Parameter>> list = getAffectors();
 						boolean match = false;
 						for ( Class<? extends Parameter> c : list ) {
-							if ( test.cast(c, ctx) != null ) {
+							if ( test.cast(c, ctxi) != null ) {
 								match = true;
 								break;
 							} else {
-								System.out.println("FAIL MATCH " + c.getSimpleName() + " to " + test.getClass().getSimpleName());
+								Debug.trace("FAIL MATCH " + c.getSimpleName() + " to " + test.getClass().getSimpleName());
 							}
 						}
 						
@@ -97,20 +97,24 @@ public abstract class Spell extends TCLCommand {
 				}
 				
 				if ( test != null ) {
-					System.out.println("Casting first param to target for " + this.getClass().getSimpleName());
+					
+					Debug.trace("Casting first param to target for " + this.getClass().getSimpleName());
 					Parameter[] nparams = new Parameter[params.length - 1];
-					System.out.println("C " + params.length);
-					System.out.println("X " + nparams.length);
+					Debug.trace("C " + params.length);
+					Debug.trace("X " + nparams.length);
 					nparams[0] = params[0];
 					System.arraycopy(params, 2, nparams, 1, nparams.length - 1);
-					ctx.setTarget(params[1]);
+					targetOveride = params[1];
 					params = nparams;
 					
 				}
 			}
 		}
-		// TODO Auto-generated method stub
-		return super.bindContext(params, myspellstatic);
+		// 
+		Context out = super.bindContext(params, ctxi);
+		if ( targetOveride != null ) out.setTarget(targetOveride);
+		out.put("this", Parameter.from(this));
+		return out;
 	}
 
 	
@@ -123,7 +127,7 @@ public abstract class Spell extends TCLCommand {
 	public EvaluationResult executeBinding(String name, final Context ctx, final TCLEngine engine) {
 		try {
 			Parameter targets = ctx.getTarget();
-			System.out.println("EXEC " + getName() + ":" + name + " with target " + 
+			Debug.trace("EXEC " + getName() + ":" + name + " with target " + 
 					(targets == null ? "null" : targets.toString()));
 			if ( !name.equals("cast") ) fizzle("Can only use cast binding on this spell.");
 			return new EvaluationResult(this.cast(ctx));
@@ -152,10 +156,10 @@ public abstract class Spell extends TCLCommand {
 	protected static Parameter applyAffectors(Spell s, Context ctx) {
 		List<Class<? extends Parameter>> list = s.getAffectors();
 		
-		System.out.println("TI " + s.getName() + " with target " + 
+		Debug.trace("TI " + s.getName() + " with target " + 
 				(ctx.getTarget() == null ? "null" : ctx.getTarget().toString()));
 		Parameter targets = s.resolveTarget(ctx);
-		System.out.println("TR " + s.getName() + " coming out as " + 
+		Debug.trace("TR " + s.getName() + " coming out as " + 
 				(targets == null ? "null" : targets.toString()));
 		
 		//TODO : Do we want to collapse duplicate returns by default ?
@@ -285,7 +289,7 @@ public abstract class Spell extends TCLCommand {
 		if ( !this.canAffect(type) ) return null;
 		Class[] types = new Class[] { type, Context.class };
 		try {
-			//System.out.println("INVOKE " + t.getClass() + " bread inside " + this.getClass().getSimpleName());
+			//Debug.trace.println("INVOKE " + t.getClass() + " bread inside " + this.getClass().getSimpleName());
 			Method m = this.getClass().getMethod("affect", types);
 			Parameter p = (Parameter) m.invoke(this, t, ctx);
 			ParameterPtr o = new ParameterPtr();
@@ -322,5 +326,14 @@ public abstract class Spell extends TCLCommand {
 		public FizzleException() {
 			super();
 		} 
+	}
+
+
+	public Context getSpellContext() {
+		return this.spellStatic;
+	}
+	
+	public String toString() {
+		return "[" + this.getClass().getSimpleName() + " " + this.getName() + "]";
 	}
 }

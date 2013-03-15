@@ -1,6 +1,7 @@
 package com.basicer.parchment.tcl;
 
 import com.basicer.parchment.Context;
+import com.basicer.parchment.Debug;
 import com.basicer.parchment.EvaluationResult;
 import com.basicer.parchment.EvaluationResult.Code;
 import com.basicer.parchment.TCLCommand;
@@ -52,7 +53,7 @@ public class Proc extends TCLCommand {
 			
 		};
 		ctx.top().setCommand(pname.asString(), proc);
-		System.out.println("Registered proc " + pname.asString());
+		Debug.trace("Registered proc " + pname.asString());
 		return new EvaluationResult(Parameter.from(proc));
 		
 	}

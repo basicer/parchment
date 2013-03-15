@@ -7,31 +7,25 @@ import com.basicer.parchment.Spell;
 import com.basicer.parchment.TCLCommand;
 import com.basicer.parchment.TCLEngine;
 import com.basicer.parchment.parameters.Parameter;
-import com.basicer.parchment.parameters.SpellParameter;
 
 public class Affect extends TCLCommand {
 
 	@Override
-	public String[] getArguments() { return new String[] { "type", "code" }; }
+	public String[] getArguments() { return new String[] { "type", "args" }; }
 	
 	@Override
 	public EvaluationResult extendedExecute(Context ctx, TCLEngine engine) {
-		return new EvaluationResult(execute(ctx));
-	}
 	
-	public Parameter execute(Context ctx) {
 		Parameter t = ctx.resolve("this");
-		if ( t == null ) return Parameter.from(false);
-		SpellParameter tt = t.cast(SpellParameter.class);
-		if ( tt == null ) return Parameter.from(false);
+		if ( t == null ) return EvaluationResult.makeError("Affect: Cant find $this");
+		TCLCommand tt = t.as(TCLCommand.class);
+		if ( tt == null ) if ( t == null ) return EvaluationResult.makeError("Affect: $this isnt a delegate.");
 		
-		Spell s = tt.as(Spell.class);
-		if ( s == null ) return Parameter.from(false);
-		if ( !( s instanceof ScriptedSpell )) return Parameter.from(false);
+		if ( !( tt instanceof ScriptedSpell )) return EvaluationResult.makeError("Affect: $this isnt a ScriptedSpell.");
 
-		
-		
-		return Parameter.from(true);
+		ScriptedSpell spell = (ScriptedSpell) tt;
+		return spell.executeBinding(ctx.get("type").toString(), ctx.createSubContext(), engine);
+	
 		
 	}
 

@@ -25,7 +25,7 @@ public class Explode extends Spell {
 	public Parameter affect(Parameter location, Context ctx) {
 		Location l = location.as(Location.class);
 		
-		double power = 10;
+		double power = 4;
 		Parameter powerp = ctx.get("power");
 		if ( powerp != null ) power = powerp.asDouble();
 		

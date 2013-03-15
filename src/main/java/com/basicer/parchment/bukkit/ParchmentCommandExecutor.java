@@ -9,6 +9,8 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import org.bukkit.ChatColor;
+import org.bukkit.Color;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -18,7 +20,9 @@ import org.bukkit.conversations.Prompt;
 import org.bukkit.entity.Player;
 
 import com.basicer.parchment.Context;
+import com.basicer.parchment.TCLEngine;
 import com.basicer.parchment.TCLUtils;
+import com.basicer.parchment.EvaluationResult.Code;
 import com.basicer.parchment.parameters.Parameter;
 
 public class ParchmentCommandExecutor implements CommandExecutor {
@@ -103,7 +107,12 @@ public class ParchmentCommandExecutor implements CommandExecutor {
 				b.append(qargs.poll());
 			}
 
-			TCLUtils.evaluate(b.toString(), ctx);
+			TCLEngine e = new TCLEngine(b.toString(), ctx);
+			while ( e.step() ) {}
+			if ( e.getCode() == Code.ERROR ) {
+				sender.sendMessage(ChatColor.RED +"Error: " + e.getResult().asString());
+			}
+			
 		} else if (action.equals("run")) {
 			String file = qargs.poll() + ".tcl";
 			File folder = FSUtils.findDirectory(plugin.getDataFolder(), "runnable");

@@ -19,4 +19,10 @@ public class DelegateParameter extends Parameter {
 	public Parameter evaluate(Context ctx) {
 		return self.extendedExecute(ctx, null).getValue();
 	}
+	
+	public TCLCommand asTCLCommand(Context ctx) {
+		return self;
+	}
+	
+	public String asString(Context ctx) { return self.toString(); }
 }

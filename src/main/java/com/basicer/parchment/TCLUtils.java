@@ -157,6 +157,7 @@ public class TCLUtils {
 	public static Parameter evaluate(PushbackReader s, Context ctx) {
 		TCLEngine e = new TCLEngine(s, ctx);
 		while ( e.step() ) {}
+		if ( e.getCode() == Code.ERROR ) throw new RuntimeException("TCLError: " + e.getResult().asString());
 		return e.getResult();
 	}
 

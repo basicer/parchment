@@ -6,6 +6,7 @@ import java.util.Hashtable;
 import com.basicer.parchment.base.*;
 import com.basicer.parchment.spells.*;
 import com.basicer.parchment.tcl.*;
+import com.basicer.parchment.tcl.Error;
 
 public class SpellFactory {
 	
@@ -31,9 +32,13 @@ public class SpellFactory {
 		addBuiltinCommand(Eval.class);
 		addBuiltinCommand(Uplevel.class);
 		addBuiltinCommand(While.class);
+		addBuiltinCommand(For.class);
 		addBuiltinCommand(Return.class);
 		addBuiltinCommand(Break.class);
+		addBuiltinCommand(Error.class);
 		addBuiltinCommand(Type.class);
+		addBuiltinCommand(Incr.class);
+		addBuiltinCommand(Global.class);
 	}
 	
 	public void load() {

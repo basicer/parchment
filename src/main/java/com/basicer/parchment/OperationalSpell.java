@@ -73,7 +73,7 @@ public class OperationalSpell<T extends Parameter> extends Spell {
 			if ( m == null && getBaseClass() != null ) m = locateMethod(getBaseClass(), op);
 
 			
-			if ( m == null ) fizzle("No such operation: " + op);
+			if ( m == null ) fizzle("No such operation on " + this.getName() + ": " + op);
 			Class[] method_types = m.getParameterTypes();
 			Object[] method_args = new Object[method_types.length];
 			method_args[0] = obj;
@@ -95,7 +95,7 @@ public class OperationalSpell<T extends Parameter> extends Spell {
 				out = (Parameter)m.invoke(this, method_args);
 				Object ov = out.getUnderlyingValue();
 				if ( type.isInstance(ov) ) {
-					System.err.println("Obj now " + ov);
+					Debug.trace("Obj now " + ov);
 					obj = (U)ov;
 				}
 			} catch (IllegalAccessException e) {

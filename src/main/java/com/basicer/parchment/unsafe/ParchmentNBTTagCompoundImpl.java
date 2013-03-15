@@ -8,6 +8,8 @@ import java.lang.reflect.Proxy;
 
 import org.bukkit.entity.Player;
 
+import com.basicer.parchment.Debug;
+
 public class ParchmentNBTTagCompoundImpl  {
 
 
@@ -21,7 +23,10 @@ public class ParchmentNBTTagCompoundImpl  {
 			fhandle = p.getClass().getDeclaredField("handle");
 			fhandle.setAccessible(true);
 			Object o = fhandle.get(p);
-			if ( o == null ) throw new RuntimeException("Bucket object has no handle");
+			if ( o == null ) {
+				Debug.trace("Bucket object has no handle: " + p.getClass());
+				return null;
+			}
 			tagGetter = o.getClass().getMethod("getTag");
 			Object otag = tagGetter.invoke(o);
 

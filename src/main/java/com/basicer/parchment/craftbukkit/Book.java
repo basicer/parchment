@@ -8,6 +8,7 @@ import java.util.HashMap;
 import org.bukkit.Material;
 
 
+import com.basicer.parchment.Debug;
 import com.basicer.parchment.unsafe.ParchmentNBTTagCompound;
 import com.basicer.parchment.unsafe.ParchmentNBTTagCompoundImpl;
 
@@ -46,10 +47,10 @@ public class Book {
     	
     	try {
     		ParchmentNBTTagCompound tag = ParchmentNBTTagCompoundImpl.getTag(cis, true);
-    		System.out.println("Try Bind...");
+    		Debug.trace("Try Bind...");
     		if ( tag == null ) return;
-    		System.out.println("Blamoo");
-        	tag.setString("binding", value);
+    		Debug.trace("Blamoo");
+    		Debug.trace("binding", value);
 
     	} catch ( Exception ex ) {
     		
@@ -60,9 +61,9 @@ public class Book {
     public static void ensureSpellWritten(org.bukkit.inventory.ItemStack cis) {
     	if ( bindings == null ) return;
     	String s = bindings.get(cis);
-    	System.out.println("Annnd...");
+    	Debug.trace("Annnd..." + cis.toString());
     	if ( s == null ) return;
-    	System.out.println("Boom... " + s + " / " + cis.getClass().getName());
+    	Debug.trace("Boom... " + s + " / " + cis.getClass().getName());
     	setSpell(cis, s);
     }
     

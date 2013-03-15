@@ -11,6 +11,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.logging.Logger;
 
+import com.basicer.parchment.Debug;
 import com.basicer.parchment.ScriptedSpell;
 import com.basicer.parchment.Spell;
 import com.basicer.parchment.Spell.FizzleException;
@@ -87,7 +88,6 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 		Parameter.RegisterParamaterType(LocationParameter.class);
 		Parameter.RegisterParamaterType(MaterialParameter.class);
 		Parameter.RegisterParamaterType(ServerParameter.class);
-		Parameter.RegisterParamaterType(SpellParameter.class);
 		Parameter.RegisterParamaterType(WorldParameter.class);
 		Parameter.RegisterParamaterType(ItemParameter.class);
 		
@@ -134,7 +134,7 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 					String sname = s.getName().substring(0, (int) (s.getName().length() - 4));
 					try {
 						PushbackReader reader = new PushbackReader(new InputStreamReader(new FileInputStream(s)));
-						spellfactory.addCustomSpell(sname, new ScriptedSpell(reader, spellfactory));
+						spellfactory.addCustomSpell(sname, new ScriptedSpell(sname, reader, spellfactory));
 						logger.info("Loaded " + sname + " / " + time);
 					} catch (FileNotFoundException e) {
 						logger.warning("Couldnt load " + sname);
@@ -160,6 +160,7 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 		ctx.setCaster(Parameter.from(p));
 		ctx.setWorld(Parameter.from(p.getWorld()));
 		ctx.setServer(Parameter.from(p.getServer()));
+		ctx.put("origin", Parameter.from("createContext"));
 		return ctx;
 	}
 	
@@ -222,7 +223,7 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 
 				// e.getClickedBlock().breakNaturally(e.getPlayer().getItemInHand());
 
-				s = new ScriptedSpell(new PushbackReader(new StringReader(sb.toString())), spellfactory);
+				s = new ScriptedSpell("SomeBook", new PushbackReader(new StringReader(sb.toString())), spellfactory);
 			
 
 				ctx.setSource("wand");
@@ -244,7 +245,7 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 			e.setCancelled(false);
 			return;
 		}
-		
+		this.getLogger();
 		p.sendMessage("Your blade is: " + ss + "/" + ss.length());
 		
 		TCLCommand cmd = spellfactory.get(ss);
@@ -252,7 +253,7 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 		Spell scmd = (Spell) cmd;
 		ctx.setSource("item");
 		Parameter cancel = Parameter.from(e.isCancelled());
-		System.out.println(cancel.toString());
+		Debug.trace(cancel.toString());
 		ctx.put("cancel", cancel);
 		
 		String binding = "cast";

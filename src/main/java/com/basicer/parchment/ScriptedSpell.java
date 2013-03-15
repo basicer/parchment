@@ -12,6 +12,10 @@ import com.basicer.parchment.parameters.Parameter;
 public class ScriptedSpell extends Spell {
 	
 	private HashMap<String, String> triggers;
+	private String name;
+	
+	@Override
+	public String getName() { return name; }
 	
 	@Override
 	public DefaultTargetType getDefaultTargetType(Context ctx, String source) {
@@ -19,7 +23,7 @@ public class ScriptedSpell extends Spell {
 		if ( p == null ) return super.getDefaultTargetType(ctx, source);
 		String s = p.asString();
 		if ( s == null ) return DefaultTargetType.None;
-		System.out.println("I see you want: " + s);
+		Debug.trace("I see you want: " + s);
 		if ( s.equals("self") ) return DefaultTargetType.Self;
 		if ( s.equals("block") ) return DefaultTargetType.TargetBlock;
 		if ( s.equals("place") ) return DefaultTargetType.TargetPlace;
@@ -30,12 +34,14 @@ public class ScriptedSpell extends Spell {
 	@Override
 	public EvaluationResult extendedExecute(Context ctx, TCLEngine e) {
 		//We need to throw out scripted spell's parameter context.
+		Debug.trace("EE with " + ctx.getDebuggingString());
 		return executeBinding("cast", ctx.up(1), e, ctx.getArgs());
 	}
 	
 	
-	public ScriptedSpell(String source, SpellFactory f) {
+	public ScriptedSpell(String name, String source, SpellFactory f) {
 		super();
+		this.name = name;
 		triggers = new HashMap<String, String>();
 		spellStatic.put("this", Parameter.from(this));
 		spellStatic.setSpellFactory(f);
@@ -44,8 +50,9 @@ public class ScriptedSpell extends Spell {
 	}
 
 
-	public ScriptedSpell(PushbackReader source, SpellFactory f) {
+	public ScriptedSpell(String name, PushbackReader source, SpellFactory f) {
 		super();
+		this.name = name;
 		triggers = new HashMap<String, String>();
 		spellStatic.put("this", Parameter.from(this));
 		spellStatic.setSpellFactory(f);
@@ -95,8 +102,10 @@ public class ScriptedSpell extends Spell {
 	
 	public EvaluationResult executeBinding(String binding, final Context ctx, final TCLEngine engine,  ArrayList<Parameter> argz) {
 		
+		Debug.trace("Starting bindsing with " + ctx.getDebuggingString());
+		
 		String name = triggers.get(binding);
-		System.out.println("LeCasting : " + name + " for " + binding);
+		Debug.trace("LeCasting : " + name + " for " + binding);
 		final Spell closure_s = this;
 		
 		DefaultTargetType tt = getDefaultTargetType(ctx,ctx.getSource());
@@ -122,15 +131,25 @@ public class ScriptedSpell extends Spell {
 			}));
 		}
 		if ( name != null ) {
-			System.out.println("-> DELEGATE TO " + name);
+			Debug.trace("-> DELEGATE TO " + name);
 			TCLCommand proc = spellStatic.getCommand(name);
 			Parameter[] up = new Parameter[argz.size() + 1];
 			up[0] = Parameter.from(name);
 			for ( int i = 0; i < argz.size(); ++i) up[i+1] = argz.get(i);
 				
 			
-			Context ctx2 = proc.bindContext(up, ctx.createBoundSubContext(spellStatic));
+			Context cmp = ctx.copyAndMergeProcs(this.spellStatic);
+			Context ctx2 = proc.bindContext(up, cmp);
+			ctx2.setThis(Parameter.from((TCLCommand)this));
+			
 			if ( target != null ) ctx2.setTarget(target);
+			/*
+			Debug.trace("Ending bindsing with " + ctx.getDebuggingString());
+			Debug.trace("--------------------");
+			Debug.trace("CMP " + cmp.getDebuggingString());
+			Debug.trace("--------------------");
+			Debug.trace("Brokering SC proc " + ctx2.getDebuggingString());
+			*/
 			return proc.extendedExecute(ctx2, engine);
 			
 			

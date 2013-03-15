@@ -28,7 +28,7 @@ public class Expr extends TCLCommand {
 		PushbackReader s = new PushbackReader(new StringReader(expr));
 		Queue<Parameter> tokens = new LinkedList<Parameter>();
 		for ( Parameter p : e.parseLine(s, ctx) ) {
-			//System.out.println("TKN " + p.asString());
+			//Debug.trace("TKN " + p.asString());
 			tokens.add(p);
 		}
 		return parse(tokens, tokens.poll(), 0);

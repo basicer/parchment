@@ -68,7 +68,7 @@ public class TCLEngine {
 	public EvaluationResult evaluate(Parameter[] pargs, Context ctx) {
 		String name = pargs[0].asString();
 		TCLCommand s = ctx.getCommand(name);
-		if ( s == null ) throw new Error("No such command: " + name);
+		if ( s == null ) return EvaluationResult.makeError("No such command: " + name);
 		Context c2 = s.bindContext(pargs, ctx);
 
 		return s.extendedExecute(c2, this);		
@@ -204,6 +204,12 @@ public class TCLEngine {
 		// TODO Auto-generated method stub
 		if ( result == null ) return null;
 		return result.getValue();
+	}
+	
+	public Code getCode() {
+		// TODO Auto-generated method stub
+		if ( result == null ) return null;
+		return result.getCode();
 	}
 
 	

@@ -8,6 +8,7 @@ import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
+import com.basicer.parchment.parameters.DelegateParameter;
 import com.basicer.parchment.parameters.ListParameter;
 import com.basicer.parchment.parameters.Parameter;
 
@@ -50,6 +51,7 @@ public class Context {
 		if ( var.equals("world") ) return Parameter.from(getWorld());
 		if ( var.equals("server") ) return Parameter.from(getServer());
 		if ( var.equals("source") ) return Parameter.from(getSource());
+		if ( var.equals("this") ) return getThis();
 		
 		ParameterPtr ptr = variables.get(var);
 		if ( ptr == null ) return null;
@@ -102,6 +104,15 @@ public class Context {
 	public void setSpellFactory(SpellFactory val) {
 		spellfactory = val;
 	}
+	
+	public Parameter getThis() {
+		return resolve("this");
+	}
+	
+	public void setThis(Parameter parameter) {
+		put("this", parameter);
+	}
+
 	
 	public Parameter getCaster() {
 		return resolve("caster");
@@ -164,7 +175,7 @@ public class Context {
 		if ( p != null ) {
 			p.as(Player.class).sendRawMessage(msg);
 		} else {
-			System.out.println(msg);
+			Debug.info(msg);
 		}
 	}
 	
@@ -174,15 +185,29 @@ public class Context {
 		return ctx;
 	}
 	
+	/*
 	public Context createBoundSubContext(Context bound) {
 		Context ctx = new Context();
 		ctx.variables = new HashMap<String, ParameterPtr>(bound.variables);
-		ctx.parent = this;
+		ctx.parent = parent;
 		ctx.procs = bound.procs;
 		return ctx;
 	}
+	 */
 	
-	
+	public Context copyAndMergeProcs(Context whereProcsAre) {
+		Context ctx = new Context();
+		ctx.variables = variables;
+		ctx.parent = parent;
+		ctx.procs = new HashMap<String, TCLCommand>(procs);
+		ctx.spellfactory = spellfactory;
+		for ( String s : whereProcsAre.procs.keySet() ) {
+			ctx.procs.put(s, whereProcsAre.getCommand(s));
+		}
+		return ctx;
+		
+	}
+
 	public Context up(int level) {
 		Context out = this;
 		for ( int i = 0; i < level; ++i ) {
@@ -258,6 +283,38 @@ public class Context {
 		if ( p == null ) return false;
 		return true;
 		//return p.val != null;
+	}
+
+	public void linkVariableFromContext(Context other, String var) {
+		ParameterPtr ptr = other.getRaw(var);
+		Debug.trace("Setting " + var + " to " + ptr);
+		this.setRaw(var, ptr);
+	}
+
+	public String getDebuggingString() {
+		int i = 0;
+		Context x = this;
+		while ( x != null ) {
+			++i;
+			x = x.up(1);
+		}
+		String out = "Depth: " + i + "\n Variables [\n";
+		for ( String s : this.variables.keySet() ) {
+			Parameter p = variables.get(s).val;
+			out += s + " = " + (p == null ? "null" : p.toString()) + "\n";
+		}
+		out   += "]\nProcs [\n";
+		
+		for ( String s : this.procs.keySet() ) {
+			out += s + "\n";
+		}
+		out += "]\n SpellFacotry = " + spellfactory + " / " + getSpellFactory() + "\n";
+		if ( parent != null ) {
+			out += "\n==== Parent =====\n";
+			out += parent.getDebuggingString();
+		}
+		
+		return out;
 	}
 
 

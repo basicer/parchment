@@ -5,6 +5,7 @@ import org.bukkit.Location;
 
 import com.basicer.parchment.Context;
 import com.basicer.parchment.OperationalSpell;
+import com.basicer.parchment.Spell.FirstParamaterTargetType;
 
 import com.basicer.parchment.parameters.*;
 
@@ -12,6 +13,15 @@ public class Player extends OperationalSpell<PlayerParameter> {
 	
 	public Class<? extends OperationalSpell<?>> getBaseClass() { return Entity.class; }
 	
+	
+	
+	@Override
+	public FirstParamaterTargetType getFirstParamaterTargetType(Context ctx) {
+		return FirstParamaterTargetType.FuzzyMatch;
+	}
+
+
+
 	public Parameter affect(PlayerParameter target, Context ctx) {
 		return this.doaffect(target, ctx);
 	}
