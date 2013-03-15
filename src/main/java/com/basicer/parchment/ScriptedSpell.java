@@ -135,7 +135,7 @@ public class ScriptedSpell extends Spell {
 			
 			Context cmp = ctx.copyAndMergeProcs(this.spellStatic);
 			final  Context ctx2 = proc.bindContext(up, cmp);
-			ctx2.setThis(Parameter.from((TCLCommand)this));
+
 
 			/* if ( binding.equals("affect") ) {
 				ctx2.putProc("super", new TCLCommand() {

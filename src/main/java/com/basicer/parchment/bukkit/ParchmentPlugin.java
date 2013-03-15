@@ -12,6 +12,7 @@ import java.util.Queue;
 import java.util.logging.Logger;
 
 import com.basicer.parchment.Debug;
+import com.basicer.parchment.EvaluationResult;
 import com.basicer.parchment.ScriptedSpell;
 import com.basicer.parchment.Spell;
 import com.basicer.parchment.Spell.FizzleException;
@@ -269,9 +270,9 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 			case PHYSICAL:
 				return;
 		}
-		scmd.executeBinding(binding, ctx, null);
+		EvaluationResult r = scmd.executeBinding(binding, ctx, null);
 		e.setCancelled(ctx.get("cancel").asBoolean());
-		
+		Debug.trace("Result is " + r.getCode().toString() + " | " +  r.getValue().asString());
 		
 		
 

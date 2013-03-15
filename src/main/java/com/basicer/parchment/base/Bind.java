@@ -23,7 +23,7 @@ public class Bind extends TCLCommand {
 	}
 		
 	public Parameter execute(Context ctx) {
-		Parameter t = ctx.resolve("this");
+		Parameter t = ctx.getThis();
 		Debug.trace("This = " + t);
 		if ( t == null ) return Parameter.from(false);
 		DelegateParameter tt = t.cast(DelegateParameter.class);

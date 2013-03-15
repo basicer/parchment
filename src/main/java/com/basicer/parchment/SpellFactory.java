@@ -39,6 +39,9 @@ public class SpellFactory {
 		addBuiltinCommand(Type.class);
 		addBuiltinCommand(Incr.class);
 		addBuiltinCommand(Global.class);
+		
+		addBuiltinCommand(Import.class);
+		addBuiltinCommand(Join.class);
 	}
 	
 	public void load() {

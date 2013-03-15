@@ -201,10 +201,15 @@ public class Context {
 		ctx.parent = parent;
 		ctx.procs = new HashMap<String, TCLCommand>(procs);
 		ctx.spellfactory = spellfactory;
-		for ( String s : whereProcsAre.procs.keySet() ) {
-			ctx.procs.put(s, whereProcsAre.getCommand(s));
-		}
+		ctx.importProcs(whereProcsAre);
 		return ctx;
+		
+	}
+	
+	public void importProcs(Context whereProcsAre) {
+		for ( String s : whereProcsAre.procs.keySet() ) {
+			procs.put(s, whereProcsAre.getCommand(s));
+		}
 		
 	}
 
@@ -321,6 +326,8 @@ public class Context {
 		this.procs.put(string, tclCommand);
 		
 	}
+
+
 
 
 

@@ -12,7 +12,7 @@ import com.basicer.parchment.parameters.StringParameter;
 public abstract class TCLCommand {
 	
 	public String getName() { return this.getClass().getSimpleName(); }
-	
+	protected TCLCommand getThis() { return null; }
 	public String[] getArguments() { return new String[] {"args"}; }
 	//public abstract String[] getArguments();
 	
@@ -102,6 +102,7 @@ public abstract class TCLCommand {
 		
 		if ( and_args ) put.put("args", Parameter.createList(params, ptr, params.length - 1));
 		
+		if ( getThis() != null ) put.setThis(Parameter.from(getThis()));
 		return put;
 	}
 

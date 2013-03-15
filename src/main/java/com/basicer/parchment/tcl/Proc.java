@@ -35,6 +35,12 @@ public class Proc extends TCLCommand {
 		final String bodystr = pbody.asString();
 		final String[] cxargs = xargs;
 		
+		TCLCommand thiz = null;
+		Parameter thizp = ctx.getThis();
+		if ( thizp != null ) thiz = thizp.as(TCLCommand.class, ctx);
+		
+		final TCLCommand thizc = thiz;
+		
 		TCLCommand proc = new TCLCommand() {
 
 			@Override
@@ -50,6 +56,9 @@ public class Proc extends TCLCommand {
 				}
 				return r;
 			}
+			
+			@Override
+			public TCLCommand getThis() { return thizc; }
 			
 		};
 		ctx.top().setCommand(pname.asString(), proc);

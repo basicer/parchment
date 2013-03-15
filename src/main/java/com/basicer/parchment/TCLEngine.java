@@ -74,14 +74,29 @@ public class TCLEngine {
 		return s.extendedExecute(c2, this);		
 	}
 	
-	public Parameter evaulateBracketExpression(PushbackReader s, Context ctx) throws IOException {
+	
+	//Doesnt evaluate if there is no engine
+	public static Parameter evaulateVariable(PushbackReader s, Context ctx, TCLEngine engine) throws IOException {
+		
+		if ( engine == null ) return Parameter.from("$" + TCLUtils.readVariableName(s));
+		else return TCLUtils.evaulateVariable(s, ctx);
+		
+	}
+	
+	//Doesnt evaluate if there is no engine
+	public static Parameter evaulateBracketExpression(PushbackReader s, Context ctx, TCLEngine engine) throws IOException {
 		StringBuilder cmd = new StringBuilder();
 		TCLUtils.readBracketExpression(s, cmd);
-
-		return evaluate(cmd.toString(), ctx).getValue();
+		if ( engine == null ) return Parameter.from("[" + cmd + "]");
+		return engine.evaluate(cmd.toString(), ctx).getValue();
 	}
 	
 	public Parameter[] parseLine(PushbackReader s, Context ctx) {
+		return parseLine(s, ctx, this);
+	}
+	
+	// Doesnt evaluate if there is no engine
+	public static Parameter[] parseLine(PushbackReader s, Context ctx, TCLEngine engine) {
 		List<Parameter> out = new ArrayList<Parameter>();
 		StringBuilder current = new StringBuilder();
 		char in = '\0';
@@ -103,11 +118,11 @@ public class TCLEngine {
 						empty = false;
 					} else if (c == '[') {
 						s.unread(r);
-						currentp = evaulateBracketExpression(s, ctx);
+						currentp = evaulateBracketExpression(s, ctx, engine);
 					} else if (c == '$') {
 						s.unread(r);
 						//TODO : We might want to force this to be a string
-						Parameter var = TCLUtils.evaulateVariable(s, ctx);
+						Parameter var = evaulateVariable(s, ctx, engine);
 						if ( currentp != null ) { 
 							current.append(currentp.asString());
 							empty = false;
@@ -126,7 +141,7 @@ public class TCLEngine {
 						empty = false;
 					} else if (c == '[') {
 						s.unread(r);
-						currentp = evaulateBracketExpression(s, ctx);
+						currentp = evaulateBracketExpression(s, ctx, engine);
 					} else if (c == ' ' || c == '\t') {
 						if (currentp != null) {
 							out.add(currentp);
@@ -143,7 +158,7 @@ public class TCLEngine {
 						
 					} else if (c == '$') {
 						s.unread(r);
-						Parameter var = TCLUtils.evaulateVariable(s, ctx);
+						Parameter var = evaulateVariable(s, ctx, engine);
 						if ( currentp != null ) { 
 							current.append(currentp.asString());
 							empty = false;

@@ -124,6 +124,25 @@ public class TCLUtils {
 		return p;
 	}
 
+	public static String readVariableName(PushbackReader s) throws IOException {
+		StringBuilder varb = new StringBuilder();
+		readVariable(s, varb);
+		String var = varb.toString();
+		
+		int r = s.read();
+		if ( r > 0 ) {
+			s.unread(r);
+		}
+		if ( (char)r == '(' ) {
+			StringBuilder b = new StringBuilder();
+			readArrayIndex(s, b);
+			return var + "(" + b.toString() + ")";
+		}
+
+		// return Parameter.from("[VAR: " + cmd.toString() + "]");
+		return var;
+	}
+	
 
 	public static String readSlashCode(PushbackReader r) throws IOException {
 		int i = r.read();
