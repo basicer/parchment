@@ -317,6 +317,11 @@ public class Context {
 		return out;
 	}
 
+	public void putProc(String string, TCLCommand tclCommand) {
+		this.procs.put(string, tclCommand);
+		
+	}
+
 
 
 

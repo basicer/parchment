@@ -8,6 +8,7 @@ import java.util.List;
 import com.basicer.parchment.Context.ParameterPtr;
 import com.basicer.parchment.Spell.DefaultTargetType;
 import com.basicer.parchment.parameters.Parameter;
+import com.basicer.parchment.parameters.PlayerParameter;
 
 public class ScriptedSpell extends Spell {
 	
@@ -72,8 +73,14 @@ public class ScriptedSpell extends Spell {
 	
 	@Override
 	protected <T extends Parameter> ParameterPtr tryAffect(Class<T> type, Parameter t, Context ctx) {
-		// TODO Auto-generated method stub
-		return super.tryAffect(type, t, ctx);
+		if ( !type.isInstance(t) ) return null;
+		if ( !this.canAffect(type) ) return null;
+		Debug.trace("T IS " + t);
+		if ( type != PlayerParameter.class ) return null;
+		executeBinding("affect:player", ctx, null);
+		ParameterPtr x = new ParameterPtr();
+		x.val = Parameter.EmptyString;
+		return x;
 	}
 
 
@@ -81,14 +88,18 @@ public class ScriptedSpell extends Spell {
 	protected List<Class<? extends Parameter>> getAffectors() {
 		List<Class<? extends Parameter>> out = new ArrayList<Class<? extends Parameter>>();
 		for ( String s : triggers.keySet() ) {
-			if ( s.startsWith("affect:") ) continue;
-			
+			if ( !s.startsWith("affect:") ) continue;
+			if ( s.equals("affect:player") ) {
+				out.add(PlayerParameter.class);
+			}
 			
 		}
 		
 		return out;
 	}
 
+
+	
 	@Override
 	public Parameter cast(Context ctx) {
 		return executeBinding("cast", ctx, null, ctx.getArgs()).getValue(); //TODO: These would like an engine.
@@ -102,8 +113,6 @@ public class ScriptedSpell extends Spell {
 	
 	public EvaluationResult executeBinding(String binding, final Context ctx, final TCLEngine engine,  ArrayList<Parameter> argz) {
 		
-		Debug.trace("Starting bindsing with " + ctx.getDebuggingString());
-		
 		String name = triggers.get(binding);
 		Debug.trace("LeCasting : " + name + " for " + binding);
 		final Spell closure_s = this;
@@ -115,21 +124,7 @@ public class ScriptedSpell extends Spell {
 			target = resolveTarget(ctx);
 		}
 
-		if ( binding.equals("affect") ) {
-			ctx.put("super", Parameter.from(new TCLCommand() {
-				@Override
-				public EvaluationResult extendedExecute(Context ctx, TCLEngine e) {
-					return new EvaluationResult(Spell.applyAffectors(closure_s, ctx));
-				}
-			}));
-		} else if ( binding.equals("cast") ) {
-			ctx.put("super", Parameter.from(new TCLCommand() {
-				@Override
-				public EvaluationResult extendedExecute(Context ctx, TCLEngine e) {
-					return new EvaluationResult(closure_s.cast(ctx));
-				}
-			}));
-		}
+
 		if ( name != null ) {
 			Debug.trace("-> DELEGATE TO " + name);
 			TCLCommand proc = spellStatic.getCommand(name);
@@ -139,8 +134,24 @@ public class ScriptedSpell extends Spell {
 				
 			
 			Context cmp = ctx.copyAndMergeProcs(this.spellStatic);
-			Context ctx2 = proc.bindContext(up, cmp);
+			final  Context ctx2 = proc.bindContext(up, cmp);
 			ctx2.setThis(Parameter.from((TCLCommand)this));
+
+			/* if ( binding.equals("affect") ) {
+				ctx2.putProc("super", new TCLCommand() {
+					@Override
+					public EvaluationResult extendedExecute(Context ctx, TCLEngine e) {
+						return new EvaluationResult(Spell.applyAffectors(closure_s, ctx));
+					}
+				});
+			} else */ if ( binding.equals("cast") ) {
+				ctx2.putProc("super", new TCLCommand() {
+					@Override
+					public EvaluationResult extendedExecute(Context ctx, TCLEngine e) {
+						return new EvaluationResult(closure_s.applyAffectors(closure_s, ctx2));
+					}
+				});
+			}
 			
 			if ( target != null ) ctx2.setTarget(target);
 			/*
@@ -148,8 +159,9 @@ public class ScriptedSpell extends Spell {
 			Debug.trace("--------------------");
 			Debug.trace("CMP " + cmp.getDebuggingString());
 			Debug.trace("--------------------");
-			Debug.trace("Brokering SC proc " + ctx2.getDebuggingString());
 			*/
+			Debug.trace("Brokering SC proc " + ctx2.getDebuggingString());
+			
 			return proc.extendedExecute(ctx2, engine);
 			
 			

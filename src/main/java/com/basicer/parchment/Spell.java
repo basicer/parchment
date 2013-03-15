@@ -277,7 +277,7 @@ public abstract class Spell extends TCLCommand {
 		return t;
 	}
 	
-	private boolean canAffect(Class<? extends Parameter> type) {
+	protected boolean canAffect(Class<? extends Parameter> type) {
 		return getAffectors().contains(type);
 	}
 	

@@ -21,20 +21,9 @@ public class FSUtils {
 		return rfile;
 	}
 
-	public static File findDirectory(File folder, String file) {
-		if (folder == null)
-			return null;
-		File rfile = null;
-		for (File f : folder.listFiles()) {
-			if (!f.isDirectory())
-				continue;
-			if (!f.canRead())
-				continue;
-			if (f.getName().equals(file)) {
-				rfile = f;
-				break;
-			}
-		}
+	public static File findOrCreateDirectory(File folder, String file) {
+		File rfile = new File(folder, file);
+		if ( !rfile.exists() ) rfile.mkdirs();
 		return rfile;
 	}
 

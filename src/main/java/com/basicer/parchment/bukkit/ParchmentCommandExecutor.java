@@ -115,7 +115,7 @@ public class ParchmentCommandExecutor implements CommandExecutor {
 			
 		} else if (action.equals("run")) {
 			String file = qargs.poll() + ".tcl";
-			File folder = FSUtils.findDirectory(plugin.getDataFolder(), "runnable");
+			File folder = FSUtils.findOrCreateDirectory(plugin.getDataFolder(), "runnable");
 			File rfile = FSUtils.findFile(folder, file);
 			if (rfile == null) {
 				sender.sendMessage("Unknown file " + file);

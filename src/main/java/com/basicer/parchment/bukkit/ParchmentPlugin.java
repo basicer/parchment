@@ -117,7 +117,7 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 		loader = new BukkitRunnable() {
 			long wrote = 0;
 			public void run() {
-				File scripts = FSUtils.findDirectory(base, "spells");
+				File scripts = FSUtils.findOrCreateDirectory(base, "spells");
 				if (scripts == null) return;
 				long best = 0;
 				for (File s : scripts.listFiles()) {
