@@ -152,6 +152,10 @@ public abstract class Parameter implements Iterable<Parameter> {
 		return this;
 	}
 	
+	public void deleteIndex(String name) {
+		
+	}
+	
 	public Parameter index(String s) {
 		return Parameter.from("[INDEX: " + s + "]");
 	}
@@ -197,7 +201,7 @@ public abstract class Parameter implements Iterable<Parameter> {
 
 		}
 		
-		System.err.println("Trying Construcotr Caster" + type);
+		Debug.trace("Trying Construcotr Caster" + type);
 		
 		try {
 			Debug.trace("Har we go casting " + this + " to " + type);
@@ -398,6 +402,7 @@ public abstract class Parameter implements Iterable<Parameter> {
 	public int hashCode() {
 		return this.asString().hashCode();
 	}
+
 	
 	
 

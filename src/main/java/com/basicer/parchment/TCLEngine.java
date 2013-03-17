@@ -50,7 +50,12 @@ public class TCLEngine {
 	public EvaluationResult evaluate(PushbackReader r, Context ctx) {
 		EvaluationResult result = null;
 		while ( true ) {
-			Parameter[] pargs = parseLine(r, ctx);
+			Parameter[] pargs;
+			try {
+				pargs = parseLine(r, ctx);
+			} catch ( FizzleException ex ) {
+				return EvaluationResult.makeError(ex.getMessage());
+			}
 			if ( pargs == null) break;
 			if ( pargs.length < 1 ) continue;
 			//for (Parameter p : pargs) {
@@ -69,9 +74,14 @@ public class TCLEngine {
 		String name = pargs[0].asString();
 		TCLCommand s = ctx.getCommand(name);
 		if ( s == null ) return EvaluationResult.makeError("No such command: " + name);
-		Context c2 = s.bindContext(pargs, ctx);
+		try {
+			Context c2 = s.bindContext(pargs, ctx);
+			return s.extendedExecute(c2, this);
+		} catch ( FizzleException ex ) {
+			return EvaluationResult.makeError(ex.getMessage());
+		}
 
-		return s.extendedExecute(c2, this);		
+				
 	}
 	
 	
@@ -110,9 +120,14 @@ public class TCLEngine {
 				
 				boolean append = false;
 				if (in == '"') {
-					if (c == '"')
+					if (c == '"') {
 						in = '\0';
-					else if (c == '{') {
+						int xcn = s.read();
+						if ( xcn > 0 ) {
+							s.unread(xcn);
+							if ( !Character.isWhitespace(xcn) && (char)xcn != ';' ) throw new FizzleException("extra characters after close-quote");
+						}
+					} else if (c == '{') {
 						s.unread(r);
 						TCLUtils.readCurlyBraceString(s, current);
 						empty = false;
@@ -130,8 +145,9 @@ public class TCLEngine {
 						}
 						if ( empty ) currentp = var;
 						else current.append(var.asString());
-					} else
+					} else {
 						append = true;
+					}
 				} else {
 					if (c == '"')
 						in = c;

@@ -327,6 +327,10 @@ public class Context {
 		
 	}
 
+	public void unset(String name) {
+		this.variables.remove(name);
+	}
+
 
 
 

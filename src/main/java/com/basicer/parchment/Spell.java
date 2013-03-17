@@ -42,6 +42,8 @@ public abstract class Spell extends TCLCommand {
 			} else if ( this.canAffect(BlockParameter.class) ) {
 				Debug.trace(this.getClass().getName() + " => TargetBlock");
 				return DefaultTargetType.TargetBlock;
+			}  else if ( this.canAffect(ServerParameter.class) ) {
+				return DefaultTargetType.Self;
 			}
 			Debug.trace(this.getClass().getName() + " => None");
 			return DefaultTargetType.None;
@@ -314,25 +316,10 @@ public abstract class Spell extends TCLCommand {
 		
 	}
 	
-	
-	public static class FizzleException extends RuntimeException {
-
-		private static final long	serialVersionUID	= 4163289662961586743L;
-
-		public FizzleException(String why) {
-			super(why);
-		} 
-
-		public FizzleException() {
-			super();
-		} 
-	}
-
-
 	public Context getSpellContext() {
 		return this.spellStatic;
 	}
-	
+
 	public String toString() {
 		return "[" + this.getClass().getSimpleName() + " " + this.getName() + "]";
 	}

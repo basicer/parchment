@@ -11,7 +11,10 @@ public class EvaluationResult {
 	
 	public static final EvaluationResult OK = new EvaluationResult();
 	
-	public EvaluationResult() { }
+	public EvaluationResult() {
+		this.value = Parameter.EmptyString;
+		this.code = Code.OK;		
+	}
 	public EvaluationResult(Parameter value) {
 		this.value = value;
 		this.code = Code.OK;

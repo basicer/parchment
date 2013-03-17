@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import com.avaje.ebean.enhance.asm.Type;
 import com.basicer.parchment.parameters.ItemParameter;
 import com.basicer.parchment.parameters.Parameter;
 
@@ -125,6 +126,35 @@ public class OperationalSpell<T extends Parameter> extends Spell {
 		}
 		
 		return null;
+	}
+	
+	public String getHelpText() {
+		StringBuilder b = new StringBuilder();
+		b.append(getHelpHeader());
+		b.append("\n\n");
+		
+		b.append(getDescription());
+		b.append("\n\n");
+		
+		for ( Method m : getClass().getDeclaredMethods() ) {
+			if ( m.getName().endsWith("Operation") ) {
+				String name = m.getName().substring(0, m.getName().length() - 9 );
+				
+				
+				b.append("\n");
+				b.append("* " + getName() + " ");
+				if ( this.getFirstParamaterTargetType(null) != FirstParamaterTargetType.Never ) b.append("target? ");
+				b.append(name);
+				Class[] ptypes = m.getParameterTypes();
+				for ( int i = 2; i < ptypes.length; ++i ) {
+					b.append(" arg" + (i-2));
+				}
+				b.append("\n\n");
+			}
+		}
+		
+
+		return b.toString();
 	}
 	
 }

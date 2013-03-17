@@ -8,6 +8,7 @@ import java.util.List;
 
 import com.basicer.parchment.EvaluationResult.Code;
 import com.basicer.parchment.parameters.Parameter;
+import com.basicer.parchment.tcl.Set;
 
 public class TCLUtils {
 
@@ -87,12 +88,16 @@ public class TCLUtils {
 
 		if (s.read() != '$')
 			throw new IOException("Expected $");
+
 		while (true) {
 			int n = s.read();
 			if (n < 0)
 				break;
 			char c = (char) n;
-			if (Character.isLetterOrDigit(c) || c == '_' || c == ':' )
+			if ( c == '{' ) {
+				s.unread(c);
+				readCurlyBraceString(s, b);
+			} else if (Character.isLetterOrDigit(c) || c == '_' || c == ':' )
 				b.append(c);
 			else {
 				s.unread(n);
@@ -101,12 +106,33 @@ public class TCLUtils {
 
 		}
 	}
+	
+	public static void readVariableInHand(PushbackReader s, StringBuilder b) throws IOException {
 
+		if (s.read() != '$')
+			throw new IOException("Expected $");
+
+		while (true) {
+			int n = s.read();
+			if (n < 0)
+				break;
+			char c = (char) n;
+			if ( c != '(' ) {
+				b.append(c);
+			} else {
+				s.unread(n);
+				return;
+			}
+
+		}
+	}
+
+	/*
 	public static Parameter evaulateVariable(PushbackReader s, Context ctx) throws IOException {
 		StringBuilder varb = new StringBuilder();
 		readVariable(s, varb);
 		String var = varb.toString();
-		if ( !ctx.hasRespectingGlobals(var) ) throw new IllegalArgumentException("Cant resolve variable " + var);
+		if ( !ctx.hasRespectingGlobals(var) ) throw new FizzleException("can't read \"" + var +"\": no such variable");
 		Parameter p = ctx.getRespectingGlobals(var);
 		if ( p == null ) p = Parameter.from("");
 		int r = s.read();
@@ -122,6 +148,12 @@ public class TCLUtils {
 
 		// return Parameter.from("[VAR: " + cmd.toString() + "]");
 		return p;
+	}
+	*/
+	
+	public static Parameter evaulateVariable(PushbackReader s, Context ctx) throws IOException {
+		String var = readVariableName(s);
+		return Set.access(var, false, null, ctx);
 	}
 
 	public static String readVariableName(PushbackReader s) throws IOException {

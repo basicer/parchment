@@ -1,12 +1,22 @@
 package com.basicer.parchment.bukkit;
 
+import java.util.List;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.io.PushbackReader;
 import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.logging.Logger;
@@ -15,7 +25,6 @@ import com.basicer.parchment.Debug;
 import com.basicer.parchment.EvaluationResult;
 import com.basicer.parchment.ScriptedSpell;
 import com.basicer.parchment.Spell;
-import com.basicer.parchment.Spell.FizzleException;
 import com.basicer.parchment.Context;
 import com.basicer.parchment.SpellFactory;
 import com.basicer.parchment.TCLCommand;
@@ -93,6 +102,7 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 		Parameter.RegisterParamaterType(ItemParameter.class);
 		
 		
+		
 		if (pm.getPlugin("ProtocolLib") != null) {
 			manager = ProtocolLibrary.getProtocolManager();
 		}
@@ -106,13 +116,14 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 
 		final File base = this.getDataFolder();
 		
-		
-
 		spellfactory.load();
+		
 		
 		if ( pm.getPlugin("Spout") != null ) {
 			spellfactory.addBuiltinSpell(Spout.class);
 		}
+		
+		writeWikiHelp();
 		
 		final Logger logger = this.getLogger();
 		loader = new BukkitRunnable() {
@@ -144,8 +155,6 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 
 				}
 				if ( best > wrote ) wrote = best;
-
-				
 			}
 			
 		};
@@ -153,8 +162,42 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 		loader.run();
 		loader.runTaskTimer(this, 100, 100);
 
+		
 	}
 
+	private void writeWikiHelp() {
+		StringBuilder b = new StringBuilder();
+		List<TCLCommand> sx = new ArrayList<TCLCommand>();
+		Enumeration<TCLCommand> en = spellfactory.getAll().elements();
+		while ( en.hasMoreElements() ) sx.add(en.nextElement());
+		
+		
+		Collections.sort(sx,  new Comparator<TCLCommand>() {
+			public int compare(TCLCommand arg0, TCLCommand arg1) {
+				return arg0.getName().compareTo(arg1.getName());
+			}
+		});
+		
+		for ( TCLCommand s : sx ) {
+			b.append(s.getHelpText());
+		}
+		
+		File help = new File(this.getDataFolder(), "help.txt");
+		
+		try {
+			if ( !help.exists() ) help.createNewFile();
+			FileWriter fw = new FileWriter(help);
+			BufferedWriter out = new BufferedWriter(fw);
+			out.write(b.toString());
+			out.close();
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+	
 	private Context createContext(Player p) {
 		Context ctx = new Context();
 		ctx.setSpellFactory(spellfactory);
@@ -242,12 +285,12 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 		
 		String ss = Book.readSpell(holding);
 		if ( ss == null ) {
-			p.sendMessage("Your blade is dull");
+			Debug.trace("Your blade is dull");
 			e.setCancelled(false);
 			return;
 		}
 		this.getLogger();
-		p.sendMessage("Your blade is: " + ss + "/" + ss.length());
+		Debug.trace("Your blade is: " + ss + "/" + ss.length());
 		
 		TCLCommand cmd = spellfactory.get(ss);
 		if ( cmd == null ) return;

@@ -30,6 +30,10 @@ public class DictionaryParameter extends Parameter {
 		self.put(string, val);
 	}
 	
+	public void deleteIndex(String name) {
+		self.remove(name);
+	}
+	
 	public String asString(Context ctx) { 
 		return "[Dictionary]";
 	}

@@ -40,7 +40,7 @@ public class Player extends OperationalSpell<PlayerParameter> {
 		return affect(target.cast(LocationParameter.class), ctx);
 	}
 
-	
+
 	public static Parameter clearOperation(org.bukkit.entity.Player pent, Context ctx) {
 		pent.getInventory().clear();
 		return Parameter.from(pent);

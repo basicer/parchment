@@ -4,11 +4,13 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import com.basicer.parchment.Context;
+import com.basicer.parchment.Debug;
 import com.basicer.parchment.EvaluationResult;
 import com.basicer.parchment.TCLCommand;
 import com.basicer.parchment.TCLEngine;
 import com.basicer.parchment.TCLUtils;
 import com.basicer.parchment.parameters.DoubleParameter;
+import com.basicer.parchment.parameters.IntegerParameter;
 import com.basicer.parchment.parameters.Parameter;
 
 import java.io.PushbackReader;
@@ -20,7 +22,11 @@ public class Expr extends TCLCommand {
 	@Override
 	public EvaluationResult extendedExecute(Context ctx, TCLEngine e) {
 		Queue<Parameter> q = new LinkedList<Parameter>(ctx.getArgs()); 
-		return new EvaluationResult(parse(q, q.poll(), 0));
+		try {
+			return new EvaluationResult(parse(q, q.poll(), 0));
+		} catch ( RuntimeException ex ) {
+			return EvaluationResult.makeError(ex.getMessage());
+		}
 	}
 	
 	public static Parameter eval(String expr, Context ctx, TCLEngine e) {
@@ -38,7 +44,18 @@ public class Expr extends TCLCommand {
 	//TODO: Doesn't handle ()'s
 	public static Parameter parse(Queue<Parameter> tokens, Parameter lhs, int min) {
 		while ( true ) {
-			if ( tokens.size() < 1 ) return lhs;
+			if ( tokens.size() < 1 ) {
+				if ( lhs instanceof IntegerParameter ) {
+					return lhs;
+				} else if ( lhs instanceof DoubleParameter ) {
+					return ((DoubleParameter) lhs).downCastIfPossible();
+				} 
+				
+				DoubleParameter db = lhs.cast(DoubleParameter.class);
+				if ( db != null ) return db.downCastIfPossible();
+				
+				return lhs;
+			}
 			Parameter op = tokens.peek();
 			if ( getTokenPrecedence(op) < min ) return lhs;
 			tokens.poll();
@@ -55,14 +72,14 @@ public class Expr extends TCLCommand {
 			}
 			
 			lhs = evaluate(lhs, op, rhs);
-
+			
 			System.err.println(lhs.toString());
 		}
 	}
 	
 	public static Parameter evaluate(Parameter lhs, Parameter pop, Parameter rhs) {
 		String op = pop.asString();
-		System.err.println("EVAL: " + (lhs == null ? "null" : lhs.toString()) + " " + op + " " + (rhs == null ? "null" : rhs.toString()));
+		Debug.trace("EVAL: " + (lhs == null ? "null" : lhs.toString()) + " " + op + " " + (rhs == null ? "null" : rhs.toString()));
 		
 		//TODO: Downcasting is not how TCL works, we need to look at the input arguments.
 		if ( op.equals("+") ) return Parameter.from(lhs.asDouble() + rhs.asDouble()).downCastIfPossible();
@@ -87,7 +104,7 @@ public class Expr extends TCLCommand {
 		if ( op.equals("==") ) return Parameter.from(testEquality(lhs,rhs));
 		if ( op.equals("!=") ) return Parameter.from(!testEquality(lhs,rhs));
 		
-		return null;
+		throw new RuntimeException("No support for " + op);
 	}
 	
 	protected static boolean testEquality(Parameter lhs, Parameter rhs) {

@@ -1,10 +1,10 @@
 package com.basicer.parchment.base;
 
-import java.util.ArrayList;
-
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+
+
 import com.basicer.parchment.Context;
 import com.basicer.parchment.OperationalSpell;
 import com.basicer.parchment.parameters.*;
@@ -28,17 +28,22 @@ public class Block extends OperationalSpell<BlockParameter> {
  	}
 	
 
-
-	public static Parameter materialOperation(org.bukkit.block.Block block, Context ctx, MaterialParameter type) {
+	public static Parameter typeOperation(org.bukkit.block.Block block, Context ctx, MaterialParameter type) {
+		return materialOperation(block, ctx, type);
+	}
+	
+	public static Parameter typeNoPhysicsOperation(org.bukkit.block.Block block, Context ctx, MaterialParameter type) {
 		if ( type != null ) {
-			block.setType(type.as(Material.class));
+			block.setTypeId(type.as(Material.class).getId(), false);
 		}
 		return Parameter.from(block.getType());
 	}
 	
-	
-	public static Parameter typeOperation(org.bukkit.block.Block block, Context ctx, MaterialParameter type) {
-		return materialOperation(block, ctx, type);
+	public static Parameter materialOperation(org.bukkit.block.Block block, Context ctx, MaterialParameter type) {
+		if ( type != null ) {
+			block.setType(type.asMaterial(ctx));
+		}
+		return Parameter.from(block.getType());
 	}
 	
 	public static Parameter breakOperation(org.bukkit.block.Block block, Context ctx) {
@@ -49,6 +54,12 @@ public class Block extends OperationalSpell<BlockParameter> {
 		return Parameter.from(block.getBlockPower());
 	}
 	
+	public static Parameter dataOperation(org.bukkit.block.Block block, Context ctx, IntegerParameter data) {
+		if ( data != null ) {
+			block.setData(data.asInteger().byteValue());
+		}
+		return Parameter.from(block.getData());
+	}
 	
 	@Override
 	public FirstParamaterTargetType getFirstParamaterTargetType(Context ctx) {

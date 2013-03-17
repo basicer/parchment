@@ -14,7 +14,7 @@ import com.basicer.parchment.parameters.DelegateParameter;
 import com.basicer.parchment.parameters.Parameter;
 
 
-public class Global extends TCLCommand {
+public class Static extends TCLCommand {
 
 	@Override
 	public String[] getArguments() { return new String[] { "varname" }; }
@@ -22,9 +22,16 @@ public class Global extends TCLCommand {
 	@Override
 	public EvaluationResult extendedExecute(Context ctx, TCLEngine engine) {
 
-		Context src = ctx;
-		
-		while ( src.up(1) != null ) src = src.up(1);
+		Parameter t = ctx.getThis();
+		Debug.trace("This = " + t);
+		if ( t == null ) return EvaluationResult.makeError("Couldnt find spell context");
+		DelegateParameter tt = t.cast(DelegateParameter.class);
+		if ( tt == null ) return EvaluationResult.makeError("This wasent a delegate");
+		TCLCommand cmd = tt.asTCLCommand(ctx);
+		if ( !( cmd instanceof Spell )) return EvaluationResult.makeError("This wasent a Spell");
+
+		Context src = ((Spell) cmd).getSpellContext();
+		Debug.trace("This's spell " + ((Spell) cmd).getName() + " ctx has:" + src.getDebuggingString());
 		ctx.up(1).linkVariableFromContext(src, ctx.get("varname").asString());
 		
 		return EvaluationResult.OK;

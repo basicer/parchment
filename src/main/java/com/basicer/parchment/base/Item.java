@@ -10,6 +10,7 @@ import net.minecraft.server.NBTBase;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -84,6 +85,10 @@ public class Item extends OperationalSpell<ItemParameter>  {
 	}
 	
 	public static Parameter dmgOperation(ItemStack itm, Context ctx, IntegerParameter dmg) {
+		return damageOperation(itm, ctx, dmg);
+	}
+	
+	public static Parameter dataOperation(ItemStack itm, Context ctx, IntegerParameter dmg) {
 		return damageOperation(itm, ctx, dmg);
 	}
 	
@@ -173,7 +178,17 @@ public class Item extends OperationalSpell<ItemParameter>  {
 		return loc;
 	}
 	
-	public static Parameter enchantOperation(ItemStack itm, Context ctx, StringParameter name, Parameter level) {
+	protected static Parameter makeEnchantResturnValue(ItemStack itm) {
+		Map<Enchantment,Integer> x = itm.getEnchantments();
+		Parameter[] aout = new Parameter[x.size()];
+		int idx = 0;
+		for ( Enchantment e : x.keySet() ) {
+			aout[idx++] = Parameter.from(e.getName() + ":" + itm.getEnchantmentLevel(e));
+		}
+		return Parameter.createList(aout);
+	}
+	
+	public static Parameter safeEnchantOperation(ItemStack itm, Context ctx, StringParameter name, Parameter level) {
 		if ( name != null ) {
 			Enchantment enc = ParseEnchantment(name.asString());
 			
@@ -185,26 +200,48 @@ public class Item extends OperationalSpell<ItemParameter>  {
 			if ( level.asInteger() == 0 ) {
 				itm.removeEnchantment(enc);
 			} else {
-				itm.addEnchantment(enc, level.asInteger());
+				try {
+					itm.addEnchantment(enc, level.asInteger());
+				} catch ( IllegalArgumentException ex ) {
+					fizzle(enc.getName() + " : " + ex.getMessage());
+				}
 			}
 		}
 		
-		Map<Enchantment,Integer> x = itm.getEnchantments();
-		Parameter[] aout = new Parameter[x.size()];
-		int idx = 0;
-		for ( Enchantment e : x.keySet() ) {
-			aout[idx++] = Parameter.from(e.getName() + ":" + itm.getEnchantmentLevel(e));
+		return makeEnchantResturnValue(itm);
+
+	}
+	
+	public static Parameter enchantOperation(ItemStack itm, Context ctx, StringParameter name, Parameter level) {
+		if ( name != null ) {
+			Enchantment enc = ParseEnchantment(name.asString());
+			
+			if ( enc == null ) fizzle("Unknwon enchantment: " + name.asString());
+			
+			if ( level == null ) level = Parameter.from(enc.getStartLevel());
+			else if ( level.asString().equals("max") ) level = Parameter.from(enc.getMaxLevel());
+			else if ( level.asString().equals("remove") ) level = Parameter.from(0);
+			
+			if ( level.asInteger() == 0 ) {
+				itm.removeEnchantment(enc);
+			} else {
+				itm.addUnsafeEnchantment(enc, level.asInteger());
+			}
 		}
-		return Parameter.createList(aout);
+		
+		return makeEnchantResturnValue(itm);
+
 	}
 	
 	public static Parameter giveOperation(ItemStack itm, Context ctx, PlayerParameter to) {
+		if ( to == null ) to = ctx.getCaster().cast(PlayerParameter.class);
 		if ( to == null ) fizzle("You must pick someone to give the item to.");
 		to.asPlayer(ctx).getInventory().addItem(itm);
 		return Parameter.from(itm);
 	}
 	
 	public static Parameter forceInvOperation(ItemStack itm, Context ctx, PlayerParameter to, IntegerParameter slot) {
+		if ( to == null ) to = ctx.getCaster().cast(PlayerParameter.class);
 		if ( to == null ) fizzle("You must pick someone to give the item to.");
 		Inventory i = to.asPlayer(ctx).getInventory();
 		i.setItem(slot.asInteger(), itm);
@@ -212,13 +249,60 @@ public class Item extends OperationalSpell<ItemParameter>  {
 		return Parameter.from(io);
 	}
 	
-	public static Parameter equipOperation(ItemStack itm, Context ctx, PlayerParameter to, StringParameter p ) {
+	public static Parameter equipOperation(ItemStack itm, Context ctx, PlayerParameter to) {
+		if ( to == null ) to = ctx.getCaster().cast(PlayerParameter.class);
+		if ( to == null ) fizzle("You must pick someone to give the item to.");
+		
+		Player p = to.asPlayer(ctx);
+		
+		switch ( itm.getType() ) {
+			case DIAMOND_CHESTPLATE:
+			case GOLD_CHESTPLATE:
+			case IRON_CHESTPLATE:
+			case LEATHER_CHESTPLATE:
+			case CHAINMAIL_CHESTPLATE:
+				p.getEquipment().setChestplate(itm);
+				break;
+			case DIAMOND_HELMET:
+			case GOLD_HELMET:
+			case IRON_HELMET:
+			case LEATHER_HELMET:
+			case CHAINMAIL_HELMET:
+			case PUMPKIN:
+				p.getEquipment().setHelmet(itm);
+				break;
+			case DIAMOND_BOOTS:
+			case GOLD_BOOTS:
+			case IRON_BOOTS:
+			case LEATHER_BOOTS:
+			case CHAINMAIL_BOOTS:
+				p.getEquipment().setBoots(itm);
+				break;
+			case DIAMOND_LEGGINGS:
+			case GOLD_LEGGINGS:
+			case IRON_LEGGINGS:
+			case LEATHER_LEGGINGS:
+			case CHAINMAIL_LEGGINGS:
+				p.getEquipment().setLeggings(itm);
+				break;
+			default:
+				fizzle("Dont know how to equip " + itm.getType());
+		}
+		
+		return Parameter.from(itm);
+	}
+	
+	public static Parameter equipExOperation(ItemStack itm, Context ctx, PlayerParameter to, StringParameter p ) {
 		if ( to == null ) fizzle("You must pick someone to give the item to.");
 		String ps = p.asString();
-		if ( ps.equalsIgnoreCase("helmet") ) {
+		if ( ps.equalsIgnoreCase("helmet") || ps.equalsIgnoreCase("helm") || ps.equalsIgnoreCase("head") ) {
 			to.asPlayer(ctx).getEquipment().setHelmet(itm);
-		} else if ( ps.equalsIgnoreCase("chest") ) {
+		} else if ( ps.equalsIgnoreCase("chest") || ps.equalsIgnoreCase("chestplate") ) {
 			to.asPlayer(ctx).getEquipment().setChestplate(itm);
+		} else if ( ps.equalsIgnoreCase("boots") || ps.equalsIgnoreCase("feet") ) {
+			to.asPlayer(ctx).getEquipment().setBoots(itm);
+		} else if ( ps.equalsIgnoreCase("pants") ||  ps.equalsIgnoreCase("leggings") ) {
+			to.asPlayer(ctx).getEquipment().setLeggings(itm);
 		} else {
 			ctx.sendDebugMessage("Where is the " + ps);
 		}
@@ -298,6 +382,7 @@ public class Item extends OperationalSpell<ItemParameter>  {
 		if ( name.equals("UNBREAKING") ) return Enchantment.DURABILITY;
 		if ( name.equals("SILKTOUCH") ) return Enchantment.SILK_TOUCH;
 		if ( name.equals("PUNCH") ) return Enchantment.ARROW_KNOCKBACK;
+		if ( name.equals("SHARPNESS") ) return Enchantment.DAMAGE_ALL;
 		
 		return null;
 	}

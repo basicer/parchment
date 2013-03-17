@@ -1,8 +1,5 @@
 package com.basicer.parchment;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.security.Policy.Parameters;
 import java.util.*;
 
 import com.basicer.parchment.parameters.Parameter;
@@ -11,7 +8,7 @@ import com.basicer.parchment.parameters.StringParameter;
 
 public abstract class TCLCommand {
 	
-	public String getName() { return this.getClass().getSimpleName(); }
+	public String getName() { return this.getClass().getSimpleName().toLowerCase(); }
 	protected TCLCommand getThis() { return null; }
 	public String[] getArguments() { return new String[] {"args"}; }
 	//public abstract String[] getArguments();
@@ -52,7 +49,7 @@ public abstract class TCLCommand {
 			if ( name.startsWith("-") ) {
 				is_flag = true;
 				nfo.required = false;
-				name = name.substring(1,  name.length());
+				name = name.substring(1);
 			} 
 
 			if ( name.startsWith("'") && name.endsWith("'")) {
@@ -70,14 +67,16 @@ public abstract class TCLCommand {
 			if ( nfo.required ) ++required;
 		}
 		
+		
 		int ptr = 1;
 		for ( int i = 0; i < xargs.size(); ++i ) {
 			ParamInfo nfo = xargs.get(i);
 			if ( ptr >= params.length ) break;
 			if ( (params[ptr] instanceof StringParameter) ) {
 				String str  = params[ptr].asString(ctx);
-				if ( str.startsWith("-") && flags.contains(str) ) { 
-					ctx.put(str.substring(1, str.length()), Parameter.from(true));
+				if ( str.startsWith("-") && flags.contains(str) ) { //TODO: TCL might want us to check the spot 
+					ctx.put(str.substring(1), Parameter.from(true));
+					++ptr;
 				}
 			}
 			if ( nfo.required || ( given > required ) ) {
@@ -93,7 +92,7 @@ public abstract class TCLCommand {
 		}
 		
 		if ( required > 0 ) {
-			throw new RuntimeException("Command " + getName() + " required " + required + " more arguements");
+			throw new FizzleException(wrongArgumentsString());
 		}
 		
 		for ( int i = 0; i < xargs.size(); ++i ) {
@@ -101,11 +100,47 @@ public abstract class TCLCommand {
 		}
 		
 		if ( and_args ) put.put("args", Parameter.createList(params, ptr, params.length - 1));
+		else if ( ptr < params.length ) { throw new FizzleException(wrongArgumentsString()); }
+			
+		
 		
 		if ( getThis() != null ) put.setThis(Parameter.from(getThis()));
 		return put;
 	}
 
+	private String wrongArgumentsString() {
+		StringBuilder b = new StringBuilder();
+		b.append("wrong # args: should be \"");
+		b.append(getName());
+		for ( String s : getArguments() ) {
+			b.append(" ");
+			if ( s.endsWith("?")) b.append("?");
+			b.append(s);
+		}
+		b.append("\"");
+		return b.toString();
+	}
+	
+	public String getDescription() { return "To be written...."; }
+
+	protected String getHelpHeader() {
+		StringBuilder b = new StringBuilder();
+		b.append("----\n");
+		b.append(String.format("=== %s ===\n\n", getName()));
+		
+		b.append("**" + getName() + "** - ");
+		for ( String s : getArguments() ) b.append( "//" + s + "// ");
+		return b.toString();
+	}
+	
+	public String getHelpText() {
+		StringBuilder b = new StringBuilder();
+		b.append(getHelpHeader());
+		b.append("\n\n");
+		b.append(getDescription());
+		b.append("\n\n");
+		return b.toString();
+	}
 		
 	public abstract EvaluationResult extendedExecute(Context c2, TCLEngine e);
 }

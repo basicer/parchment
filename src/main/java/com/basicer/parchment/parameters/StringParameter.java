@@ -29,6 +29,9 @@ public class StringParameter extends Parameter {
 	
 	
 	public Integer asInteger(Context ctx) {
+		if ( self.startsWith("0o") ) {
+			return Integer.parseInt(self.substring(2), 8);
+		}
 		try {
 			return (int)(Double.parseDouble(self));
 		} catch (NumberFormatException ex) {
@@ -45,7 +48,10 @@ public class StringParameter extends Parameter {
 		if ( self.equalsIgnoreCase("on") ) return true;
 		if ( self.equalsIgnoreCase("off") ) return false;
 		if ( self.equalsIgnoreCase("false") ) return false;
-		return asInteger(ctx) != 0;
+		if ( self.length() == 0 ) return false;
+		Integer i = asInteger(ctx);
+		if ( i == null ) return false;
+		return ( i != 0 );
 		
 	}
 	

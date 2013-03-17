@@ -35,7 +35,6 @@ public class EntityParameter extends Parameter {
 		
 	}
 
-	
 	public String asString(Context ctx) {
 		Location l = self.getLocation();
 		return "[Entity T:" + self.getType().name() + " @ " + self.getWorld().getName() + "/" 

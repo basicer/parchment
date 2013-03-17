@@ -1,12 +1,16 @@
 package com.basicer.parchment;
 
 import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
 
 import com.basicer.parchment.base.*;
 import com.basicer.parchment.spells.*;
 import com.basicer.parchment.tcl.*;
 import com.basicer.parchment.tcl.Error;
+import com.basicer.parchment.test.Test;
 
 public class SpellFactory {
 	
@@ -38,10 +42,16 @@ public class SpellFactory {
 		addBuiltinCommand(Error.class);
 		addBuiltinCommand(Type.class);
 		addBuiltinCommand(Incr.class);
+		addBuiltinCommand(Static.class);
 		addBuiltinCommand(Global.class);
+		addBuiltinCommand(Catch.class);
+		addBuiltinCommand(Unset.class);
 		
 		addBuiltinCommand(Import.class);
 		addBuiltinCommand(Join.class);
+		
+		addBuiltinCommand(Test.class);
+		addBuiltinCommand(List.class);
 	}
 	
 	public void load() {
@@ -63,9 +73,8 @@ public class SpellFactory {
 		addBuiltinSpell(Explode.class);
 		addBuiltinSpell(Entity.class);
 		addBuiltinSpell(Player.class);
-		
-		
-		
+		addBuiltinSpell(Server.class);
+
 	}
 	
 	public void addCustomSpell(String name, ScriptedSpell spell) {
@@ -90,5 +99,9 @@ public class SpellFactory {
 		} catch (IllegalAccessException e) {
 			return;
 		}
+	}
+
+	public Dictionary<String, TCLCommand> getAll() {
+		return commands;
 	}
 }

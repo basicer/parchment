@@ -7,7 +7,7 @@ import com.basicer.parchment.Context;
 public class LocationParameter extends Parameter {
 	private Location self;
 	LocationParameter(Location self) {
-		this.self = self;
+		this.self = self.clone();
 	}
 	
 	@Override

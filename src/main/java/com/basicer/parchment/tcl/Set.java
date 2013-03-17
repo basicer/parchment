@@ -5,7 +5,9 @@ import java.io.PushbackReader;
 import java.io.StringReader;
 
 import com.basicer.parchment.Context;
+import com.basicer.parchment.Debug;
 import com.basicer.parchment.EvaluationResult;
+import com.basicer.parchment.FizzleException;
 import com.basicer.parchment.TCLCommand;
 import com.basicer.parchment.TCLEngine;
 import com.basicer.parchment.TCLUtils;
@@ -15,19 +17,17 @@ import com.basicer.parchment.parameters.Parameter;
 public class Set extends TCLCommand {
 
 	@Override
-	public String[] getArguments() { return new String[] { "varName", "value" }; }
+	public String[] getArguments() { return new String[] { "varName", "newValue?" }; }
 	
-	@Override
-	public EvaluationResult extendedExecute(Context ctx, TCLEngine e) {
+	
+	public static Parameter access(String varName, boolean write, Parameter value, Context ctxu) {
+		PushbackReader s = new PushbackReader(new StringReader("$" + varName));
 		String name = null;
-		Parameter val = ctx.get("value");
-		Context ctxu = ctx.up(1);
 		String index = null;
 		StringBuilder varb = new StringBuilder();
-		PushbackReader s = new PushbackReader(new StringReader("$" + ctx.get("varName").asString()));
-		
+
 		try { 
-			TCLUtils.readVariable(s, varb);
+			TCLUtils.readVariableInHand(s, varb);
 			name = varb.toString();
 			varb = new StringBuilder();			
 			
@@ -41,30 +41,48 @@ public class Set extends TCLCommand {
 			
 		}
 		
-		//ctx.sendDebugMessage("SET " + name + " ? " + index);
+		//Debug.trace("%s to %s (%s) = %s", write ? "Write" : "read",  name, index, value); 
 		
 		if ( index == null ) {
-			if ( val != null ) {
-				ctxu.put(name, val);
+			if ( write ) {
+				if ( value == null ) ctxu.unset(name); 
+				else ctxu.put(name, value);
+			} else {
+				if ( ctxu.get(name) == null ) throw new FizzleException("can't read \"" + name + "\": no such variable");
 			}
 			
-			return new EvaluationResult(ctxu.get(name));	
+			
+			return ctxu.get(name);	
 		}
 		
 		Parameter p = ctxu.get(name);
 		
-		if ( p == null ) {
+		if ( p == null && write) {
 			p = new DictionaryParameter();
 			ctxu.put(name, p);
+		} else if ( p == null ){
+			throw new FizzleException("can't read \"" + name + "(" + index + ")\": no such element in array");
+		} else if ( !(p instanceof DictionaryParameter) ) {
+			throw new FizzleException("can't read \"" + name + "(" + index + ")\": variable isn't array");
 		}
 		
-		if ( val != null ) { 
-			p.writeIndex(index, val);
+		if ( write ) {
+			if ( value == null ) p.deleteIndex(name); 
+			else p.writeIndex(index, value);
+		} else if ( p.index(index) == null) {
+			throw new FizzleException("can't read \"" + name + "(" + index + ")\": no such element in array");
 		}
+		
+		return p.index(index);
+	}
+	
+	@Override
+	public EvaluationResult extendedExecute(Context ctx, TCLEngine e) {
 
-		return new EvaluationResult(p.index(index));
-		
-		
+		Parameter val = ctx.get("newValue");
+		Context ctxu = ctx.up(1);
+		return new EvaluationResult(access(ctx.get("varName").asString(), val != null,  val, ctxu));
+				
 	}
 
 }
