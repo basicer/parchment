@@ -292,7 +292,7 @@ public class Item extends OperationalSpell<ItemParameter>  {
 		return Parameter.from(itm);
 	}
 	
-	public static Parameter equipExOperation(ItemStack itm, Context ctx, PlayerParameter to, StringParameter p ) {
+	public static Parameter equipexOperation(ItemStack itm, Context ctx, PlayerParameter to, StringParameter p ) {
 		if ( to == null ) fizzle("You must pick someone to give the item to.");
 		String ps = p.asString();
 		if ( ps.equalsIgnoreCase("helmet") || ps.equalsIgnoreCase("helm") || ps.equalsIgnoreCase("head") ) {

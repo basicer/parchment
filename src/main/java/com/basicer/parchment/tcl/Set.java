@@ -48,14 +48,14 @@ public class Set extends TCLCommand {
 				if ( value == null ) ctxu.unset(name); 
 				else ctxu.put(name, value);
 			} else {
-				if ( ctxu.get(name) == null ) throw new FizzleException("can't read \"" + name + "\": no such variable");
+				if ( ctxu.getRespectingGlobals(name) == null ) throw new FizzleException("can't read \"" + name + "\": no such variable");
 			}
 			
 			
-			return ctxu.get(name);	
+			return ctxu.getRespectingGlobals(name);	
 		}
 		
-		Parameter p = ctxu.get(name);
+		Parameter p = ctxu.getRespectingGlobals(name);
 		
 		if ( p == null && write) {
 			p = new DictionaryParameter();
