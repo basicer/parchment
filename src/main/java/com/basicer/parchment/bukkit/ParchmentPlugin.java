@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PushbackReader;
 import java.io.StringReader;
@@ -62,6 +63,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
+import org.mcstats.Metrics;
 import org.yaml.snakeyaml.reader.StreamReader;
 
 import com.comphenix.protocol.ProtocolLibrary;
@@ -74,6 +76,7 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 	ProtocolManager	manager;
 	SpellFactory	spellfactory;
 	BukkitRunnable  loader;
+	Metrics			metrics;
 	
 	public void onDisable() {
 		loader.cancel();
@@ -89,6 +92,13 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 		pm.registerEvents(this, this);
 		getLogger().info("Framework Enabled");
 		spellfactory = new SpellFactory();
+		
+		try {
+			metrics = new Metrics(this);
+			metrics.start();
+		} catch (IOException ex) {
+		}
+
 		
 		Parameter.RegisterParamaterType(PlayerParameter.class);
 		Parameter.RegisterParamaterType(LivingEntityParameter.class);

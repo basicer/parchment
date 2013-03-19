@@ -32,6 +32,32 @@
                     </execution>
                 </executions>
             </plugin>
+              <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>1.5</version>
+                <configuration>
+                    <artifactSet>
+                        <includes>
+                            <include>org.mcstats.bukkit:metrics</include>
+                        </includes>
+                    </artifactSet>
+                    <relocations>
+                        <relocation>
+                            <pattern>org.mcstats</pattern>
+                            <shadedPattern>com.basicer.parchment.mcstats</shadedPattern>
+                        </relocation>
+                    </relocations>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
         <resources>
             <resource>
@@ -45,6 +71,12 @@
             <id>bukkit.org</id>
             <url>http://repo.bukkit.org/content/repositories/snapshots</url>
         </repository>
+
+		<!--  MCStats.org -->
+	    <repository>
+	        <id>Plugin Metrics</id>
+	        <url>http://repo.mcstats.org/content/repositories/public</url>
+	    </repository>
 
         <!-- ProtocolLib -->
         <repository>
@@ -92,5 +124,11 @@
     		<artifactId>spoutplugin</artifactId>
     		<version>1.4.6-R0.1-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+	        <groupId>org.mcstats.bukkit</groupId>
+	        <artifactId>metrics</artifactId>
+	        <version>R6</version>
+	        <scope>compile</scope>
+    	</dependency>		
     </dependencies>
 </project>
