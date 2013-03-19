@@ -175,7 +175,7 @@ public class Context {
 		if ( p != null ) {
 			p.as(Player.class).sendRawMessage(msg);
 		} else {
-			Debug.info(msg);
+			Debug.info("%s", msg);
 		}
 	}
 	

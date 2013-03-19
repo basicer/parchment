@@ -29,7 +29,7 @@ public class SpellFactory {
 		addBuiltinCommand(Concat.class);
 
 		addBuiltinCommand(Upvar.class);
-		
+		addBuiltinCommand(Format.class);
 		addBuiltinCommand(Proc.class);
 		addBuiltinCommand(Expr.class);
 		addBuiltinCommand(If.class);
