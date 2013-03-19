@@ -52,7 +52,7 @@ public class REPL {
 			}
 		}
 		
-		System.out.println("\n\nTotal " + Test.tests + " , " + Test.passed + " passed");
+		//System.out.println("\n\nTotal " + Test.tests + " , " + Test.passed + " passed");
 	}
 
 	public static Parameter execute(String s, Context pctx)

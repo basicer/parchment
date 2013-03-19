@@ -1,12 +1,11 @@
 package com.basicer.parchment.test;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.fusesource.jansi.Ansi;
-
-
 
 import com.basicer.parchment.Context;
 import com.basicer.parchment.Debug;
@@ -17,72 +16,119 @@ import com.basicer.parchment.parameters.Parameter;
 
 public class Test extends TCLCommand {
 
-	public static int tests = 0;
-	public static int passed = 0;
+	@Override
+	public String[] getArguments() {
+		return new String[] { "name", "description", "args" };
+	}
+
+	public static class TestResult {
+		public String		name;
+		public String		description;
+		public String		body;
+		public Parameter	expected;
+		public int			expectedCode;
+
+		public Parameter	result;
+		public int			resultCode;
+
+		public String		why;
+
+	}
+
+	public static List<TestResult>	tests;
 
 	@Override
-	public String[] getArguments() { return new String[] { "name", "description", "args" }; }
-	
-	@Override
 	public EvaluationResult extendedExecute(Context ctx, TCLEngine e) {
-		
-		String name = ctx.get("name").asString();
-		String description = ctx.get("description").asString();
-		String body = null;
-		Parameter result = null; 
-		int resultCode = 0; 
-		
-		
+
+		TestResult test = new TestResult();
+
+		test.name = ctx.get("name").asString();
+		test.description = ctx.get("description").asString();
+		test.body = null;
+		test.expected = null;
+		test.expectedCode = 0;
+
 		ArrayList<Parameter> args = ctx.getArgs();
-		if ( args.size() < 1 ) return  EvaluationResult.OK;
+		if (args.size() < 1)
+			return EvaluationResult.OK;
 		int count = args.size();
-		if ( !args.get(0).asString().startsWith("-") ) {
-			//Old style
-			for ( int i = 0; i < count; ++i ) {
+		if (!args.get(0).asString().startsWith("-")) {
+			// Old style
+			for (int i = 0; i < count; ++i) {
 				int backward = count - i - 1;
-				if ( i == 0 ) result = args.get(backward);
-				else if ( i == 1 ) body = args.get(backward).asString();
+				if (i == 0)
+					test.expected = args.get(backward);
+				else if (i == 1)
+					test.body = args.get(backward).asString();
 				else {
 					Parameter constraint = args.get(i - 2);
 				}
 			}
 		} else {
-			if ( count % 2 == 1 ) return EvaluationResult.makeError("I dont want to deal with this right now.");
-			for ( int i = 0; i < count; i += 2 ) {
+			if (count % 2 == 1)
+				return EvaluationResult.makeError("I dont want to deal with this right now.");
+			for (int i = 0; i < count; i += 2) {
 				String action = args.get(i).asString();
-				if ( !action.startsWith("-") ) return EvaluationResult.makeError("All test options start with -");
-				Parameter value = args.get(i+1);
-				
-				if ( action.equals("-body") ) body = value.asString();
-				else if ( action.equals("-result") ) result = value;
-				else if ( action.equals("-returnCodes") ) resultCode = EvaluationResult.Code.valueOf(value.asString().toUpperCase()).ordinal();
+				if (!action.startsWith("-"))
+					return EvaluationResult.makeError("All test options start with -");
+				Parameter value = args.get(i + 1);
+
+				if (action.equals("-body"))
+					test.body = value.asString();
+				else if (action.equals("-result"))
+					test.expected = value;
+				else if (action.equals("-returnCodes")) {
+					if (value.asInteger() != null)
+						test.expectedCode = value.asInteger();
+					else
+						test.expectedCode = EvaluationResult.Code.valueOf(value.asString().toUpperCase()).ordinal();
+				}
 			}
 		}
-		if ( body == null ) EvaluationResult.makeError("All tests need a body.");
-		if ( body == null ) EvaluationResult.makeError("All tests need a result.");
-		if ( result.asString() == null ) EvaluationResult.makeError("Result wasent a string.");
-		
-		EvaluationResult testResult = e.evaluate(body, ctx);
-		String why = null;
-		if ( testResult.getCode().ordinal() != resultCode ) {
-			why = String.format("Expcted return code of %d got %d (%s)", resultCode, testResult.getCode().ordinal(), testResult.getValue().asString() );
-		} else if ( testResult.getValue() == null ) {
-			why = String.format("Expected some return value (%s) but got a real null.", result.asString());
-		} else if ( !testResult.getValue().asString().equals(result.asString()) ) {
-			why = String.format("Expcted return value of of %s got %s", result.asString(), testResult.getValue().asString() );
+		if (test.body == null)
+			EvaluationResult.makeError("All tests need a body.");
+		if (test.body == null)
+			EvaluationResult.makeError("All tests need a result.");
+		if (test.expected.asString() == null)
+			EvaluationResult.makeError("Result wasent a string.");
+
+		EvaluationResult testResult = null;
+		try {
+			testResult = e.evaluate(test.body, ctx.up(1));
+		} catch ( Throwable ex) {
+			test.why = "Exception: " + ex.getMessage();
 		}
 		
-		++tests;
-		if ( why == null ) {
-			++passed;
-			System.out.println(" + " + name + " " + description + " - Passed " + " \n");
+		if (testResult == null) {
+			test.why = ".evaluate was null?!";
 		} else {
-			System.out.println(" - " + name + " " + description + " - " + why +  " \n");
+			test.result = testResult.getValue();
+			test.resultCode = testResult.getCode().ordinal();
+
+			if (test.resultCode != test.expectedCode) {
+				test.why = String.format("Expcted return code of %d got %d (%s)", test.expectedCode, testResult
+						.getCode().ordinal(), testResult.getValue().asString());
+			} else if (test.result == null) {
+				test.why = String.format("Expected some return value (%s) but got a real null.",
+						test.expected.asString());
+			} else if (!(test.result.asString().equals(test.expected.asString()))) {
+				test.why = String.format("Expcted |%s| got |%s|", test.expected.asString(), testResult.getValue()
+						.asString());
+			}
 		}
-		
-		
+
+		/*
+		 * if ( test.why == null ) { System.out.println(" + " + test.name + " "
+		 * + test.description + " - Passed " + " \n"); } else {
+		 * System.out.println(" - " + test.name + " " + test.description + " - "
+		 * + test.why + " \n"); }
+		 */
+
+		if (tests == null)
+			tests = new ArrayList<TestResult>();
+		tests.add(test);
+
 		return EvaluationResult.OK;
 	}
 
-	
 }
