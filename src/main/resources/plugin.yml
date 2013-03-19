@@ -7,11 +7,11 @@ commands:
   parchment:
     description: Debug commands for parchment.
     aliases: [p]
-    usage: Â§f[Â§ePÂ§archmentÂ§f]Â§r Command Failed.
+    usage: §f[§eP§rarchment§f]§r Command Failed.
   cast:
     aliases: [c]
     description: Shortcut for /parchment cast
-    usage: Â§f[Â§ePÂ§archmentÂ§f]Â§r Command Failed.
+    usage: §f[§eP§rarchment§f]§r Command Failed.
   scriptmode:
     description: Enter script mode.
-    usage: Â§f[Â§ePÂ§archmentÂ§f]Â§r Command Failed.
+    usage: §f[§eP§rarchment§f]§r Command Failed.
