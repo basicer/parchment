@@ -55,6 +55,7 @@ public class Test extends TCLCommand {
 				
 				if ( action.equals("-body") ) body = value.asString();
 				else if ( action.equals("-result") ) result = value;
+				else if ( action.equals("-returnCodes") ) resultCode = EvaluationResult.Code.valueOf(value.asString().toUpperCase()).ordinal();
 			}
 		}
 		if ( body == null ) EvaluationResult.makeError("All tests need a body.");

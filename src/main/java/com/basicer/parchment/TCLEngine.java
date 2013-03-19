@@ -120,14 +120,24 @@ public class TCLEngine {
 				
 				boolean append = false;
 				if (in == '"') {
-					if (c == '"') {
+					if ( c == '\\' ) {
+						current.append(TCLUtils.readSlashCode(s));
+						empty = false;
+					} else if (c == '"') {
 						in = '\0';
 						int xcn = s.read();
 						if ( xcn > 0 ) {
 							s.unread(xcn);
-							if ( !Character.isWhitespace(xcn) && (char)xcn != ';' ) throw new FizzleException("extra characters after close-quote");
+							
+							if ( !Character.isWhitespace(xcn) && (char)xcn != ';' ) {
+								System.err.println("Bad : " + xcn + " " + ((char)xcn));
+								System.err.println("-> |" + current.toString() + "|");
+								System.err.println("SoFar ");
+								for ( Parameter p : out ) System.err.println(p.toString());
+								throw new FizzleException("extra characters after close-quote");
+							}
 						}
-					} else if (c == '{') {
+					} else if (c == '{' && false ) {
 						s.unread(r);
 						TCLUtils.readCurlyBraceString(s, current);
 						empty = false;
@@ -149,7 +159,10 @@ public class TCLEngine {
 						append = true;
 					}
 				} else {
-					if (c == '"')
+					if ( c == '\\' ) {
+						current.append(TCLUtils.readSlashCode(s));
+						empty = false;
+					} else if (c == '"')
 						in = c;
 					else if (c == '{') {
 						s.unread(r);
@@ -182,7 +195,7 @@ public class TCLEngine {
 						}
 						if ( empty ) currentp = var;
 						else current.append(var.asString());
-					} else if ( c == '#' && currentp == null && current.length() < 1 ) {
+					} else if ( c == '#' && currentp == null && current.length() < 1 && out.size() < 1 ) {
 						while ( c != '\n' ) {
 							r = s.read();
 							if ( r < 0 ) return null;
@@ -203,10 +216,8 @@ public class TCLEngine {
 						current.append(currentp.asString(ctx));
 						currentp = null;
 					}
-					if (c == '\\')
-						current.append(TCLUtils.readSlashCode(s));
-					else
-						current.append(c);
+
+					current.append(c);
 					
 					empty = false;
 				}

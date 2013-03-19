@@ -14,22 +14,31 @@ public class TCLUtils {
 
 	public static void readCurlyBraceString(PushbackReader s, StringBuilder b) throws IOException {
 		int brackets = 1;
+		char last = '\0';
 		if (s.read() != '{')
 			throw new IOException("Expected {");
+		boolean inEscape = false;
 		while (brackets > 0) {
 			int n = s.read();
 			if (n < 0)
 				throw new IOException("Unmathced {}'s");
 			char c = (char) n;
 
-			if (c == '}')
+			if (c == '}' && !inEscape)
 				--brackets;
-			else if (c == '{')
+			else if (c == '{' && !inEscape)
 				++brackets;
 
+			if ( c == '\\' && !inEscape ) {
+				inEscape = true;
+			} else {
+				inEscape = false;
+			}
+			
 			if (brackets > 0)
 				b.append(c);
 
+			last = c;
 		}
 	}
 

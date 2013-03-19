@@ -17,15 +17,17 @@ import com.basicer.parchment.parameters.Parameter;
 public class Unset extends TCLCommand {
 
 	@Override
-	public String[] getArguments() { return new String[] { "-nocomplain?", "varName" }; }
+	public String[] getArguments() { return new String[] { "-nocomplain?", "args" }; }
 	
 	
 	@Override
 	public EvaluationResult extendedExecute(Context ctx, TCLEngine e) {
 
 		Context ctxu = ctx.up(1);
-		return new EvaluationResult(Set.access(ctx.get("varName").asString(), true,  null, ctxu));
-				
+		for ( Parameter p : ctx.getArgs() ) 
+			Set.access(p.asString(), true,  null, ctxu);
+		
+		return EvaluationResult.OK;
 	}
 
 }

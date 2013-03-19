@@ -37,14 +37,31 @@ public class List extends TCLCommand {
 	}
 
 	public static String encode(String src) {
-		boolean needs_brace = false;
+		boolean looks_bracy = false;
+		boolean has_braces = false;
+
+		StringBuilder b = new StringBuilder();
 		for ( int i = 0; i < src.length(); ++i ) {
 			char c = src.charAt(i);
-			if ( Character.isWhitespace(c) ) needs_brace = true;
+			if ( Character.isWhitespace(c) && c != '\t' ) looks_bracy = true;
+			else if ( c == ';' ) looks_bracy = true;
+			else if ( c == '{' || c == '}' ) has_braces = true;
 		}
 		
-		if ( needs_brace ) return "{" + src + "}";
-		return src;
+
+		for ( int i = 0; i < src.length(); ++i ) {
+			char c = src.charAt(i);
+			if ( c == '\t' ) {
+				b.append("\\t");
+			} else {
+				if ( c == '{' || c == '}' || c == '\\' || c == '[' || c == ']' || c == '$' ) b.append('\\');
+				b.append(c);
+			}
+		}
+
+			
+		if ( looks_bracy ) return "{" + b.toString() + "}";
+		return b.toString();
 		
 	}
 		
