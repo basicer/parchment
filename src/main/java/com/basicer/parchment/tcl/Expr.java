@@ -6,6 +6,7 @@ import java.util.Queue;
 import com.basicer.parchment.Context;
 import com.basicer.parchment.Debug;
 import com.basicer.parchment.EvaluationResult;
+import com.basicer.parchment.FizzleException;
 import com.basicer.parchment.TCLCommand;
 import com.basicer.parchment.TCLEngine;
 import com.basicer.parchment.TCLUtils;
@@ -82,29 +83,33 @@ public class Expr extends TCLCommand {
 		Debug.trace("EVAL: " + (lhs == null ? "null" : lhs.toString()) + " " + op + " " + (rhs == null ? "null" : rhs.toString()));
 		
 		//TODO: Downcasting is not how TCL works, we need to look at the input arguments.
-		if ( op.equals("+") ) return Parameter.from(lhs.asDouble() + rhs.asDouble()).downCastIfPossible();
-		if ( op.equals("-") ) return Parameter.from(lhs.asDouble() - rhs.asDouble()).downCastIfPossible();
-		if ( op.equals("%") ) return Parameter.from(lhs.asInteger() % rhs.asInteger());
-		if ( op.equals("*") ) return Parameter.from(lhs.asDouble() * rhs.asDouble()).downCastIfPossible();
-		if ( op.equals("/") ) return Parameter.from(lhs.asDouble() / rhs.asDouble()).downCastIfPossible();	
-		if ( op.equals("**") ) return Parameter.from(Math.pow(lhs.asDouble(),rhs.asDouble())).downCastIfPossible();
+		try {
+			if ( op.equals("+") ) return Parameter.from(lhs.asDouble() + rhs.asDouble()).downCastIfPossible();
+			if ( op.equals("-") ) return Parameter.from(lhs.asDouble() - rhs.asDouble()).downCastIfPossible();
+			if ( op.equals("%") ) return Parameter.from(lhs.asInteger() % rhs.asInteger());
+			if ( op.equals("*") ) return Parameter.from(lhs.asDouble() * rhs.asDouble()).downCastIfPossible();
+			if ( op.equals("/") ) return Parameter.from(lhs.asDouble() / rhs.asDouble()).downCastIfPossible();	
+			if ( op.equals("**") ) return Parameter.from(Math.pow(lhs.asDouble(),rhs.asDouble())).downCastIfPossible();
+			
+			//TODO: TCL Says > and < work on strings.
+			if ( op.equals(">") ) return Parameter.from(lhs.asDouble() > rhs.asDouble());
+			if ( op.equals(">=") ) return Parameter.from(lhs.asDouble() >= rhs.asDouble());
+			if ( op.equals("<") ) return Parameter.from(lhs.asDouble() < rhs.asDouble());
+			if ( op.equals("<=") ) return Parameter.from(lhs.asDouble() <= rhs.asDouble());
+			
+			if ( op.equals("||") ) return Parameter.from(lhs.asBoolean() || rhs.asBoolean());
+			if ( op.equals("&&") ) return Parameter.from(lhs.asBoolean() && rhs.asBoolean());
+			
+			
+			if ( op.equals("eq") ) return Parameter.from(testEquality(lhs,rhs));
+			if ( op.equals("ne") ) return Parameter.from(!testEquality(lhs,rhs));
+			if ( op.equals("==") ) return Parameter.from(testEquality(lhs,rhs));
+			if ( op.equals("!=") ) return Parameter.from(!testEquality(lhs,rhs));
+		} catch ( NullPointerException ex ) {
+			throw new FizzleException("Some argument couldnt be converted to double.");
+		}
 		
-		//TODO: TCL Says > and < work on strings.
-		if ( op.equals(">") ) return Parameter.from(lhs.asDouble() > rhs.asDouble());
-		if ( op.equals(">=") ) return Parameter.from(lhs.asDouble() >= rhs.asDouble());
-		if ( op.equals("<") ) return Parameter.from(lhs.asDouble() < rhs.asDouble());
-		if ( op.equals("<=") ) return Parameter.from(lhs.asDouble() <= rhs.asDouble());
-		
-		if ( op.equals("||") ) return Parameter.from(lhs.asBoolean() || rhs.asBoolean());
-		if ( op.equals("&&") ) return Parameter.from(lhs.asBoolean() && rhs.asBoolean());
-		
-		
-		if ( op.equals("eq") ) return Parameter.from(testEquality(lhs,rhs));
-		if ( op.equals("ne") ) return Parameter.from(!testEquality(lhs,rhs));
-		if ( op.equals("==") ) return Parameter.from(testEquality(lhs,rhs));
-		if ( op.equals("!=") ) return Parameter.from(!testEquality(lhs,rhs));
-		
-		throw new RuntimeException("No support for " + op);
+		throw new FizzleException("No support for " + op);
 	}
 	
 	protected static boolean testEquality(Parameter lhs, Parameter rhs) {

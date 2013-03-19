@@ -40,6 +40,8 @@ public class List extends TCLCommand {
 		boolean looks_bracy = false;
 		boolean has_braces = false;
 
+		if ( src.length() == 0 ) return "{}";
+		
 		StringBuilder b = new StringBuilder();
 		for ( int i = 0; i < src.length(); ++i ) {
 			char c = src.charAt(i);
@@ -49,6 +51,7 @@ public class List extends TCLCommand {
 		}
 		
 
+		
 		for ( int i = 0; i < src.length(); ++i ) {
 			char c = src.charAt(i);
 			if ( c == '\t' ) {
