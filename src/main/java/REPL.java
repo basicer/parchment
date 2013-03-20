@@ -1,6 +1,8 @@
 import java.io.*;
 import java.util.logging.*;
 
+import junit.framework.TestResult;
+
 import org.bukkit.entity.Player;
 
 import com.basicer.parchment.Context;
@@ -52,6 +54,10 @@ public class REPL {
 			}
 		}
 		
+		for ( com.basicer.parchment.test.Test.TestResult r : com.basicer.parchment.test.Test.tests) {
+			boolean ok = r.why == null;
+			System.out.println(String.format("%s %s %s - %s", ok ? "+" : "-", r.name, r.description, r.why == null ? "Success" : r.why));
+		}
 		//System.out.println("\n\nTotal " + Test.tests + " , " + Test.passed + " passed");
 	}
 

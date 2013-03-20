@@ -94,7 +94,9 @@ public class Test extends TCLCommand {
 
 		EvaluationResult testResult = null;
 		try {
-			testResult = e.evaluate(test.body, ctx.up(1));
+			Context ctxx = ctx.up(1).mergeAndCopyAsGlobal();
+			testResult = e.evaluate(test.body, ctxx);
+			
 		} catch ( Throwable ex) {
 			test.why = "Exception: " + ex.getMessage();
 		}

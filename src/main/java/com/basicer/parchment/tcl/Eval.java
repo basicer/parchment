@@ -12,12 +12,15 @@ import com.basicer.parchment.parameters.Parameter;
 public class Eval extends TCLCommand {
 
 	@Override
-	public String[] getArguments() { return new String[] { "code" }; }
+	public String[] getArguments() { return new String[] { "args" }; }
 
 	@Override
 	public EvaluationResult extendedExecute(Context ctx, TCLEngine e) {
-		Parameter expr = ctx.get("code");
+		if ( ctx.getArgs().size() == 0 ) return EvaluationResult.makeError("wrong # args: should be \"eval arg ?arg ...?\"");
+		Parameter expr = Concat.doConcat(ctx.getArgs());
+		
+		String torun = expr.asString();
 		System.err.println(expr.asString());
-		return e.evaluate(expr.asString(), ctx.up(1));		
+		return e.evaluate(torun, ctx.up(1));		
 	}
 }

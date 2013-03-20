@@ -50,7 +50,7 @@ public class TCLUnitTests extends TestCase {
 	public static List<String> getListOfFiles() {
 		List<String> out = new ArrayList<String>();
 		//out.add("error.tcl");  //Needs the try command those error globals.
-		out.add("format.tcl");
+		//out.add("format.tcl");
 		out.add("parseOld.tcl");
 		out.add("set.tcl");
 		out.add("incr.tcl");

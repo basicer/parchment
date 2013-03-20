@@ -63,7 +63,8 @@ public class Proc extends TCLCommand {
 		};
 		ctx.top().setCommand(pname.asString(), proc);
 		Debug.trace("Registered proc " + pname.asString());
-		return new EvaluationResult(Parameter.from(proc));
+		//return new EvaluationResult(Parameter.from(proc));
+		return EvaluationResult.OK;
 		
 	}
 

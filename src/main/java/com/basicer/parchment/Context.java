@@ -46,6 +46,10 @@ public class Context {
 	}
 	
 	public Parameter getRespectingGlobals(String var) {
+		
+		if ( var.equals("errorInfo") ) return top().get("errorInfo");
+		if ( var.equals("::errorInfo") ) return top().get("errorInfo");
+		
 		if ( var.equals("target") ) return getTarget();
 		if ( var.equals("caster") ) return getCaster();
 		if ( var.equals("world") ) return Parameter.from(getWorld());
@@ -292,6 +296,10 @@ public class Context {
 
 	public void linkVariableFromContext(Context other, String var) {
 		ParameterPtr ptr = other.getRaw(var);
+		if ( ptr == null ) {
+			ptr = new ParameterPtr();
+			other.setRaw(var, ptr);
+		}
 		Debug.trace("Setting " + var + " to " + ptr);
 		this.setRaw(var, ptr);
 	}
@@ -331,6 +339,27 @@ public class Context {
 		this.variables.remove(name);
 	}
 
+	public Context mergeAndCopyAsGlobal() {
+		Context b = new Context();
+		writeAllStuffInto(b);
+		return b;
+	}
+
+	protected void writeAllStuffInto(Context other) {
+		if ( parent != null ) parent.writeAllStuffInto(other);
+
+		if ( spellfactory != null ) other.spellfactory = spellfactory;
+		
+		for ( String k : this.variables.keySet() ) {
+			other.put(k,  variables.get(k).val);
+		}
+
+		for ( String k : this.procs.keySet() ) {
+			other.procs.put(k,  procs.get(k));
+		}
+
+		
+	}
 
 
 

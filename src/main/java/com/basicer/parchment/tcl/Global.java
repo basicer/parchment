@@ -17,15 +17,23 @@ import com.basicer.parchment.parameters.Parameter;
 public class Global extends TCLCommand {
 
 	@Override
-	public String[] getArguments() { return new String[] { "varname" }; }
+	public String[] getArguments() { return new String[] { "args" }; }
 	
 	@Override
 	public EvaluationResult extendedExecute(Context ctx, TCLEngine engine) {
 
-		Context src = ctx;
+		Context src = ctx.top();
+		Context ctxu = ctx.up(1);
 		
-		while ( src.up(1) != null ) src = src.up(1);
-		ctx.up(1).linkVariableFromContext(src, ctx.get("varname").asString());
+		Debug.trace("Reday For %d", ctx.getArgs().size());
+				
+		for ( Parameter p : ctx.getArgs() ) {
+			Debug.trace("Linking %s", p.asString());
+			ctxu.linkVariableFromContext(src, p.asString());
+		}
+		
+		Debug.trace("Go %s",ctxu.getDebuggingString());
+		
 		
 		return EvaluationResult.OK;
 	}

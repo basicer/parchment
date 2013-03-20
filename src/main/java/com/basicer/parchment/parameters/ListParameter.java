@@ -14,9 +14,10 @@ public class ListParameter extends Parameter {
 	
 	private List<Parameter> self;
 	ListParameter(List<Parameter> self) {
-		this.self = self;
+		this.self = new ArrayList<Parameter>(self);;
 	}
 	
+
 	public Class<? extends Parameter> getHomogeniousType() {
 		Class<? extends Parameter> out = null;
 		for ( Parameter p : self ) {
@@ -67,14 +68,10 @@ public class ListParameter extends Parameter {
 	
 	@Override
 	public String asString(Context ctx) {
-		if ( self.size() == 1 ) {
-			Parameter p = self.get(0);
-			if ( p == null ) return null;
-			return p.asString();
-		}
 		StringBuilder b = new StringBuilder();
 		for ( Parameter p : self) {
 			if ( b.length() > 0 ) b.append(" ");
+			/*
 			String x = p.asString();
 			if ( x == null || x.length() < 1 ) b.append("{}");
 			else if ( x.contains(" ") || x.contains("\\") ) {
@@ -84,6 +81,8 @@ public class ListParameter extends Parameter {
 			} else {
 				b.append(x);
 			}
+			*/
+			b.append(com.basicer.parchment.tcl.List.encode(p.asString(), false));
 		}
 		return b.toString();
 	}
@@ -97,6 +96,16 @@ public class ListParameter extends Parameter {
 		return new ArrayList<Parameter>(self);
 	}
 
+	public static ListParameter from(ArrayList<Parameter> self) {
+		return new ListParameter(self);
+	}
+
+
+	@Override
+	public Parameter index(int n) {
+		return self.get(n);
+	}
+	
 	
 
 

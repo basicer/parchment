@@ -54,6 +54,8 @@ public class SpellFactory {
 		addBuiltinCommand(List.class);
 		
 		addBuiltinCommand(StringCmd.class);
+		
+		addBuiltinCommand(LIndex.class);
 	}
 	
 	public void load() {

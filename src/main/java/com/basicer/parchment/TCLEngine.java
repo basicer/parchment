@@ -36,7 +36,12 @@ public class TCLEngine {
 			//}
 			
 			result = evaluate(pargs, ctx);
-			if ( result.getCode() != Code.OK ) return false;
+			if ( result.getCode() != Code.OK ) {
+				if ( result.getCode() == Code.ERROR ) {
+					ctx.top().put("errorInfo", result.getValue());
+				}
+				return false;
+			}
 			return true;
 			//ctx.sendDebugMessage("[R] " + result.toString());
 		}
@@ -165,14 +170,14 @@ public class TCLEngine {
 						empty = false;
 					} else if (c == '"' && empty )
 						in = c;
-					else if (c == '{') {
+					else if (c == '{' && empty ) {
 						s.unread(r);
 						TCLUtils.readCurlyBraceString(s, current);
 						empty = false;
 					} else if (c == '[') {
 						s.unread(r);
 						currentp = evaulateBracketExpression(s, ctx, engine);
-					} else if (c == ' ' || c == '\t') {
+					} else if (c == ' ' || c == '\t' || c == '\r' || c == (char)11 ) {
 						if (currentp != null) {
 							out.add(currentp);
 							currentp = null;
@@ -183,9 +188,7 @@ public class TCLEngine {
 						empty = true;
 					} else if (c == '\n' || c == ';') {
 						at_end = false;
-						break;
-					} else if ( c == '\r' ) {
-						
+						break;					
 					} else if (c == '$') {
 						s.unread(r);
 						Parameter var = evaulateVariable(s, ctx, engine);

@@ -206,6 +206,10 @@ public class TCLUtils {
 		switch ((char) i) {
 		case 'n':
 			return "\n";
+		case 'r':
+			return "\r";
+		case 'v':
+			return "" + (char)11;
 		case 't':
 			return "\t";
 		case '\n':
