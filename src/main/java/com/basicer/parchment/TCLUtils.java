@@ -24,6 +24,14 @@ public class TCLUtils {
 				throw new IOException("Unmathced {}'s");
 			char c = (char) n;
 
+			if ( (c == '\n' || c == '\r') && inEscape ) {
+				int ns = s.read();
+				while ( ns > 0 && Character.isWhitespace((char) ns) ) ns = s.read();
+				s.unread(ns);
+				b.append(" ");
+				continue;
+			}
+			
 			if (c == '}' && !inEscape)
 				--brackets;
 			else if (c == '{' && !inEscape)
@@ -69,7 +77,7 @@ public class TCLUtils {
 		}
 	}
 	
-	public static void readArrayIndex(PushbackReader s, StringBuilder b) throws IOException {
+	public static void readArrayIndex(PushbackReader s, StringBuilder b, Context ctx) throws IOException {
 		int brackets = 1;
 		if (s.read() != '(')
 			throw new IOException("Expected (");
@@ -85,7 +93,11 @@ public class TCLUtils {
 				++brackets;
 			else if (c == '{')
 				readCurlyBraceString(s, b);
-
+			else if ( c == '$' ) {
+				s.unread(n);
+				b.append(TCLUtils.evaulateVariable(s, ctx).asString());
+				continue;
+			}
 			if (brackets > 0)
 				b.append(c);
 		}
@@ -98,21 +110,23 @@ public class TCLUtils {
 		if (s.read() != '$')
 			throw new IOException("Expected $");
 
+		int i = 0;
 		while (true) {
 			int n = s.read();
 			if (n < 0)
 				break;
 			char c = (char) n;
-			if ( c == '{' ) {
+			if ( c == '{'  ) { //TODO: The variable needs to start with this so, but checking for that is worse unit test wise.
 				s.unread(c);
 				readCurlyBraceString(s, b);
+				return;
 			} else if (Character.isLetterOrDigit(c) || c == '_' || c == ':' )
 				b.append(c);
 			else {
 				s.unread(n);
 				return;
 			}
-
+			++i;
 		}
 	}
 	
@@ -161,11 +175,11 @@ public class TCLUtils {
 	*/
 	
 	public static Parameter evaulateVariable(PushbackReader s, Context ctx) throws IOException {
-		String var = readVariableName(s);
+		String var = readVariableName(s, ctx);
 		return Set.access(var, false, null, ctx);
 	}
 
-	public static String readVariableName(PushbackReader s) throws IOException {
+	public static String readVariableName(PushbackReader s, Context ctx) throws IOException {
 		StringBuilder varb = new StringBuilder();
 		readVariable(s, varb);
 		String var = varb.toString();
@@ -176,7 +190,7 @@ public class TCLUtils {
 		}
 		if ( (char)r == '(' ) {
 			StringBuilder b = new StringBuilder();
-			readArrayIndex(s, b);
+			readArrayIndex(s, b, ctx);
 			return var + "(" + b.toString() + ")";
 		}
 
@@ -187,7 +201,7 @@ public class TCLUtils {
 
 	public static String readSlashCode(PushbackReader r) throws IOException {
 		int i = r.read();
-		if (i < 1)
+		if (i < 0)
 			return "\\";
 		switch ((char) i) {
 		case 'n':
@@ -195,13 +209,39 @@ public class TCLUtils {
 		case 't':
 			return "\t";
 		case '\n':
-			r.unread(' '); //Super Hacky >.<
-			return "";
 		case '\r':
-			int x = r.read();
-			if ( x != -1 && (char)x != '\n'  ) r.unread(x);
-			r.unread(' '); //Super Hacky >.<
-			return "";
+			int ns = r.read();
+			while ( ns > 0 && Character.isWhitespace((char) ns) ) ns = r.read();
+			r.unread(ns);
+			
+			return " ";
+		case 'u':
+			String hex = "";;
+			for ( int hi = 0; hi < 4; ++hi) {
+				char c = (char)r.read();
+				if ( !"abcdefABCDEF0123456789".contains("" + c) ) break;
+				hex += c;
+				
+			}
+			if ( hex.length() < 1 ) return "u"; 
+			try {
+				return "" + (char)(Integer.valueOf(hex, 16).intValue());
+			} catch ( NumberFormatException ex ) {
+				throw new FizzleException("Invalid unicode codepoint:" + hex);
+			}
+		case 'x':
+			String hex1 = "";;
+			for ( int hi = 0; hi < 2; ++hi) {
+				char c = (char)r.read();
+				if ( !"abcdefABCDEF0123456789".contains("" + c) ) break;
+				hex1 += c;				
+			}
+			if ( hex1.length() < 1 ) return "x";
+			try {
+				return "" + (char)(Integer.valueOf(hex1, 16).intValue());
+			} catch ( NumberFormatException ex ) {
+				throw new FizzleException("Invalid unicode codepoint:" + hex1);
+			}
 		default:
 			return "" + (char) i;
 		}

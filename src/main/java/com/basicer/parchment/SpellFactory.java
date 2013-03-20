@@ -52,6 +52,8 @@ public class SpellFactory {
 		
 		addBuiltinCommand(Test.class);
 		addBuiltinCommand(List.class);
+		
+		addBuiltinCommand(StringCmd.class);
 	}
 	
 	public void load() {
@@ -83,7 +85,8 @@ public class SpellFactory {
 	
 	public <T extends Spell> void addBuiltinSpell(Class<T> spell) {
 		try {
-			commands.put(spell.getSimpleName().toLowerCase(), spell.newInstance());
+			TCLCommand s = spell.newInstance();
+			commands.put(s.getName(), s);
 		} catch (InstantiationException e) {
 			return;
 		} catch (IllegalAccessException e) {
@@ -93,7 +96,8 @@ public class SpellFactory {
 	
 	public <T extends TCLCommand> void addBuiltinCommand(Class<T> cmd) {
 		try {
-			commands.put(cmd.getSimpleName().toLowerCase(), cmd.newInstance());
+			TCLCommand s = cmd.newInstance();
+			commands.put(s.getName(), s);
 		} catch (InstantiationException e) {
 			return;
 		} catch (IllegalAccessException e) {

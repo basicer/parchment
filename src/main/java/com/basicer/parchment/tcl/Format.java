@@ -15,12 +15,12 @@ public class Format extends TCLCommand {
 
 	@Override
 	public String[] getArguments() {
-		return new String[] { "format", "args" };
+		return new String[] { "formatString", "args" };
 	}
 
 	@Override
 	public EvaluationResult extendedExecute(Context ctx, TCLEngine e) {
-		String format = ctx.get("format").asString();
+		String format = ctx.get("formatString").asString();
 
 		StringBuffer result = new StringBuffer();
 		Matcher m = Pattern.compile("%([0-9]+[$])?([ +#0-]*)([1-9][0-9]*|[*])?(?:[.]([0-9]*|[*]))?(l|h|ll)?([a-zA-Z%])").matcher(format);
@@ -84,6 +84,8 @@ public class Format extends TCLCommand {
 			
 			String val = null;
 			Parameter valp = args.get(i++);
+			String sf = "%" + flags + (width != null ? width : "" ) + (precision != null ? "." + precision : "") + formatc;
+			boolean upper = false;
 			switch ( formatc ) {
 			case 's':
 				val = valp.asString();
@@ -91,9 +93,10 @@ public class Format extends TCLCommand {
 				break;
 			case 'u':
 				long vall = valp.asInteger();
-				if ( vall < 0 ) vall = vall & 0x00000000ffffffffL;
+				if ( vall < 0 ) vall = (int)vall & 0x00000000ffffffffL;
 				val = "" + vall;
 				break;
+				/*
 			case 'i':
 			case 'd':
 				val = valp.asInteger().toString();
@@ -106,6 +109,7 @@ public class Format extends TCLCommand {
 				break;
 			case 'o':
 				val = Integer.toOctalString(valp.asInteger());
+				if ( alternate && !val.startsWith("0") ) val = "0" + val;
 				break;
 			case 'b':
 				val = Integer.toBinaryString(valp.asInteger());
@@ -113,17 +117,32 @@ public class Format extends TCLCommand {
 			case 'c':
 				val = "" + (char)valp.asInteger().intValue();
 				break;
+				*/
+			case 'X':
+				upper = true;
+			case 'i':
+			case 'd':
+			case 'x':
+			
+			case 'o':
+			case 'b':
+			case 'c':
+				val = String.format(sf, valp.asInteger());
+				break;
 			case 'g':
 			case 'e':
 			case 'f':
 			case 'G':
 			case 'E':
-				String sf = "%" + (alternate ? "#" : "") + (width != null ? width : "" ) + (precision != null ? "." + precision : "") + formatc;
 				val = String.format(sf, valp.asDouble());
 				break;
 			default:
 				val = "[Unknown Format: " + formatc + "]";
 			}
+			
+			if ( upper ) val = val.toUpperCase();
+			
+			if ( formatc == 'o' && alternate && val.equals("00") ) val = "0"; //Fix inconstancy .
 			
 			if ( width != null ) {
 				while ( val.length() < width ) {

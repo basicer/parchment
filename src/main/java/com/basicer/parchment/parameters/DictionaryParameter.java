@@ -35,7 +35,7 @@ public class DictionaryParameter extends Parameter {
 	}
 	
 	public String asString(Context ctx) { 
-		return "[Dictionary]";
+		return "[Dictionary: " + self.toString() + "]";
 	}
 	
 }

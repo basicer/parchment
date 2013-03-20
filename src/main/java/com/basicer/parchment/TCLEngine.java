@@ -88,7 +88,7 @@ public class TCLEngine {
 	//Doesnt evaluate if there is no engine
 	public static Parameter evaulateVariable(PushbackReader s, Context ctx, TCLEngine engine) throws IOException {
 		
-		if ( engine == null ) return Parameter.from("$" + TCLUtils.readVariableName(s));
+		if ( engine == null ) return Parameter.from("$" + TCLUtils.readVariableName(s, ctx));
 		else return TCLUtils.evaulateVariable(s, ctx);
 		
 	}
@@ -136,6 +136,7 @@ public class TCLEngine {
 								for ( Parameter p : out ) System.err.println(p.toString());
 								throw new FizzleException("extra characters after close-quote");
 							}
+
 						}
 					} else if (c == '{' && false ) {
 						s.unread(r);
@@ -162,7 +163,7 @@ public class TCLEngine {
 					if ( c == '\\' ) {
 						current.append(TCLUtils.readSlashCode(s));
 						empty = false;
-					} else if (c == '"')
+					} else if (c == '"' && empty )
 						in = c;
 					else if (c == '{') {
 						s.unread(r);

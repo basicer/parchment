@@ -33,15 +33,18 @@ public class Set extends TCLCommand {
 			
 			int r = s.read();
 			if ( (char)r == '(' ) {
-				s.unread(r);
-				TCLUtils.readArrayIndex(s, varb);
+				//s.unread(r);
+				//TCLUtils.readArrayIndex(s, varb, ctxu);
+				r = s.read();
+				while ( r > 0 ) { varb.append((char)r); r = s.read(); }
 				index = varb.toString();
+				index = index.substring(0,index.length() - 1); //Remove trailing )
 			}
 		} catch ( IOException ex ) {
 			
 		}
 		
-		//Debug.trace("%s to %s (%s) = %s", write ? "Write" : "read",  name, index, value); 
+		Debug.trace("|%s| %s to %s (%s) = %s", varName, write ? "Write" : "read",  name, index, value); 
 		
 		if ( index == null ) {
 			if ( write ) {
@@ -61,7 +64,7 @@ public class Set extends TCLCommand {
 			p = new DictionaryParameter();
 			ctxu.put(name, p);
 		} else if ( p == null ){
-			throw new FizzleException("can't read \"" + name + "(" + index + ")\": no such element in array");
+			throw new FizzleException("can't read \"" + name + "(" + index + ")\": no such variable");
 		} else if ( !(p instanceof DictionaryParameter) ) {
 			throw new FizzleException("can't read \"" + name + "(" + index + ")\": variable isn't array");
 		}
