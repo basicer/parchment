@@ -241,7 +241,7 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 		Context ctx = createContext(p);
 		
 		if (e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK) {
-			if (holding.getType() == org.bukkit.Material.BOOK_AND_QUILL || holding.getType() == org.bukkit.Material.WRITTEN_BOOK) {
+			if ( e.getPlayer().isOp() && (holding.getType() == org.bukkit.Material.BOOK_AND_QUILL || holding.getType() == org.bukkit.Material.WRITTEN_BOOK)) {
 				BookMeta b = (BookMeta) holding.getItemMeta();
 
 				if (e.getClickedBlock() != null && e.getClickedBlock().getType() == org.bukkit.Material.BOOKSHELF) {
