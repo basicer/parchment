@@ -2,6 +2,7 @@ package com.basicer.parchment.base;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.TreeType;
 import org.bukkit.World;
 
 
@@ -59,6 +60,13 @@ public class Block extends OperationalSpell<BlockParameter> {
 			block.setData(data.asInteger().byteValue());
 		}
 		return Parameter.from(block.getData());
+	}
+	
+	public static Parameter growtreeOperation(org.bukkit.block.Block block, Context ctx, StringParameter type) {
+		TreeType t = TreeType.TREE;			
+		if ( type != null ) t = type.asEnum(TreeType.class);
+		
+		return Parameter.from(block.getWorld().generateTree(block.getLocation().add(0, 1.0, 0), t) ? 1 : 0);
 	}
 	
 	@Override

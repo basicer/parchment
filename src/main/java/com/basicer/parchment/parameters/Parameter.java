@@ -404,7 +404,19 @@ public abstract class Parameter implements Iterable<Parameter> {
 	}
 
 	
-	
+	public <T extends Enum> T asEnum(Class<T> c) {
+		
+		String str = asString();
+		Integer i = asInteger();
+		
+		for ( T x : c.getEnumConstants() ) {
+			if ( str != null && x.name().equalsIgnoreCase(str)) return x;
+			if ( i != null && x.ordinal() == i) return x;
+		}
+		
+		return null;
+		
+	}
 
 	
 }
