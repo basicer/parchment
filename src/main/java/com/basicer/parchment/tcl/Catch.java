@@ -15,7 +15,7 @@ public class Catch extends TCLCommand {
 	@Override
 	public EvaluationResult extendedExecute(Context ctx, TCLEngine e) {
 		Parameter code = ctx.get("script");
-		EvaluationResult ir = e.evaluate(code.asString(), ctx);
+		EvaluationResult ir = e.evaluate(code.asString(), ctx.up(1));
 		if ( ctx.get("messageVarName") != null ) {
 			Set.access( ctx.get("messageVarName").asString(), true, ir.getValue(), ctx.up(1));
 		}
