@@ -38,10 +38,8 @@ public class TCLUtils {
 					++brackets;
 				} else if (c == '\\') {
 					inEscape = true;
-					continue;
 				} 
 			} else {
-				if ( "{}\\".contains("" + c)) b.append("\\");
 				inEscape = false;
 			}
 
