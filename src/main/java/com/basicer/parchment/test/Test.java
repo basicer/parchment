@@ -79,7 +79,7 @@ public class Test extends TCLCommand {
 					test.expected = value;
 				else if (action.equals("-returnCodes")) {
 					if (value.asInteger() != null)
-						test.expectedCode = value.asInteger();
+						test.expectedCode = value.asEnum(EvaluationResult.Code.class).ordinal();
 					else
 						test.expectedCode = EvaluationResult.Code.valueOf(value.asString().toUpperCase()).ordinal();
 				}
