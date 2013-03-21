@@ -1,10 +1,9 @@
 package com.basicer.parchment.tcl;
 
-
-
 import com.basicer.parchment.Context;
 import com.basicer.parchment.EvaluationResult;
 import com.basicer.parchment.EvaluationResult.Code;
+import com.basicer.parchment.EvaluationResult.EvalCallback;
 import com.basicer.parchment.TCLCommand;
 import com.basicer.parchment.TCLEngine;
 import com.basicer.parchment.TCLUtils;
@@ -13,32 +12,41 @@ import com.basicer.parchment.parameters.Parameter;
 public class While extends TCLCommand {
 
 	@Override
-	public String[] getArguments() { return new String[] { "test", "body" }; }
-
+	public String[] getArguments() {
+		return new String[] { "test", "body" };
+	}
 
 	@Override
-	public EvaluationResult extendedExecute(Context ctx, TCLEngine engine) {
-		Parameter expr = ctx.get("test");
-		
+	public EvaluationResult extendedExecute(final Context ctx, final TCLEngine engine) {
+		final Parameter expr = ctx.get("test");
+		final Context evalctx = ctx.up(1);
 		EvaluationResult result = new EvaluationResult(Parameter.from(""));
 		int rounds = 0;
-		while ( true ) {
-			if ( ++rounds > 20 ) break;
-			Parameter ok = Expr.eval(expr.asString(), ctx.up(1), engine);
-			if ( ok == null ) throw new RuntimeException("Invalid expression: " + expr.asString());
-			if ( ok.asBoolean() ) {
-				result = engine.evaluate(ctx.get("body").asString(), ctx.up(1));
-				if ( result.getCode() == Code.BREAK ) break;
-				if ( result.getCode() == Code.CONTINUE ) continue;
-			} else {
-				break;
+
+		return new EvaluationResult.BranchEvaluationResult(null, null, new EvaluationResult.EvalCallback() {
+			int	rounds	= 0;
+
+			public EvaluationResult result(EvaluationResult er) {
+				final EvalCallback again = this;
+				if ( er instanceof EvaluationResult.BranchEvaluationResult ) {
+					//First time though
+				} else {
+					if (er.getCode() == Code.BREAK) return EvaluationResult.OK;
+				}
+				if (++rounds > 20) return EvaluationResult.makeError("Too many loops >.<");
+				Parameter ok = Expr.eval(expr.asString(), evalctx, engine);
+				if (ok == null)
+					throw new RuntimeException("Invalid expression: " + expr.asString());
+				if (ok.asBoolean()) {
+					// result = engine.evaluate(ctx.get("body").asString(),
+					// evalctx);
+					return new EvaluationResult.BranchEvaluationResult(ctx.get("body").asString(), evalctx, again);
+				} else {
+					return EvaluationResult.OK;
+				}
+
 			}
-			
-		}
-		if ( result.getCode() == Code.BREAK ) result.setCode(Code.OK);
-		if ( result.getCode() == Code.CONTINUE ) result.setCode(Code.OK);
-		
-		return result;
-		
+		});
+
 	}
 }

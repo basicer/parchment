@@ -6,6 +6,7 @@ import junit.framework.TestResult;
 import org.bukkit.entity.Player;
 
 import com.basicer.parchment.Context;
+import com.basicer.parchment.EvaluationResult.Code;
 import com.basicer.parchment.SpellFactory;
 import com.basicer.parchment.TCLEngine;
 import com.basicer.parchment.TCLUtils;
@@ -69,7 +70,10 @@ public class REPL {
 		//ctx.setSource("command");
 		
 		TCLEngine x = new TCLEngine(s, pctx);
-		while (x.step()) { 	}
+		while (x.step()) { System.out.println("STEP");	}
+		if (x.getCode() != Code.OK ) {
+			System.out.println("|" + x.getCode() + "| " + x.getResult());
+		}
 		return x.getResult();
 	}
 	

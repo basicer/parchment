@@ -23,15 +23,27 @@ public class Format extends TCLCommand {
 		String format = ctx.get("formatString").asString();
 
 		StringBuffer result = new StringBuffer();
-		Matcher m = Pattern.compile("%([0-9]+[$])?([ +#0-]*)([1-9][0-9]*|[*])?(?:[.]([0-9]*|[*]))?(l|h|ll)?([a-zA-Z%])").matcher(format);
+		Matcher m = Pattern.compile("%(?:([0-9]+)[$])?([ +#0-]*)([1-9][0-9]*|[*])?(?:[.]([0-9]*|[*]))?(l|h|ll)?([a-zA-Z%])").matcher(format);
 		ArrayList<Parameter> args = ctx.getArgs();
 		int i = 0;
+		boolean manual = false;
+		
 		while (m.find()) {
 			// You can vary the replacement text for each match on-the-fly
 			char formatc = m.group(6).charAt(0);
 			if ( formatc == '%' ) {
 				m.appendReplacement(result, "%");
 				continue;
+			}
+			
+			if ( m.group(1) != null ) {
+				int want = Integer.parseInt(m.group(1));
+				if ( want < 1 )  throw new FizzleException("\"%n$\" argument index out of range");
+				if ( want > args.size() )  throw new FizzleException("\"%n$\" argument index out of range");
+				i = want - 1;
+				manual = true;
+			} else if ( manual ) {
+				throw new FizzleException("cannot mix \"%\" and \"%n$\" conversion specifiers");
 			}
 			
 			String padding = " ";
@@ -58,6 +70,7 @@ public class Format extends TCLCommand {
 			String swidth = m.group(3);
 			if ( swidth == null ) {}
 			else if ( swidth.equals("*") ) {
+				if ( (i+1) > args.size() ) throw new FizzleException("not enough arguments for all format specifiers");
 				width = args.get(i++).asInteger();
 			} else {
 				try {
@@ -71,6 +84,7 @@ public class Format extends TCLCommand {
 			String sprecision = m.group(4);
 			if ( sprecision == null ) {}
 			else if ( sprecision.equals("*") ) {
+				if ( (i+1) > args.size() ) throw new FizzleException("not enough arguments for all format specifiers");
 				precision = args.get(i++).asInteger();
 			} else if ( sprecision.equals("") ) {
 				precision = 0;
@@ -83,6 +97,9 @@ public class Format extends TCLCommand {
 			}
 			
 			String val = null;
+
+			if ( (i+1) > args.size() ) throw new FizzleException("not enough arguments for all format specifiers");
+			
 			Parameter valp = args.get(i++);
 			String sf = "%" + flags + (width != null ? width : "" ) + (precision != null ? "." + precision : "") + formatc;
 			boolean upper = false;
@@ -127,17 +144,21 @@ public class Format extends TCLCommand {
 			case 'o':
 			case 'b':
 			case 'c':
-				val = String.format(sf, valp.asInteger());
+				Integer x = valp.asInteger();
+				if ( x == null ) return EvaluationResult.makeError("expected integer but got \"" + valp.asString() + "\"");
+				val = String.format(sf, x);
 				break;
 			case 'g':
 			case 'e':
 			case 'f':
 			case 'G':
 			case 'E':
-				val = String.format(sf, valp.asDouble());
+				Double d = valp.asDouble();
+				if ( d == null ) return EvaluationResult.makeError("expected floating-point number but got \"" + valp.asString() + "\"");
+				val = String.format(sf, d);
 				break;
 			default:
-				val = "[Unknown Format: " + formatc + "]";
+				return EvaluationResult.makeError("bad field specifier \"" + formatc + "\"");
 			}
 			
 			if ( upper ) val = val.toUpperCase();

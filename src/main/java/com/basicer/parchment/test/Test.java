@@ -49,8 +49,7 @@ public class Test extends TCLCommand {
 		test.expectedCode = 0;
 
 		ArrayList<Parameter> args = ctx.getArgs();
-		if (args.size() < 1)
-			return EvaluationResult.OK;
+		if (args.size() < 1) return EvaluationResult.OK;
 		int count = args.size();
 		if (!args.get(0).asString().startsWith("-")) {
 			// Old style
@@ -65,12 +64,10 @@ public class Test extends TCLCommand {
 				}
 			}
 		} else {
-			if (count % 2 == 1)
-				return EvaluationResult.makeError("I dont want to deal with this right now.");
+			if (count % 2 == 1) return EvaluationResult.makeError("I dont want to deal with this right now.");
 			for (int i = 0; i < count; i += 2) {
 				String action = args.get(i).asString();
-				if (!action.startsWith("-"))
-					return EvaluationResult.makeError("All test options start with -");
+				if (!action.startsWith("-")) return EvaluationResult.makeError("All test options start with -");
 				Parameter value = args.get(i + 1);
 
 				if (action.equals("-body"))
@@ -85,27 +82,36 @@ public class Test extends TCLCommand {
 				}
 			}
 		}
-		if (test.body == null)
-			EvaluationResult.makeError("All tests need a body.");
-		if (test.body == null)
-			EvaluationResult.makeError("All tests need a result.");
-		if (test.expected.asString() == null)
-			EvaluationResult.makeError("Result wasent a string.");
+		if (test.body == null) return EvaluationResult.makeError("All tests need a body.");
+		else if (test.body == null) return EvaluationResult.makeError("All tests need a result.");
+		else if (test.expected.asString() == null) return EvaluationResult.makeError("Result wasent a string.");
 
 		EvaluationResult testResult = null;
 		try {
 			Context ctxx = ctx.up(1).mergeAndCopyAsGlobal();
-			testResult = e.evaluate(test.body, ctxx);
-			
-		} catch ( Throwable ex) {
-			test.why = "Exception: " + ex.getMessage();
+			TCLEngine ngn = new TCLEngine(test.body, ctxx);
+			while (ngn.step()) {
+			}
+			;
+
+			testResult = new EvaluationResult(ngn.getResult(), ngn.getCode());
+
+		} catch (Throwable ex) {
+			test.why = "Exception: " + ex.getMessage() + "\n";
+			for ( StackTraceElement se : ex.getStackTrace() ) {
+				test.why += se.toString() + "\n";
+			}
 		}
-		
+
 		if (testResult == null) {
-			test.why = ".evaluate was null?!";
+			if ( test.why == null ) test.why = ".evaluate was null?!";
 		} else {
 			test.result = testResult.getValue();
-			test.resultCode = testResult.getCode().ordinal();
+			if (testResult.getCode() == null) {
+				test.why = "Null errorcode?!";
+			} else {
+				test.resultCode = testResult.getCode().ordinal();
+			}
 
 			if (test.resultCode != test.expectedCode) {
 				test.why = String.format("Expcted return code of %d got %d (%s)", test.expectedCode, testResult
@@ -126,8 +132,7 @@ public class Test extends TCLCommand {
 		 * + test.why + " \n"); }
 		 */
 
-		if (tests == null)
-			tests = new ArrayList<TestResult>();
+		if (tests == null) tests = new ArrayList<TestResult>();
 		tests.add(test);
 
 		return EvaluationResult.OK;

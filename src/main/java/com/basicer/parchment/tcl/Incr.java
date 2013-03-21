@@ -28,7 +28,7 @@ public class Incr extends TCLCommand {
 		
 		Context ctxu = ctx.up(1);
 		Parameter current = Set.access(varName, false, null, ctxu);
-		if ( current.asInteger() == null ) return EvaluationResult.makeError("Can only increment integers"); 
+		if ( current.asInteger() == null ) return EvaluationResult.makeError("expected integer but got \"" + current.asString() + "\""); 
 		return new EvaluationResult(Set.access(varName, true, Parameter.from(current.asInteger() + ammount), ctxu));
 		
 		

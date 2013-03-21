@@ -40,7 +40,7 @@ public class TCLUnitTests extends TestCase {
 			assertTrue(result.why, false);
 		} else {
 			assertNotNull(result);
-			assertNotNull(result.result);
+			if ( result.result == null ) assertNull(result.why, result.why);
 			assertEquals(result.expected.asString(), result.result.asString());
 			
 			assertNull(result.why, result.why);
@@ -50,7 +50,8 @@ public class TCLUnitTests extends TestCase {
 	public static List<String> getListOfFiles() {
 		List<String> out = new ArrayList<String>();
 		//out.add("error.tcl");  //Needs the try command those error globals.
-		//out.add("format.tcl");
+		out.add("format.tcl");
+		
 		out.add("parseOld.tcl");
 		out.add("set.tcl");
 		out.add("incr.tcl");

@@ -34,4 +34,55 @@ public class EvaluationResult {
 		return new EvaluationResult(Parameter.from(string), Code.ERROR);
 	}
 	
+	
+	public static interface EvalCallback {
+		public EvaluationResult result(EvaluationResult last);
+	}
+	
+	public static class BranchEvaluationResult extends EvaluationResult {
+
+
+		
+		private EvalCallback callback;
+		private String toRun;
+		private Context context;
+		
+		public BranchEvaluationResult(String toRun, Context ctx, EvalCallback callback) {
+			this.toRun = toRun;
+			this.callback = callback;
+			this.context = ctx;
+		}
+		
+		@Override
+		public Parameter getValue() {
+			throw new RuntimeException("You've dome something wrong");
+		}
+
+		@Override
+		public Code getCode() {
+			throw new RuntimeException("You've dome something wrong");
+		}
+
+		@Override
+		public void setCode(Code code) {
+			throw new RuntimeException("You've dome something wrong");
+		}
+		
+		public EvaluationResult invokeCallback(EvaluationResult data) {
+			return callback.result(data);
+		}
+		
+		public String getToRun() {
+			return toRun;
+		}
+		
+		public Context getContext() {
+			return context;
+		}
+	}
+	
 }
+
+
+
+

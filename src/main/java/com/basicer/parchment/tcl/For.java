@@ -16,22 +16,30 @@ public class For extends TCLCommand {
 	public String[] getArguments() { return new String[] { "start", "test", "next", "body"  }; }
 
 	@Override
-	public EvaluationResult extendedExecute(Context ctx, TCLEngine e) {
-		Parameter expr = ctx.get("test");
-		Context evalctx = ctx.up(1);
-		e.evaluate(ctx.get("start").asString(), evalctx);
+	public EvaluationResult extendedExecute(final Context ctx, final TCLEngine e) {
+		final Parameter expr = ctx.get("test");
+		final Context evalctx = ctx.up(1);
 		
-		while ( true ) {
-		Parameter ok = Expr.eval(expr.asString(), evalctx, e);
-		if ( ok == null ) throw new RuntimeException("Invalid expression: " + expr.asString());
-		if ( !ok.asBoolean() ) break;
-			EvaluationResult er = e.evaluate(ctx.get("body").asString(), evalctx);
-			if ( er.getCode() == Code.BREAK ) break;
-			if ( er.getCode() == Code.RETURN ) return er;
-			e.evaluate(ctx.get("next").asString(), evalctx);
-		}
 		
-		return new EvaluationResult(Parameter.EmptyString);
+		return new EvaluationResult.BranchEvaluationResult(ctx.get("start").asString(), evalctx, new EvaluationResult.EvalCallback() {
+			
+			public EvaluationResult result(EvaluationResult last) {
+				final EvaluationResult.EvalCallback again = this;
+				Parameter ok = Expr.eval(expr.asString(), evalctx, e);
+				if ( ok == null ) throw new RuntimeException("Invalid expression: " + expr.asString());
+				if ( !ok.asBoolean() ) return new EvaluationResult(Parameter.EmptyString);
+				return new EvaluationResult.BranchEvaluationResult(ctx.get("body").asString(), evalctx, new EvaluationResult.EvalCallback(){
+					public EvaluationResult result(EvaluationResult er) {
+						if ( er.getCode() == Code.BREAK ) return new EvaluationResult(Parameter.EmptyString);
+						if ( er.getCode() == Code.RETURN ) return er;
+						return new EvaluationResult.BranchEvaluationResult(ctx.get("next").asString(), evalctx, again);						
+					}
+				});
+
+			}
+		});
+				
+				
 		
 	}
 }

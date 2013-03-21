@@ -18,8 +18,8 @@
 unset -nocomplain x i
 proc readonly varName {
     upvar 1 $varName var
-    trace add variable var write \
-	{apply {{args} {error "variable is read-only"}}}
+#    trace add variable var write \
+#	{apply {{args} {error "variable is read-only"}}}
 }
 
 # Basic "incr" operation.
