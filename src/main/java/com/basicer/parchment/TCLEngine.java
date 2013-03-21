@@ -186,7 +186,6 @@ public class TCLEngine {
 		try {
 			while ((r = s.read()) > 0) {
 				char c = (char) r;
-
 				boolean append = false;
 				if (in == '"') {
 					if (c == '\\') {
@@ -204,7 +203,7 @@ public class TCLEngine {
 								System.err.println("SoFar ");
 								for (Parameter p : out)
 									System.err.println(p.toString());
-								throw new FizzleException("extra characters after close-quote");
+								throw new FizzleException("extra characters after close-quote" );
 							}
 
 						}
@@ -233,18 +232,21 @@ public class TCLEngine {
 					}
 				} else {
 					if (c == '\\') {
-						current.append(TCLUtils.readSlashCode(s));
-						empty = false;
-					} else if (c == '"' && empty)
+						 String ta = TCLUtils.readSlashCode(s);
+						 if ( !ta.equals("") ) { empty = false; current.append(ta); continue; }
+						 else c = ' ';
+					} 
+					
+					if (c == '"' && empty) {
 						in = c;
-					else if (c == '{' && empty) {
+					} else if (c == '{' && empty) {
 						s.unread(r);
 						TCLUtils.readCurlyBraceString(s, current);
 						empty = false;
 					} else if (c == '[') {
 						s.unread(r);
 						currentp = new LazyParameter(LazyParameter.Type.CODE, TCLUtils.readBracketExpressionToString(s), ctx);
-					} else if (c == ' ' || c == '\t' || c == '\r' || c == (char) 11) {
+					} else if (c == ' ' || c == '\t' || c == '\r' || c == (char) 11 || c == '\f' ) {
 						if (currentp != null) {
 							currentp.asString(ctx);  //TODO: Remove this as it goes against everything we stand for.
 							out.add(currentp);

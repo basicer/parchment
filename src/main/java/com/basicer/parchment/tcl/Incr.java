@@ -7,6 +7,7 @@ import java.io.StringReader;
 import com.basicer.parchment.Context;
 import com.basicer.parchment.Debug;
 import com.basicer.parchment.EvaluationResult;
+import com.basicer.parchment.FizzleException;
 import com.basicer.parchment.TCLCommand;
 import com.basicer.parchment.TCLEngine;
 import com.basicer.parchment.TCLUtils;
@@ -24,10 +25,19 @@ public class Incr extends TCLCommand {
 		Parameter incr = ctx.get("increment");
 		int ammount = 1;
 		
-		if ( incr != null && incr.asInteger() != null ) ammount = incr.asInteger();
+		if ( incr != null ) {
+			if ( incr.asInteger() == null ) return EvaluationResult.makeError("expected integer but got \"" + incr.asString() + "\"");
+			ammount = incr.asInteger();
+		}
 		
 		Context ctxu = ctx.up(1);
-		Parameter current = Set.access(varName, false, null, ctxu);
+		Parameter current;
+		try {
+			current = Set.access(varName, false, null, ctxu);
+		} catch ( FizzleException ex ) { //TODO: Is there a cleaner way?
+			//Incr on an empty variable starts it at one.
+			return new EvaluationResult(Set.access(varName, true, Parameter.from(1), ctxu));
+		}
 		if ( current.asInteger() == null ) return EvaluationResult.makeError("expected integer but got \"" + current.asString() + "\""); 
 		return new EvaluationResult(Set.access(varName, true, Parameter.from(current.asInteger() + ammount), ctxu));
 		

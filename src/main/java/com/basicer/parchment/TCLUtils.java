@@ -38,9 +38,11 @@ public class TCLUtils {
 					++brackets;
 				} else if (c == '\\') {
 					inEscape = true;
+					continue;
 				} 
 			} else {
 				inEscape = false;
+				b.append("\\");
 			}
 
 			if (brackets > 0) b.append(c);
@@ -51,21 +53,28 @@ public class TCLUtils {
 	public static void readBracketExpression(PushbackReader s, StringBuilder b) throws IOException {
 		int brackets = 1;
 		if (s.read() != '[') throw new IOException("Expected [");
+		boolean quotes = false;
 		while (brackets > 0) {
 			int n = s.read();
 			if (n < 0) throw new IOException("Unmathced []'s");
 			char c = (char) n;
 
-			if (c == ']')
-				--brackets;
-			else if (c == '[')
-				++brackets;
-			else if (c == '{') {
-				s.unread(n);
-				b.append('{');
-				readCurlyBraceString(s, b);
-				b.append('}');
-				continue;
+			if ( !quotes ) {
+				if (c == ']')
+					--brackets;
+				else if (c == '[')
+					++brackets;
+				else if ( c == '"')
+					quotes = true;
+				else if (c == '{') {
+					s.unread(n);
+					b.append('{');
+					readCurlyBraceString(s, b);
+					b.append('}');
+					continue;
+				}
+			} else {
+				if ( c == '"' ) quotes = false; //TODO: Need more logic here, for \'s and stuf
 			}
 
 			if (brackets > 0) b.append(c);
@@ -184,6 +193,8 @@ public class TCLUtils {
 			return "\n";
 		case 'r':
 			return "\r";
+		case 'f':
+			return "\f";
 		case 'v':
 			return "" + (char) 11;
 		case 't':
@@ -194,13 +205,14 @@ public class TCLUtils {
 			while (ns > 0 && Character.isWhitespace((char) ns))
 				ns = r.read();
 			r.unread(ns);
-
-			return " ";
+			return "";
 		case 'u':
 			String hex = "";
 			;
 			for (int hi = 0; hi < 4; ++hi) {
-				char c = (char) r.read();
+				int ic = r.read();
+				if ( ic < 0 ) break;
+				char c = (char)ic;
 				if (!"abcdefABCDEF0123456789".contains("" + c)) break;
 				hex += c;
 
@@ -215,8 +227,10 @@ public class TCLUtils {
 			String hex1 = "";
 			;
 			for (int hi = 0; hi < 2; ++hi) {
-				char c = (char) r.read();
-				if (!"abcdefABCDEF0123456789".contains("" + c)) break;
+				int ic = r.read();
+				if ( ic < 0 ) break;
+				char c = (char)ic;
+				if (!"abcdefABCDEF0123456789".contains("" + c)) { r.unread(ic); break; }
 				hex1 += c;
 			}
 			if (hex1.length() < 1) return "x";

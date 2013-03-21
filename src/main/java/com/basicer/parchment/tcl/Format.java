@@ -72,6 +72,7 @@ public class Format extends TCLCommand {
 			else if ( swidth.equals("*") ) {
 				if ( (i+1) > args.size() ) throw new FizzleException("not enough arguments for all format specifiers");
 				width = args.get(i++).asInteger();
+				if ( width == null ) throw new FizzleException("expected integer but got \"" + args.get(i-1).asString() + "\"");
 			} else {
 				try {
 					width = Integer.valueOf(swidth);
@@ -86,6 +87,7 @@ public class Format extends TCLCommand {
 			else if ( sprecision.equals("*") ) {
 				if ( (i+1) > args.size() ) throw new FizzleException("not enough arguments for all format specifiers");
 				precision = args.get(i++).asInteger();
+				if ( precision == null ) throw new FizzleException("expected integer but got \"" + args.get(i-1).asString() + "\"");
 			} else if ( sprecision.equals("") ) {
 				precision = 0;
 			} else {
@@ -96,13 +98,14 @@ public class Format extends TCLCommand {
 				}
 			}
 			
-			String val = null;
 
-			if ( (i+1) > args.size() ) throw new FizzleException("not enough arguments for all format specifiers");
-			
-			Parameter valp = args.get(i++);
-			String sf = "%" + flags + (width != null ? width : "" ) + (precision != null ? "." + precision : "") + formatc;
+			String sf = "%" + (pad_left ? "" : "-") + (alternate ? "#" : "") + (padding != " " ? "0" : "") + (width != null ? width : "" ) + (precision != null ? "." + precision : "");
 			boolean upper = false;
+			
+			String val = null;
+			if ( (i+1) > args.size() ) throw new FizzleException("not enough arguments for all format specifiers");
+			Parameter valp = args.get(i++);
+			
 			switch ( formatc ) {
 			case 's':
 				val = valp.asString();
@@ -140,13 +143,13 @@ public class Format extends TCLCommand {
 			case 'i':
 			case 'd':
 			case 'x':
-			
 			case 'o':
 			case 'b':
 			case 'c':
+				if ( formatc == 'i' ) formatc = 'd';
 				Integer x = valp.asInteger();
 				if ( x == null ) return EvaluationResult.makeError("expected integer but got \"" + valp.asString() + "\"");
-				val = String.format(sf, x);
+				val = String.format(sf + formatc, x);
 				break;
 			case 'g':
 			case 'e':
@@ -155,7 +158,7 @@ public class Format extends TCLCommand {
 			case 'E':
 				Double d = valp.asDouble();
 				if ( d == null ) return EvaluationResult.makeError("expected floating-point number but got \"" + valp.asString() + "\"");
-				val = String.format(sf, d);
+				val = String.format(sf + formatc, d);
 				break;
 			default:
 				return EvaluationResult.makeError("bad field specifier \"" + formatc + "\"");
