@@ -246,6 +246,7 @@ public class TCLEngine {
 						currentp = new LazyParameter(LazyParameter.Type.CODE, TCLUtils.readBracketExpressionToString(s), ctx);
 					} else if (c == ' ' || c == '\t' || c == '\r' || c == (char) 11) {
 						if (currentp != null) {
+							currentp.asString(ctx);  //TODO: Remove this as it goes against everything we stand for.
 							out.add(currentp);
 							currentp = null;
 						} else if (!empty) {
@@ -304,7 +305,7 @@ public class TCLEngine {
 			}
 
 			if (currentp != null && current.length() == 0) {
-				currentp.toString(); //TODO: This hack breaks evertything we want and should be killed with fire.
+				currentp.asString(ctx);  //TODO: Remove this as it goes against everything we stand for.
 				out.add(currentp);
 			} else if (!empty) {
 				if (currentp != null) current.append(currentp.asString(ctx));
