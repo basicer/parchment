@@ -49,7 +49,7 @@ public class Test extends TCLCommand {
 		test.expectedCode = 0;
 
 		ArrayList<Parameter> args = ctx.getArgs();
-		if (args.size() < 1) return EvaluationResult.OK;
+		if (args.size() < 1) return EvaluationResult.makeError("No arguments to test.");
 		int count = args.size();
 		if (!args.get(0).asString().startsWith("-")) {
 			// Old style
@@ -82,9 +82,9 @@ public class Test extends TCLCommand {
 				}
 			}
 		}
-		if (test.body == null) return EvaluationResult.makeError("All tests need a body.");
-		else if (test.body == null) return EvaluationResult.makeError("All tests need a result.");
-		else if (test.expected.asString() == null) return EvaluationResult.makeError("Result wasent a string.");
+		if (test.body == null) test.why = "All tests need a body.";
+		else if (test.body == null) test.why = "All tests need a result.";
+		else if (test.expected.asString() == null) test.why = "Result wasent a string.";
 
 		EvaluationResult testResult = null;
 		try {

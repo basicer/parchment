@@ -18,7 +18,7 @@ public class TCLUtils {
 		boolean inEscape = false;
 		while (brackets > 0) {
 			int n = s.read();
-			if (n < 0) throw new IOException("Unmathced {}'s");
+			if (n < 0) throw new FizzleException("missing close-brace");
 			char c = (char) n;
 
 			if ((c == '\n' || c == '\r') && inEscape) {

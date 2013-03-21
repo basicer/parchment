@@ -10,6 +10,7 @@ import java.io.PushbackReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.basicer.parchment.EvaluationResult.Code;
 import com.basicer.parchment.parameters.DictionaryParameter;
 import com.basicer.parchment.parameters.Parameter;
 import com.basicer.parchment.test.Test;
@@ -50,6 +51,7 @@ public class TCLUnitTests extends TestCase {
 	public static List<String> getListOfFiles() {
 		List<String> out = new ArrayList<String>();
 		//out.add("error.tcl");  //Needs the try command those error globals.
+	
 		out.add("format.tcl");
 		
 		out.add("parseOld.tcl");
@@ -91,8 +93,10 @@ public class TCLUnitTests extends TestCase {
 				commandctx.setSpellFactory(spellfactory);
 
 				TCLEngine x = new TCLEngine(pbr, commandctx);
+				x.resiliant = true;
 				while (x.step()) {
 				}
+				//if ( x.getCode() == Code.ERROR ) throw new RuntimeException(filename + " : " + x.getResult());
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
