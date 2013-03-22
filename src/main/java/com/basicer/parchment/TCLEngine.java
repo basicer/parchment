@@ -114,6 +114,8 @@ public class TCLEngine {
 			}
 		}
 
+		if ( sourcecode == null ) return false; //We where evaluating with result given.
+		
 		try {
 			pargs = parseLine(sourcecode, ctx);
 		} catch (FizzleException ex) {
