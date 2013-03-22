@@ -8,7 +8,7 @@ import java.util.List;
 
 import com.basicer.parchment.EvaluationResult.BranchEvaluationResult;
 import com.basicer.parchment.EvaluationResult.Code;
-import com.basicer.parchment.parameters.LazyParameter;
+import com.basicer.parchment.parameters.ParameterAccumulator;
 import com.basicer.parchment.parameters.Parameter;
 
 public class TCLEngine {
@@ -29,6 +29,8 @@ public class TCLEngine {
 		sourcecode = src;
 		this.ctx = ctx;
 	}
+
+	ParameterAccumulator[] pargs = null;
 
 	public boolean step() {
 		if ( sub != null ) {
@@ -65,7 +67,48 @@ public class TCLEngine {
 			if ( !resiliant ) return false;
 		}
 
-		Parameter[] pargs = null;
+		if ( pargs != null ) {
+			for ( int pi = 0; pi < pargs.length; ++pi ) {
+				ParameterAccumulator r = pargs[pi];
+				if ( !r.isResolved() ) {
+					r.resolveStep();
+					return true;
+				}
+				if ( r.getEvaluationResult().getCode() == Code.ERROR ) {
+					result = r.getEvaluationResult();
+					if ( resiliant ) {
+						pargs = null;
+						return true;
+					} else {
+						return false;
+					}
+				}
+			}
+
+			Parameter[] rpargs = new Parameter[pargs.length];
+			for ( int i = 0; i < pargs.length; ++i ) {
+				rpargs[i] = pargs[i].getEvaluationResult().getValue();
+			}
+			String name = rpargs[0].asString();
+
+			TCLCommand s = ctx.getCommand(name);
+			if ( s == null ) {
+				pargs = null;
+				result = EvaluationResult.makeError("No such command: " + name);
+				return true;
+			}
+			try {
+				Context c2 = s.bindContext(rpargs, ctx);
+				result = s.extendedExecute(c2, this);
+				pargs = null;
+				return true;
+			} catch (FizzleException ex) {
+				result = EvaluationResult.makeError(ex.getMessage());
+				pargs = null;
+				return true;
+			}
+		}
+
 		try {
 			pargs = parseLine(sourcecode, ctx);
 		} catch (FizzleException ex) {
@@ -74,36 +117,12 @@ public class TCLEngine {
 		}
 
 		if ( pargs == null ) return false;
-		if ( pargs.length < 1 ) return true;
-
-		for ( int pi = 0; pi < pargs.length; ++pi ) {
-			Parameter r = pargs[pi];
-			if ( r instanceof LazyParameter ) {
-				LazyParameter lr = (LazyParameter) r;
-
-				EvaluationResult ler = lr.resolve();
-				if ( ler.getCode() != Code.RETURN && ler.getCode() != Code.OK ) {
-					result = ler;
-					return true;
-				}
-				pargs[pi] = ler.getValue();
-			}
-		}
-
-		String name = pargs[0].asString();
-		TCLCommand s = ctx.getCommand(name);
-		if ( s == null ) {
-			result = EvaluationResult.makeError("No such command: " + name);
+		if ( pargs.length < 1 ) {
+			pargs = null;
 			return true;
 		}
-		try {
-			Context c2 = s.bindContext(pargs, ctx);
-			result = s.extendedExecute(c2, this);
-			return true;
-		} catch (FizzleException ex) {
-			result = EvaluationResult.makeError(ex.getMessage());
-			return true;
-		}
+
+		return true;
 
 	}
 
@@ -172,17 +191,16 @@ public class TCLEngine {
 	 * ctx).getValue(); }
 	 */
 
-	public Parameter[] parseLine(PushbackReader s, Context ctx) {
+	public ParameterAccumulator[] parseLine(PushbackReader s, Context ctx) {
 		return parseLine(s, ctx, this);
 	}
 
 	// Doesnt evaluate if there is no engine
-	public static Parameter[] parseLine(PushbackReader s, Context ctx, TCLEngine engine) {
-		List<Parameter> out = new ArrayList<Parameter>();
-		StringBuilder current = new StringBuilder();
+	public static ParameterAccumulator[] parseLine(PushbackReader s, Context ctx, TCLEngine engine) {
+		List<ParameterAccumulator> out = new ArrayList<ParameterAccumulator>();
+
 		char in = '\0';
-		boolean empty = true;
-		Parameter currentp = null;
+		ParameterAccumulator current = new ParameterAccumulator();
 		boolean at_end = true;
 		int r;
 		try {
@@ -192,7 +210,6 @@ public class TCLEngine {
 				if ( in == '"' ) {
 					if ( c == '\\' ) {
 						current.append(TCLUtils.readSlashCode(s));
-						empty = false;
 					} else if ( c == '"' ) {
 						in = '\0';
 						int xcn = s.read();
@@ -203,7 +220,7 @@ public class TCLEngine {
 								System.err.println("Bad : " + xcn + " " + ((char) xcn));
 								System.err.println("-> |" + current.toString() + "|");
 								System.err.println("SoFar ");
-								for ( Parameter p : out )
+								for ( ParameterAccumulator p : out )
 									System.err.println(p.toString());
 								throw new FizzleException("extra characters after close-quote");
 							}
@@ -211,26 +228,18 @@ public class TCLEngine {
 						}
 					} else if ( c == '{' && false ) {
 						s.unread(r);
-						TCLUtils.readCurlyBraceString(s, current);
-						empty = false;
+						current.append(TCLUtils.readCurlyBraceStringToString(s));
 					} else if ( c == '[' ) {
 						s.unread(r);
-						currentp = new LazyParameter(LazyParameter.Type.CODE,
-								TCLUtils.readBracketExpressionToString(s), ctx);
+						current.append(ParameterAccumulator.Type.CODE, TCLUtils.readBracketExpressionToString(s), ctx);
 					} else if ( c == '$' ) {
 						s.unread(r);
-						// TODO : We might want to force this to be a string
-						Parameter var = new LazyParameter(LazyParameter.Type.VARIABLE,
-								TCLUtils.readVariableName(s, ctx), ctx);
-						if ( currentp != null ) {
-							current.append(currentp.asString());
-							empty = false;
-							currentp = null;
+						String name = TCLUtils.readVariableName(s, ctx);
+						if ( name.length() > 0 ) {
+							current.append(ParameterAccumulator.Type.VARIABLE, name, ctx);
+						} else {
+							append = true;
 						}
-						if ( empty )
-							currentp = var;
-						else
-							current.append(var.asString());
 					} else {
 						append = true;
 					}
@@ -238,35 +247,26 @@ public class TCLEngine {
 					if ( c == '\\' ) {
 						String ta = TCLUtils.readSlashCode(s);
 						if ( !ta.equals("") ) {
-							empty = false;
 							current.append(ta);
 							continue;
-						} else
+						} else {
 							c = ' ';
+						}
 					}
 
-					if ( c == '"' && empty ) {
+					if ( c == '"' && current.empty() ) {
 						in = c;
-					} else if ( c == '{' && empty ) {
+					} else if ( c == '{' && current.empty() ) {
 						s.unread(r);
-						TCLUtils.readCurlyBraceString(s, current);
-						empty = false;
+						current.append(TCLUtils.readCurlyBraceStringToString(s));
 					} else if ( c == '[' ) {
 						s.unread(r);
-						currentp = new LazyParameter(LazyParameter.Type.CODE,
-								TCLUtils.readBracketExpressionToString(s), ctx);
+						current.append(ParameterAccumulator.Type.CODE, TCLUtils.readBracketExpressionToString(s), ctx);
 					} else if ( c == ' ' || c == '\t' || c == '\r' || c == (char) 11 || c == '\f' ) {
-						if ( currentp != null ) {
-							currentp.asString(ctx); // TODO: Remove this as it
-													// goes against everything
-													// we stand for.
-							out.add(currentp);
-							currentp = null;
-						} else if ( !empty ) {
-							out.add(Parameter.from(current.toString()));
+						if ( !current.empty() ) {
+							out.add(current);
+							current = new ParameterAccumulator();
 						}
-						current.setLength(0);
-						empty = true;
 					} else if ( c == '\n' || c == ';' ) {
 						at_end = false;
 						break;
@@ -274,64 +274,36 @@ public class TCLEngine {
 						s.unread(r);
 						String name = TCLUtils.readVariableName(s, ctx);
 						if ( name.length() > 0 ) {
-							Parameter var = new LazyParameter(LazyParameter.Type.VARIABLE, name, ctx);
-
-							if ( currentp != null ) {
-								current.append(currentp.asString());
-								empty = false;
-								currentp = null;
-							}
-							if ( empty )
-								currentp = var;
-							else
-								current.append(var.asString());
+							current.append(ParameterAccumulator.Type.VARIABLE, name, ctx);
 						} else {
 							append = true;
 						}
-					} else if ( c == '#' && currentp == null && current.length() < 1 && out.size() < 1 ) {
+					} else if ( c == '#' && current.empty() && out.size() < 1 ) {
 						while ( c != '\n' ) {
 							r = s.read();
 							if ( r < 0 ) return null;
 							c = (char) r;
 						}
-						return new Parameter[0];
+						return new ParameterAccumulator[0];
 					} else {
 						append = true;
 					}
 				}
-				// if (currentp != null && !empty) {
-				// current.append(currentp.asString());
-				// currentp = null;
-				// empty = false;
-				// }
+
 				if ( append ) {
-					if ( currentp != null ) {
-						current.append(currentp.asString(ctx));
-						currentp = null;
-					}
-
-					current.append(c);
-
-					empty = false;
+					current.append("" + c);
 				}
 
 			}
 
-			if ( currentp != null && current.length() == 0 ) {
-				currentp.asString(ctx); // TODO: Remove this as it goes against
-										// everything we stand for.
-				out.add(currentp);
-			} else if ( !empty ) {
-				if ( currentp != null ) current.append(currentp.asString(ctx));
-				out.add(Parameter.from(current.toString()));
-			}
+			if ( !current.empty() ) out.add(current);
 
 		} catch (IOException e) {
 			throw new Error(e);
 		}
 
 		if ( at_end && out.size() < 1 ) return null;
-		return out.toArray(new Parameter[0]);
+		return out.toArray(new ParameterAccumulator[0]);
 	}
 
 	public Parameter getResult() {

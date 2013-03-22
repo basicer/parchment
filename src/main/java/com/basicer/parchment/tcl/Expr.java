@@ -12,6 +12,7 @@ import com.basicer.parchment.TCLEngine;
 import com.basicer.parchment.TCLUtils;
 import com.basicer.parchment.parameters.DoubleParameter;
 import com.basicer.parchment.parameters.IntegerParameter;
+import com.basicer.parchment.parameters.ParameterAccumulator;
 import com.basicer.parchment.parameters.Parameter;
 
 import java.io.PushbackReader;
@@ -30,13 +31,14 @@ public class Expr extends TCLCommand {
 		}
 	}
 	
+	
 	public static Parameter eval(String expr, Context ctx, TCLEngine e) {
 		
 		PushbackReader s = new PushbackReader(new StringReader(expr));
 		Queue<Parameter> tokens = new LinkedList<Parameter>();
-		for ( Parameter p : e.parseLine(s, ctx) ) {
+		for ( ParameterAccumulator p : e.parseLine(s, ctx) ) {
 			//Debug.trace("TKN " + p.asString());
-			tokens.add(p);
+			tokens.add(p.cheatyResolveOrFizzle());
 		}
 		return parse(tokens, tokens.poll(), 0);
 	}

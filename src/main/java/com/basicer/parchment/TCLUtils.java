@@ -271,4 +271,15 @@ public class TCLUtils {
 
 	}
 
+	public static String readCurlyBraceStringToString(PushbackReader s) {
+		StringBuilder b = new StringBuilder();
+		try {
+			readCurlyBraceString(s, b);
+		} catch (IOException e) {
+			return null;
+		}
+		return b.toString();
+
+	}
+	
 }

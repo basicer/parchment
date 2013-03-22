@@ -11,6 +11,7 @@ import com.basicer.parchment.TCLCommand;
 import com.basicer.parchment.TCLEngine;
 import com.basicer.parchment.TCLUtils;
 import com.basicer.parchment.parameters.DictionaryParameter;
+import com.basicer.parchment.parameters.ParameterAccumulator;
 import com.basicer.parchment.parameters.Parameter;
 
 public class Join extends TCLCommand {
@@ -22,9 +23,9 @@ public class Join extends TCLCommand {
 	public EvaluationResult extendedExecute(Context ctx, TCLEngine e) {
 		String name = null;
 		String what = ctx.get("what").asString();
-		Parameter[] tkns = TCLEngine.parseLine(new PushbackReader(new StringReader(what)), null, null);
-		for ( Parameter p : tkns ) {
-			ctx.sendDebugMessage(") " + p.asString());
+		ParameterAccumulator[] tkns = TCLEngine.parseLine(new PushbackReader(new StringReader(what)), null, null);
+		for ( ParameterAccumulator p : tkns ) {
+			ctx.sendDebugMessage(") " + p.cheatyResolveOrFizzle().asString());
 		}
 
 		return EvaluationResult.OK;
