@@ -29,6 +29,11 @@ public class TCLEngine {
 		sourcecode = src;
 		this.ctx = ctx;
 	}
+	
+	public TCLEngine(EvaluationResult er, Context ctx) {
+		result = er;
+		this.ctx = ctx;
+	}
 
 	ParameterAccumulator[] pargs = null;
 

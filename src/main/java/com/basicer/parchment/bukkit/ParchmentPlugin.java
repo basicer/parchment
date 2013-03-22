@@ -324,6 +324,10 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 				return;
 		}
 		EvaluationResult r = scmd.executeBinding(binding, ctx, null);
+		TCLEngine ngn = new TCLEngine(r, ctx);
+		while ( ngn.step() ) {} 
+		
+		
 		e.setCancelled(ctx.get("cancel").asBoolean());
 		Debug.trace("Result is " + r.getCode().toString() + " | " +  r.getValue().asString());
 		
