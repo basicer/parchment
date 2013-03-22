@@ -324,9 +324,6 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 				return;
 		}
 		EvaluationResult r = scmd.executeBinding(binding, ctx, null);
-		TCLEngine ngn = new TCLEngine(r, ctx);
-		while ( ngn.step() ) {} 
-		r = ngn.getEvaluationResult();
 		
 		e.setCancelled(ctx.get("cancel").asBoolean());
 		

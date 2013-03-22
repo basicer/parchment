@@ -108,7 +108,10 @@ public class ScriptedSpell extends Spell {
 	
 	@Override
 	public EvaluationResult executeBinding(String binding, final Context ctx, final TCLEngine engine) {
-		return executeBinding(binding, ctx, engine, new ArrayList<Parameter>());
+		EvaluationResult er = executeBinding(binding, ctx, engine, new ArrayList<Parameter>());
+		TCLEngine ngn = new TCLEngine(er, ctx);   //TODO: We cant use this, can we use engine we have?
+		while ( ngn.step() ) {}
+		return ngn.getEvaluationResult();
 	}
 	
 	public EvaluationResult executeBinding(String binding, final Context ctx, final TCLEngine engine,  ArrayList<Parameter> argz) {
@@ -148,6 +151,7 @@ public class ScriptedSpell extends Spell {
 				ctx2.putProc("super", new TCLCommand() {
 					@Override
 					public EvaluationResult extendedExecute(Context ctx, TCLEngine e) {
+						Debug.info("Wow you used super");
 						return new EvaluationResult(closure_s.applyAffectors(closure_s, ctx2));
 					}
 				});
