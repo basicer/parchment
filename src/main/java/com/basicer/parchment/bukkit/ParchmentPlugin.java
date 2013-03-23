@@ -81,7 +81,6 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 	public void onDisable() {
 		loader.cancel();
 		Bukkit.getMessenger().unregisterIncomingPluginChannel(this);
-		getLogger().info("Framework Disabled");
 
 	}
 
@@ -90,7 +89,6 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 		this.saveDefaultConfig();
 		PluginManager pm = this.getServer().getPluginManager();
 		pm.registerEvents(this, this);
-		getLogger().info("Framework Enabled");
 		spellfactory = new SpellFactory();
 		
 		try {
@@ -277,15 +275,11 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 
 				// e.getClickedBlock().breakNaturally(e.getPlayer().getItemInHand());
 
-				s = new ScriptedSpell("SomeBook", new PushbackReader(new StringReader(sb.toString())), spellfactory);
+				ScriptedSpell ss = new ScriptedSpell("SomeBook", new PushbackReader(new StringReader(sb.toString())), spellfactory);
 			
 
 				ctx.setSource("wand");
-	
-				Parameter[] ws = new Parameter[1];
-				ws[0] = Parameter.from("want");
-				Context ctx2 = s.bindContext(ws, ctx);
-				s.extendedExecute(ctx2, null);
+				ss.executeBinding("cast", ctx, null);
 				e.setCancelled(true);
 				return;
 			}

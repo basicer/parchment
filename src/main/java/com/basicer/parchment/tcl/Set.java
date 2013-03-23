@@ -13,6 +13,7 @@ import com.basicer.parchment.TCLEngine;
 import com.basicer.parchment.TCLUtils;
 import com.basicer.parchment.parameters.DictionaryParameter;
 import com.basicer.parchment.parameters.Parameter;
+import com.basicer.parchment.tclstrings.ErrorStrings;
 
 public class Set extends TCLCommand {
 
@@ -51,7 +52,7 @@ public class Set extends TCLCommand {
 				if ( value == null ) ctxu.unset(name); 
 				else ctxu.put(name, value);
 			} else {
-				if ( ctxu.getRespectingGlobals(name) == null ) throw new FizzleException("can't read \"" + name + "\": no such variable");
+				if ( ctxu.getRespectingGlobals(name) == null ) throw new FizzleException(String.format(ErrorStrings.CantReadVar, name));
 			}
 			
 			
@@ -64,9 +65,9 @@ public class Set extends TCLCommand {
 			p = new DictionaryParameter();
 			ctxu.put(name, p);
 		} else if ( p == null ){
-			throw new FizzleException("can't read \"" + name + "(" + index + ")\": no such variable");
+			throw new FizzleException(String.format(ErrorStrings.NoSuchVarArray, name, index));
 		} else if ( !p.isArray() ) {
-			throw new FizzleException("can't read \"" + name + "(" + index + ")\": variable isn't array");
+			throw new FizzleException(String.format(ErrorStrings.VarIsntArray, name, index));
 		}
 		
 		if ( write ) {

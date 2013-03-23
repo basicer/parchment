@@ -10,6 +10,7 @@ import com.basicer.parchment.FizzleException;
 import com.basicer.parchment.TCLCommand;
 import com.basicer.parchment.TCLEngine;
 import com.basicer.parchment.parameters.Parameter;
+import com.basicer.parchment.tclstrings.ErrorStrings;
 
 public class Format extends TCLCommand {
 
@@ -38,12 +39,12 @@ public class Format extends TCLCommand {
 			
 			if ( m.group(1) != null ) {
 				int want = Integer.parseInt(m.group(1));
-				if ( want < 1 )  throw new FizzleException("\"%n$\" argument index out of range");
-				if ( want > args.size() )  throw new FizzleException("\"%n$\" argument index out of range");
+				if ( want < 1 )  throw new FizzleException(ErrorStrings.FormatPositionOutOfRange);
+				if ( want > args.size() )  throw new FizzleException(ErrorStrings.FormatPositionOutOfRange);
 				i = want - 1;
 				manual = true;
 			} else if ( manual ) {
-				throw new FizzleException("cannot mix \"%\" and \"%n$\" conversion specifiers");
+				throw new FizzleException(ErrorStrings.FormatMixPositional);
 			}
 			
 			String padding = " ";
@@ -70,7 +71,7 @@ public class Format extends TCLCommand {
 			String swidth = m.group(3);
 			if ( swidth == null ) {}
 			else if ( swidth.equals("*") ) {
-				if ( (i+1) > args.size() ) throw new FizzleException("not enough arguments for all format specifiers");
+				if ( (i+1) > args.size() ) throw new FizzleException(ErrorStrings.FormatMissingArgs);
 				width = args.get(i++).asInteger();
 				if ( width == null ) throw new FizzleException("expected integer but got \"" + args.get(i-1).asString() + "\"");
 			} else {
@@ -103,7 +104,7 @@ public class Format extends TCLCommand {
 			boolean upper = false;
 			
 			String val = null;
-			if ( (i+1) > args.size() ) throw new FizzleException("not enough arguments for all format specifiers");
+			if ( (i+1) > args.size() ) throw new FizzleException(ErrorStrings.FormatMissingArgs);
 			Parameter valp = args.get(i++);
 			
 			switch ( formatc ) {

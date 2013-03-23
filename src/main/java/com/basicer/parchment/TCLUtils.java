@@ -9,6 +9,7 @@ import java.util.List;
 import com.basicer.parchment.EvaluationResult.Code;
 import com.basicer.parchment.parameters.Parameter;
 import com.basicer.parchment.tcl.Set;
+import com.basicer.parchment.tclstrings.ErrorStrings;
 
 public class TCLUtils {
 
@@ -18,7 +19,7 @@ public class TCLUtils {
 		boolean inEscape = false;
 		while (brackets > 0) {
 			int n = s.read();
-			if (n < 0) throw new FizzleException("missing close-brace");
+			if (n < 0) throw new FizzleException(ErrorStrings.BraceMismatch);
 			char c = (char) n;
 
 			if ((c == '\n' || c == '\r') && inEscape) {

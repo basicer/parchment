@@ -10,6 +10,7 @@ import com.basicer.parchment.EvaluationResult.BranchEvaluationResult;
 import com.basicer.parchment.EvaluationResult.Code;
 import com.basicer.parchment.parameters.ParameterAccumulator;
 import com.basicer.parchment.parameters.Parameter;
+import com.basicer.parchment.tclstrings.ErrorStrings;
 
 public class TCLEngine {
 
@@ -99,7 +100,7 @@ public class TCLEngine {
 			TCLCommand s = ctx.getCommand(name);
 			if ( s == null ) {
 				pargs = null;
-				result = EvaluationResult.makeError("No such command: " + name);
+				result = EvaluationResult.makeError(String.format(ErrorStrings.NoCommand, name));
 				return true;
 			}
 			try {
