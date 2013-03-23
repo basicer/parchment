@@ -2,6 +2,7 @@ package com.basicer.parchment.tcl;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Queue;
 
 import com.basicer.parchment.Context;
@@ -46,7 +47,9 @@ public abstract class OperationalTCLCommand extends TCLCommand {
 					Method m = c.getMethod("create", Context.class);
 					U ni = (U) m.invoke(command, ctx);
 					obj = ni;
+					
 					out = Parameter.from(obj);
+					target = (TT)Parameter.from(ni);
 					continue;
 				} catch (NoSuchMethodException e) {
 					throw new FizzleException("No such operation: " + op);
@@ -99,10 +102,17 @@ public abstract class OperationalTCLCommand extends TCLCommand {
 			if ( p.asString() != null && p.asString().startsWith("-") ) break;
 			
 			args.poll();
-			if ( method_types[i].equals(Parameter.class)) {
+			if ( method_types[i].getSimpleName().equals("List") ) { //TODO: Surely we can do better.
+				ArrayList<Parameter> array = new ArrayList<Parameter>();
+				array.add(p);
+				while ( args.size() > 0 ) array.add(args.poll());
+				method_args[i] = array;
+			} else if ( method_types[i].equals(Parameter.class)) {
 				method_args[i] = p;
 			} else {
-				method_args[i] = p.cast(method_types[i], ctx);
+				try { 
+					method_args[i] = p.cast(method_types[i], ctx);
+				} catch ( Exception ex ) { }
 				if ( method_args[i] == null ) throw new FizzleException(op + " expected " + method_types[i].getSimpleName() + ", got " + p.getClass().getSimpleName());
 			}
 		}

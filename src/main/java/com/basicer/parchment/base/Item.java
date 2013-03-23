@@ -7,6 +7,7 @@ import java.util.Map;
 
 import net.minecraft.server.NBTBase;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.LivingEntity;
@@ -237,6 +238,18 @@ public class Item extends OperationalSpell<ItemParameter>  {
 		if ( to == null ) to = ctx.getCaster().cast(PlayerParameter.class);
 		if ( to == null ) fizzle("You must pick someone to give the item to.");
 		to.asPlayer(ctx).getInventory().addItem(itm);
+		return Parameter.from(itm);
+	}
+	
+	public static Parameter offerOperation(ItemStack itm, Context ctx, PlayerParameter to) {
+		if ( to == null ) to = ctx.getCaster().cast(PlayerParameter.class);
+		if ( to == null ) fizzle("You must pick someone to give the item to.");
+		Player p = to.asPlayer(ctx);
+		Inventory i = Bukkit.createInventory(p, 9, "Offer");
+		i.addItem(itm);
+		p.openInventory(i);
+		
+		
 		return Parameter.from(itm);
 	}
 	

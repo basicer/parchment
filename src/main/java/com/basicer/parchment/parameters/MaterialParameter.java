@@ -47,7 +47,7 @@ public class MaterialParameter extends Parameter {
 		if ( name.equals("dpants") ) 	return new MaterialParameter(Material.DIAMOND_LEGGINGS);
 		if ( name.equals("dchest") ) 	return new MaterialParameter(Material.DIAMOND_CHESTPLATE);
 		if ( name.equals("dhelmet") ) 	return new MaterialParameter(Material.DIAMOND_HELMET);
-		if ( name.equals("dboots") ) 	return new MaterialParameter(Material.DIAMOND_HELMET);
+		if ( name.equals("dboots") ) 	return new MaterialParameter(Material.DIAMOND_BOOTS);
 
 		if ( name.equals("gsword") ) 	return new MaterialParameter(Material.GOLD_SWORD);
 		if ( name.equals("ghoe") ) 		return new MaterialParameter(Material.GOLD_HOE);

@@ -1,7 +1,13 @@
 package com.basicer.parchment.base;
 
 
+import java.util.List;
+
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 
 import com.basicer.parchment.Context;
 import com.basicer.parchment.OperationalSpell;
@@ -45,6 +51,24 @@ public class Player extends OperationalSpell<PlayerParameter> {
 		pent.getInventory().clear();
 		return Parameter.from(pent);
 	}
+	
+	public static Parameter offerOperation(org.bukkit.entity.Player pent, Context ctx, List<Parameter> args) {
+		if ( args == null ) fizzle("You must specify some things to offer.");
+		Inventory i = Bukkit.createInventory(pent, args.size() + 9 - (args.size() % 9), "Offer");
+		for ( Parameter p : args ) {
+			if ( p instanceof ItemParameter ) {
+				i.addItem(p.as(ItemStack.class));
+			} else {
+				MaterialParameter m = p.cast(MaterialParameter.class);
+				if ( m != null ) {
+					i.addItem(new ItemStack(m.asMaterial(ctx), 1));
+				}
+			}
+		}
+		pent.openInventory(i);
+		return Parameter.from(pent);
+	}
+	
 	
 	public static Parameter flightOperation(org.bukkit.entity.Player pent, Context ctx, StringParameter on) {
 		if ( on == null ) return Parameter.from(pent.getAllowFlight());
