@@ -414,12 +414,18 @@ public abstract class Parameter implements Iterable<Parameter> {
 		Integer i = asInteger();
 		
 		for ( T x : c.getEnumConstants() ) {
-			if ( str != null && x.name().equalsIgnoreCase(str)) return x;
+			if ( str != null && cleanStringForEnumComparison(x.name()).equalsIgnoreCase(cleanStringForEnumComparison(str))) return x;
 			if ( i != null && x.ordinal() == i) return x;
 		}
 		
 		return null;
-		
+	}
+	
+	private String cleanStringForEnumComparison(String in) {
+		in = in.replace(" ", "");
+		in = in.replace("_", "");
+		in = in.replace(".", "");
+		return in;
 	}
 
 	
