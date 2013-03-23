@@ -1,7 +1,7 @@
 ---
 name: Parchment
 main: com.basicer.parchment.bukkit.ParchmentPlugin
-version:  ${project.version} (build ${BUILD_NUMBER})
+version:  ${project.version}
 softdepend: [ProtocolLib, Spout]
 commands:
   parchment:
