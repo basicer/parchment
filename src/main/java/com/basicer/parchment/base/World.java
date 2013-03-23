@@ -1,7 +1,9 @@
 package com.basicer.parchment.base;
 
+import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.TreeType;
 import org.bukkit.entity.EntityType;
 
@@ -40,6 +42,24 @@ public class World extends OperationalSpell<WorldParameter> {
 		return where;
 	}
 
+	public static Parameter soundOperation(org.bukkit.World world, Context ctx, StringParameter type, LocationParameter where, DoubleParameter volume, DoubleParameter pitch) {
+		if ( where == null ) where = ctx.getCaster().cast(LocationParameter.class);
+		if ( volume == null ) volume = Parameter.from(1.0);
+		if ( pitch == null ) pitch = Parameter.from(1.0);
+		
+		//world.playEffect(where.asLocation(ctx), type.asEnum(Effect.class), 1);
+		world.playSound(where.asLocation(ctx), type.asEnum(Sound.class),volume.asDouble().floatValue(), pitch.asDouble().floatValue());
+		return type;
+	}
+
+	public static Parameter effectOperation(org.bukkit.World world, Context ctx, StringParameter type, LocationParameter where, IntegerParameter data, IntegerParameter radius) {
+		if ( where == null ) where = ctx.getCaster().cast(LocationParameter.class);
+		if ( data == null ) data = Parameter.from(1);
+		
+		if ( radius == null ) world.playEffect(where.asLocation(ctx), type.asEnum(Effect.class), data.asInteger().intValue());
+		else world.playEffect(where.asLocation(ctx), type.asEnum(Effect.class), data.asInteger().intValue(), radius.asInteger().intValue());
+		return type;
+	}
 
 
 	@Override
