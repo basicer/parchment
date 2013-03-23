@@ -38,4 +38,5 @@ public class DictionaryParameter extends Parameter {
 		return "[Dictionary: " + self.toString() + "]";
 	}
 	
+	public boolean isArray() { return true; }
 }

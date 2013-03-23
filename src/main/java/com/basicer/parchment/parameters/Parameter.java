@@ -148,6 +148,8 @@ public abstract class Parameter implements Iterable<Parameter> {
 		return null;
 	}
 	
+	public boolean isArray() { return false; }
+	
 	public Parameter index(int  n) {
 		return this;
 	}
@@ -173,6 +175,7 @@ public abstract class Parameter implements Iterable<Parameter> {
 			f.setAccessible(true);
 			return f.get(this);
 		} catch (NoSuchFieldException e) {
+			Debug.info("Cast failed on %s", this.getClass().getSimpleName());
 			throw new RuntimeException(e);
 		} catch (SecurityException e) {
 			throw new RuntimeException(e);
@@ -219,6 +222,7 @@ public abstract class Parameter implements Iterable<Parameter> {
 			return (T) con.newInstance(o);
 
 		} catch (Exception e) {
+			Debug.info("Cast failed on %s -> %s", this.getClass().getSimpleName(), type.getClass().getSimpleName());
 			throw new RuntimeException(e);
 		}
 	

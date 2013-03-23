@@ -106,7 +106,7 @@ public class ListParameter extends Parameter {
 		return self.get(n);
 	}
 	
-	
+	public boolean isArray() { return true; }
 
 
 }

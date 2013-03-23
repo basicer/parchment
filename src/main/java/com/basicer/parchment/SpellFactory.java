@@ -79,7 +79,7 @@ public class SpellFactory {
 		addBuiltinSpell(Entity.class);
 		addBuiltinSpell(Player.class);
 		addBuiltinSpell(Server.class);
-
+		addBuiltinSpell(World.class);
 	}
 	
 	public void addCustomSpell(String name, ScriptedSpell spell) {

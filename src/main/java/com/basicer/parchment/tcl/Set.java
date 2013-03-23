@@ -65,7 +65,7 @@ public class Set extends TCLCommand {
 			ctxu.put(name, p);
 		} else if ( p == null ){
 			throw new FizzleException("can't read \"" + name + "(" + index + ")\": no such variable");
-		} else if ( !(p instanceof DictionaryParameter) ) {
+		} else if ( !p.isArray() ) {
 			throw new FizzleException("can't read \"" + name + "(" + index + ")\": variable isn't array");
 		}
 		

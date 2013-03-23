@@ -29,11 +29,12 @@ public class StringParameter extends Parameter {
 	
 	
 	public Integer asInteger(Context ctx) {
+		
 		if ( self.startsWith("0o") ) {
-			return Integer.parseInt(self.substring(2), 8);
+			return Integer.valueOf(self.substring(2), 8);
 		}
 		if ( self.startsWith("0x") ) {
-			return Integer.parseInt(self.substring(2), 16);
+			return Integer.valueOf(self.substring(2), 16);
 		}
 		try {
 			return (int)(Double.parseDouble(self));

@@ -62,5 +62,5 @@ public class LocationParameter extends Parameter {
 		super.writeIndex(s, p);
 	}
 	
-	
+	public boolean isArray() { return true; }
 }

@@ -49,7 +49,12 @@ public class Player extends OperationalSpell<PlayerParameter> {
 	public static Parameter flightOperation(org.bukkit.entity.Player pent, Context ctx, StringParameter on) {
 		if ( on == null ) return Parameter.from(pent.getAllowFlight());
 		pent.setAllowFlight(on.asBoolean());
-		return Parameter.from(pent);
+		return Parameter.from(pent.getAllowFlight());
+	}
+	
+	public static Parameter flyspeedOperation(org.bukkit.entity.Player pent, Context ctx, DoubleParameter v) {
+		if ( v != null ) pent.setFlySpeed(v.asDouble().floatValue());
+		return Parameter.from(pent.getFlySpeed());
 	}
 	
 }

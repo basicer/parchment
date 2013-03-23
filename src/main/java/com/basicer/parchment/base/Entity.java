@@ -8,6 +8,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Creature;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
@@ -50,6 +51,7 @@ public class Entity extends OperationalSpell<EntityParameter>  {
 				return this.doaffect((EntityParameter)Parameter.from(e), ctx);
 			}
 		}
+		
 		fizzle("No entities fond there");
 		return null;
 	}
@@ -151,6 +153,16 @@ public class Entity extends OperationalSpell<EntityParameter>  {
 		return Parameter.from(ent.getLocation());
 	}
 	
+	public static Parameter targetOperation(org.bukkit.entity.Entity ent, Context ctx, EntityParameter target) {
+		if (!(ent instanceof Creature)) fizzle("Entity needs to be a Creature.");
+		Creature c = (Creature) ent;
+		if ( target != null ) {
+			LivingEntity le = target.asLivingEntity(ctx);
+			if ( le == null ) fizzle("Target entity must be a living entity.");
+			c.setTarget(le);
+		}
+		return Parameter.from(c.getTarget());
+	}
 
 	
 

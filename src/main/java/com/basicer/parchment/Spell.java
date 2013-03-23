@@ -21,7 +21,7 @@ import com.basicer.parchment.parameters.*;
 
 public abstract class Spell extends TCLCommand {
 	
-	public enum DefaultTargetType { None, Self, TargetBlock, TargetPlace };
+	public enum DefaultTargetType { None, Self, TargetBlock, TargetPlace, World };
 	public enum FirstParamaterTargetType { Never, ExactMatch, FuzzyMatch };
 	
 	
@@ -252,6 +252,9 @@ public abstract class Spell extends TCLCommand {
 				break;
 			case Self:
 				t = ctx.getCaster();
+				break;
+			case World:
+				t = Parameter.from(ctx.getWorld());
 				break;
 			case TargetBlock:
 				if ( casterp == null ) return null;
