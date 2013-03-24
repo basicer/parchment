@@ -99,6 +99,14 @@
 			<id>spout-repo</id>
 			<url>http://repo.spout.org</url>
 		</repository>
+		
+		<!-- Citizens.org -->
+		<repository>
+			<id>Citizens2</id>
+			<url>http://repo.citizensnpcs.com/</url>
+		</repository>
+		
+		
 	</repositories>
 
 	<dependencies>
@@ -138,6 +146,11 @@
 			<artifactId>metrics</artifactId>
 			<version>R6</version>
 			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>net.citizensnpcs</groupId>
+			<artifactId>citizensapi</artifactId>
+			<version>2.0.5</version>
 		</dependency>
 	</dependencies>
 </project>

@@ -52,6 +52,9 @@ public class TCLUnitTests extends TestCase {
 		List<String> out = new ArrayList<String>();
 		//out.add("error.tcl");  //Needs the try command those error globals.
 	
+		//out.add("append.tcl");
+		
+		//out.add("if-old.tcl");
 		out.add("format.tcl");
 		
 		out.add("parseOld.tcl");
