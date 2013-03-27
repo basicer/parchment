@@ -35,7 +35,7 @@ public class PlayerParameter extends LivingEntityParameter {
 	public Server asServer(Context ctx) { return self.getServer(); }
 	
 	public static PlayerParameter castFrom(StringParameter from, Context ctx) {
-		System.err.println("Attempting player cast " + from.asString() + " to " + ctx);
+		System.err.println("Attempting player cast " + from.asString() + " to Player");
 		if ( ctx == null ) return null;
 		Server s = ctx.getServer();
 		if ( s == null ) return null;

@@ -21,7 +21,8 @@ public class Block extends OperationalSpell<BlockParameter> {
  	}
 	
 	public Parameter affect(LocationParameter target, Context ctx) {
-		World w  = ctx.getWorld();
+		World w  = target.asLocation(ctx).getWorld();
+		if ( w == null ) w = ctx.getWorld();
 		if ( w == null ) fizzleTarget("No world to resolve location target");
 		org.bukkit.block.Block block = w.getBlockAt(target.as(Location.class));
 		if ( block == null ) fizzleTarget("Not an block.");

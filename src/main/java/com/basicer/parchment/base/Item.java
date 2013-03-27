@@ -173,10 +173,10 @@ public class Item extends OperationalSpell<ItemParameter>  {
 		}
 		
 		if ( loc == null ) fizzle("Couldnt convert " + where.asString() + " to location");
-		ctx.getWorld().dropItem(loc.asLocation(ctx), itm);
+		org.bukkit.entity.Entity ent = ctx.getWorld().dropItem(loc.asLocation(ctx), itm);
 		
 		
-		return loc;
+		return Parameter.from(ent);
 	}
 	
 	protected static Parameter makeEnchantResturnValue(ItemStack itm) {
