@@ -13,6 +13,8 @@ import java.io.PushbackReader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -46,9 +48,11 @@ import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.Prompt;
 import org.bukkit.craftbukkit.libs.jline.internal.Log.Level;
+import org.bukkit.event.Event;
 
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -77,11 +81,12 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 	SpellFactory	spellfactory;
 	BukkitRunnable  loader;
 	Metrics			metrics;
+	GlobalListener	listener;
 	
 	public void onDisable() {
 		loader.cancel();
 		Bukkit.getMessenger().unregisterIncomingPluginChannel(this);
-
+		
 	}
 
 	
@@ -90,6 +95,7 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 		PluginManager pm = this.getServer().getPluginManager();
 		pm.registerEvents(this, this);
 		spellfactory = new SpellFactory();
+		listener = new GlobalListener(this);
 		
 		try {
 			metrics = new Metrics(this);
@@ -170,7 +176,7 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 		loader.run();
 		loader.runTaskTimer(this, 100, 100);
 
-		
+		pm.registerEvents(listener, this);
 	}
 
 	private void writeWikiHelp() {
@@ -209,9 +215,13 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 	private Context createContext(Player p) {
 		Context ctx = new Context();
 		ctx.setSpellFactory(spellfactory);
-		ctx.setCaster(Parameter.from(p));
-		ctx.setWorld(Parameter.from(p.getWorld()));
-		ctx.setServer(Parameter.from(p.getServer()));
+		if ( p != null ) {
+			ctx.setCaster(Parameter.from(p));
+			ctx.setWorld(Parameter.from(p.getWorld()));
+			ctx.setServer(Parameter.from(p.getServer()));
+		} else {
+			ctx.setServer(Parameter.from(Bukkit.getServer()));
+		}
 		ctx.put("origin", Parameter.from("createContext"));
 		return ctx;
 	}
@@ -320,12 +330,72 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 		EvaluationResult r = scmd.executeBinding(binding, ctx, null);
 		
 		e.setCancelled(ctx.get("cancel").asBoolean());
-		
-		
-		
+
 
 	}
 
+
+	public void handleEvent(Event e) {
+		//Bukkit.getLogger().info(e.getEventName() + " : " + e.toString());
+		Enumeration<TCLCommand> enu = this.spellfactory.getAll().elements();
+		
+		String binding = e.getEventName();
+		if ( !binding.endsWith("Event") ) {
+			return;
+		}
+		
+		binding = binding.substring(0, binding.length() - 5).toLowerCase();
+		//Bukkit.getLogger().info("->" + binding);
+		 
+		while ( enu.hasMoreElements() ) {
+			TCLCommand cmd = enu.nextElement();
+			if ( !(cmd instanceof ScriptedSpell )) continue;
+			ScriptedSpell s = (ScriptedSpell) cmd;
+			if ( !s.canExecuteBinding("bukkit:" + binding) ) continue;
+			
+			Context ctx = createContext(null);
+			DictionaryParameter evt = new DictionaryParameter();
+			if ( e instanceof Cancellable ) {
+				Cancellable c = (Cancellable) e;
+				ctx.put("cancel", Parameter.from(((Cancellable) e).isCancelled()));
+			}
+			
+			Class<? extends Event> clazz = e.getClass();
+			for ( Method m : clazz.getDeclaredMethods() ) {
+				String name = m.getName();
+				if ( !name.startsWith("get") ) continue;
+				name = name.substring(3).toLowerCase();
+				if ( name.equals("handlers") ) continue;
+				if ( name.equals("handlerlist") ) continue;
+				try {
+					Object o = m.invoke(e);
+					System.out.println(name);
+					Parameter from = Parameter.from(o);
+					evt.writeIndex(name, from);
+				} catch (IllegalAccessException e1) {
+				} catch (IllegalArgumentException e1) {
+				} catch (InvocationTargetException e1) {
+				} catch (RuntimeException e1) {
+					e1.printStackTrace();
+				}
+			}
+			evt.writeIndex("name", Parameter.from(binding));
+			
+			ArrayList<Parameter> args = new ArrayList<Parameter>();
+			args.add(evt);
+
+			
+			EvaluationResult er = s.executeBinding("bukkit:" + binding, ctx, null, args);
+			System.out.println(" >>- " + er);
+			if ( e instanceof Cancellable ) {
+				Cancellable c = (Cancellable) e;
+				c.setCancelled(ctx.get("cancel").asBoolean());
+				System.out.println(" >- " + ctx.get("cancel").asBoolean());
+			}
+		}
+		
+	}
+	
 	@EventHandler
 	public void onPlayerItemHeld(PlayerItemHeldEvent e) {
 
