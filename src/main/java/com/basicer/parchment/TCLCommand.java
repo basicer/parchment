@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.basicer.parchment.parameters.Parameter;
 import com.basicer.parchment.parameters.StringParameter;
+import com.basicer.parchment.tclstrings.Documentation;
 
 
 public abstract class TCLCommand {
@@ -121,7 +122,12 @@ public abstract class TCLCommand {
 		return b.toString();
 	}
 	
-	public String getDescription() { return "To be written...."; }
+	public String getDescription() { 
+		String def = Documentation.getBody(getName());
+		if ( def != null ) return "[[http://www.tcl.tk/man/tcl8.6/TclCmd/contents.htm|From the TCL Documentation]]\n\n" + def;
+		return "To be written....";
+		
+	}
 
 	protected String getHelpHeader() {
 		StringBuilder b = new StringBuilder();
