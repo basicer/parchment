@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -175,9 +176,11 @@ public class Context {
 	}
 	
 	public void sendDebugMessage(String msg) {
-		Parameter p = getCaster();
-		if ( p != null ) {
-			p.as(Player.class).sendRawMessage(msg);
+		Parameter rp = getCaster();
+		if ( rp != null ) {
+			Player p = rp.as(Player.class);
+			if ( p == null ) Bukkit.getConsoleSender().sendRawMessage(msg);
+			else p.sendRawMessage(msg);
 		} else {
 			Debug.info("%s", msg);
 		}

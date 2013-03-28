@@ -108,16 +108,21 @@ public class ScriptedSpell extends Spell {
 	
 	@Override
 	public EvaluationResult executeBinding(String binding, final Context ctx, final TCLEngine engine) {
-		EvaluationResult er = executeBinding(binding, ctx, engine, new ArrayList<Parameter>());
-		TCLEngine ngn = new TCLEngine(er, ctx);   //TODO: We cant use this, can we use engine we have?
-		while ( ngn.step() ) {}
-		return ngn.getEvaluationResult();
+		return executeBinding(binding, ctx, engine, new ArrayList<Parameter>());
+	}
+	
+	public boolean canExecuteBinding(String binding) {
+		String name = triggers.get(binding);
+		return ( name != null );
+		
 	}
 	
 	public EvaluationResult executeBinding(String binding, final Context ctx, final TCLEngine engine,  ArrayList<Parameter> argz) {
 		
 		String name = triggers.get(binding);
 		Debug.trace("LeCasting : " + name + " for " + binding);
+		if ( name == null ) return null;
+		
 		final Spell closure_s = this;
 		
 		DefaultTargetType tt = getDefaultTargetType(ctx,ctx.getSource());
@@ -166,7 +171,10 @@ public class ScriptedSpell extends Spell {
 			*/
 			Debug.trace("Brokering SC proc " + ctx2.getDebuggingString());
 			
-			return proc.extendedExecute(ctx2, engine);
+			EvaluationResult er = proc.extendedExecute(ctx2, engine);
+			TCLEngine ngn = new TCLEngine(er, ctx);   //TODO: We cant use this, can we use engine we have?
+			while ( ngn.step() ) {}
+			return ngn.getEvaluationResult();
 			
 			
 		} else {
