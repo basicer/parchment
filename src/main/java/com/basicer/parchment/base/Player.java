@@ -4,6 +4,7 @@ package com.basicer.parchment.base;
 import java.util.List;
 
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
@@ -80,5 +81,48 @@ public class Player extends OperationalSpell<PlayerParameter> {
 		if ( v != null ) pent.setFlySpeed(v.asDouble().floatValue());
 		return Parameter.from(pent.getFlySpeed());
 	}
+	
+	public static Parameter texturpackOperation(org.bukkit.entity.Player pent, Context ctx, StringParameter v) {
+		if ( v != null ) pent.setTexturePack(v.asString(ctx));
+		else fizzle("texturepack requires a texture pack to set.");
+		return Parameter.EmptyString;
+	}
+	
+	public static Parameter listnameOperation(org.bukkit.entity.Player pent, Context ctx, StringParameter v) {
+		if ( v != null ) pent.setPlayerListName(v.asString());
+		return Parameter.from(pent.getPlayerListName());
+	}
+
+	
+	public static Parameter holdOperation(org.bukkit.entity.Player pent, Context ctx, Parameter set) {
+		if ( set != null ) {
+			if ( set instanceof ItemParameter) {
+				pent.setItemInHand(((ItemParameter) set).asItemStack(ctx));
+			} else {
+				MaterialParameter m = set.cast(MaterialParameter.class);
+				if ( m == null ) fizzle(set.asString() + " is not a valid arguement for hold");
+				pent.setItemInHand(new ItemStack(m.asMaterial(ctx), 1));
+			}
+		}
+		
+		return Parameter.from(pent.getItemInHand());
+	}
+	
+
+	public static Parameter gamemodeOperation(org.bukkit.entity.Player pent, Context ctx, Parameter set) {
+		if ( set != null ) {
+			GameMode m = set.asEnum(GameMode.class);
+			if ( m == null ) fizzle(set.asString() + " is not a valid arguement for hold");
+			pent.setGameMode(m);
+		}
+		
+		return Parameter.from(pent.getGameMode().name());
+	}
+	
+	public static Parameter closeinventoryOperation(org.bukkit.entity.Player pent, Context ctx) {
+		pent.closeInventory();
+		return Parameter.from(pent);
+	}
+	
 	
 }

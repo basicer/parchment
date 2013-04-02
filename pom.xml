@@ -4,7 +4,7 @@
 
 	<groupId>com.basicer</groupId>
 	<artifactId>parchment</artifactId>
-	<version>0.1.1-SNAPSHOT</version>
+	<version>0.1.2-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>parchment</name>
@@ -152,5 +152,10 @@
 			<artifactId>citizensapi</artifactId>
 			<version>2.0.5</version>
 		</dependency>
+		<dependency>
+      		<groupId>pgDev</groupId>
+      		<artifactId>disguisecraft</artifactId>
+      		<version>4.0</version>
+    	</dependency>
 	</dependencies>
 </project>
