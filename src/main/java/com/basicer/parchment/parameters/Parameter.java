@@ -100,6 +100,10 @@ public abstract class Parameter implements Iterable<Parameter> {
 	
 	public <T> T as(Class<T> type, Context ctx) {
 		Method nfo;
+		if ( type == int.class ) type = (Class<T>) Integer.class;
+		else if ( type == boolean.class ) type = (Class<T>) Boolean.class;
+		else if ( type == double.class ) type = (Class<T>) Double.class;
+		
 		try {
 			nfo = this.getClass().getMethod("as" + type.getSimpleName(), Context.class);
 		} catch ( NoSuchMethodException ex ) {

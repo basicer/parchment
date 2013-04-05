@@ -39,4 +39,8 @@ public class DictionaryParameter extends Parameter {
 	}
 	
 	public boolean isArray() { return true; }
+
+	public boolean hasIndex(String name) {
+		return self.containsKey(name);
+	}
 }

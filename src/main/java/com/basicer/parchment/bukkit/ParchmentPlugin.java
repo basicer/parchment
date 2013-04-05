@@ -361,7 +361,7 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 			}
 			
 			Class<? extends Event> clazz = e.getClass();
-			for ( Method m : clazz.getDeclaredMethods() ) {
+			for ( Method m : clazz.getMethods() ) {
 				String name = m.getName();
 				if ( !name.startsWith("get") ) continue;
 				name = name.substring(3).toLowerCase();
@@ -369,7 +369,6 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 				if ( name.equals("handlerlist") ) continue;
 				try {
 					Object o = m.invoke(e);
-					System.out.println(name);
 					Parameter from = Parameter.from(o);
 					evt.writeIndex(name, from);
 				} catch (IllegalAccessException e1) {
@@ -387,6 +386,33 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 			
 			EvaluationResult er = s.executeBinding("bukkit:" + binding, ctx, null, args);
 			System.out.println(" >>- " + er);
+			
+			
+			for ( Method m : clazz.getMethods() ) {
+				String name = m.getName();
+				if ( !name.startsWith("set") ) continue;
+				Debug.info("Write ? %s", name);
+				Class<?>[] types = m.getParameterTypes();
+				if ( types.length != 1 ) continue;
+				
+				name = name.substring(3).toLowerCase();
+				if ( !evt.hasIndex(name) ) continue;
+				try {
+					Debug.info("Write Cast -> %s [%s] %s", name, types[0].getName(), evt.index(name).asString());
+				
+					Object nv = evt.index(name).as(types[0]);
+					if ( nv == null ) continue;
+					Debug.info("Write -> %s %s", name, nv.toString());
+					m.invoke(e, nv);
+				} catch (IllegalAccessException e1) {
+				} catch (IllegalArgumentException e1) {
+				} catch (InvocationTargetException e1) {
+				} catch (RuntimeException e1) {
+					e1.printStackTrace();
+				}
+			}
+			
+			
 			if ( e instanceof Cancellable ) {
 				Cancellable c = (Cancellable) e;
 				c.setCancelled(ctx.get("cancel").asBoolean());
