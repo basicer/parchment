@@ -81,6 +81,9 @@ public class EvaluationResult {
 		}
 	}
 	
+	public String toString() {
+		return "[ER: " + code.toString() + " " + value.toString() + "]";
+	}
 }
 
 

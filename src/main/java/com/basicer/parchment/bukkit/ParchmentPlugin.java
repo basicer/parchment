@@ -101,6 +101,7 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 			metrics = new Metrics(this);
 			metrics.start();
 		} catch (IOException ex) {
+			ex.printStackTrace();
 		}
 
 		
@@ -144,6 +145,7 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 			long wrote = 0;
 			public void run() {
 				File scripts = FSUtils.findOrCreateDirectory(base, "spells");
+				Debug.trace("Scanning: " + scripts);
 				if (scripts == null) return;
 				long best = 0;
 				for (File s : scripts.listFiles()) {
@@ -370,12 +372,13 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 				try {
 					Object o = m.invoke(e);
 					Parameter from = Parameter.from(o);
+					Debug.trace("Wrote %s as %s", name, from.asString());
 					evt.writeIndex(name, from);
 				} catch (IllegalAccessException e1) {
 				} catch (IllegalArgumentException e1) {
 				} catch (InvocationTargetException e1) {
 				} catch (RuntimeException e1) {
-					e1.printStackTrace();
+					//e1.printStackTrace();
 				}
 			}
 			evt.writeIndex("name", Parameter.from(binding));
@@ -385,30 +388,30 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 
 			
 			EvaluationResult er = s.executeBinding("bukkit:" + binding, ctx, null, args);
-			System.out.println(" >>- " + er);
+			Debug.trace(" >>- " + er);
 			
 			
 			for ( Method m : clazz.getMethods() ) {
 				String name = m.getName();
 				if ( !name.startsWith("set") ) continue;
-				Debug.info("Write ? %s", name);
+				Debug.trace("Write ? %s", name);
 				Class<?>[] types = m.getParameterTypes();
 				if ( types.length != 1 ) continue;
 				
 				name = name.substring(3).toLowerCase();
 				if ( !evt.hasIndex(name) ) continue;
 				try {
-					Debug.info("Write Cast -> %s [%s] %s", name, types[0].getName(), evt.index(name).asString());
+					Debug.trace("Write Cast -> %s [%s] %s", name, types[0].getName(), evt.index(name).asString());
 				
 					Object nv = evt.index(name).as(types[0]);
 					if ( nv == null ) continue;
-					Debug.info("Write -> %s %s", name, nv.toString());
+					Debug.trace("Write -> %s %s", name, nv.toString());
 					m.invoke(e, nv);
 				} catch (IllegalAccessException e1) {
 				} catch (IllegalArgumentException e1) {
 				} catch (InvocationTargetException e1) {
 				} catch (RuntimeException e1) {
-					e1.printStackTrace();
+					//e1.printStackTrace();
 				}
 			}
 			
@@ -416,7 +419,7 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 			if ( e instanceof Cancellable ) {
 				Cancellable c = (Cancellable) e;
 				c.setCancelled(ctx.get("cancel").asBoolean());
-				System.out.println(" >- " + ctx.get("cancel").asBoolean());
+				Debug.trace(" >- " + ctx.get("cancel").asBoolean());
 			}
 		}
 		
