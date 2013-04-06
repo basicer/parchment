@@ -1,6 +1,7 @@
 package com.basicer.parchment.parameters;
 
 import org.bukkit.Server;
+import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -33,6 +34,7 @@ public class PlayerParameter extends LivingEntityParameter {
 	public ItemStack asItemStack(Context ctx) { return self.getItemInHand(); }
 	
 	public Server asServer(Context ctx) { return self.getServer(); }
+	public World asWorld(Context ctx) { return self.getWorld(); }
 	
 	public static PlayerParameter castFrom(StringParameter from, Context ctx) {
 		System.err.println("Attempting player cast " + from.asString() + " to Player");

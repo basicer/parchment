@@ -2,6 +2,7 @@ package com.basicer.parchment.parameters;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 
@@ -25,6 +26,10 @@ public class BlockParameter extends Parameter {
 	
 	public Location asLocation(Context ctx) {
 		return self.getLocation();
+	}
+	
+	public World asWorld(Context ctx) {
+		return self.getLocation().getWorld();
 	}
 	
 	public String asString(Context ctx) {

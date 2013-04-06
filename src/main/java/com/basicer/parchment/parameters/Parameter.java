@@ -296,6 +296,7 @@ public abstract class Parameter implements Iterable<Parameter> {
 	
 	public static Parameter from(Object o)
 	{
+		if ( o == null ) return null;
 		Class type = o.getClass();
 		if ( registeredTypes == null ) return null;
 		//Todo: Cache this and sort it.

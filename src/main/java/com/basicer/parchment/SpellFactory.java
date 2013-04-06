@@ -42,6 +42,7 @@ public class SpellFactory {
 		addBuiltinCommand(Error.class);
 		addBuiltinCommand(Type.class);
 		addBuiltinCommand(Incr.class);
+		addBuiltinCommand(Info.class);
 		addBuiltinCommand(Append.class);
 		addBuiltinCommand(Static.class);
 		addBuiltinCommand(Global.class);
