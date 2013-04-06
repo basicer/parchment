@@ -49,5 +49,15 @@ public class Server extends OperationalSpell<ServerParameter> {
 		server.reload();
 		return Parameter.EmptyString;
 	}
+
+	public static Parameter broadcastOperation(org.bukkit.Server server, Context ctx, StringParameter arg1) {
+		String str = arg1.asString(ctx).replace("%", "§");
+	
+		for ( org.bukkit.entity.Player p : server.getOnlinePlayers() ) {
+			p.sendRawMessage(str);
+		}
 		
+		return Parameter.EmptyString;
+		
+	}
 }

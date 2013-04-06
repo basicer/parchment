@@ -124,5 +124,11 @@ public class Player extends OperationalSpell<PlayerParameter> {
 		return Parameter.from(pent);
 	}
 	
+	public static Parameter feedOperation(org.bukkit.entity.Player pent, Context ctx) {
+		pent.setFoodLevel(20);
+		pent.setSaturation(10);
+		pent.setExhaustion(0.0f);
+		return Parameter.from(pent);
+	}
 	
 }
