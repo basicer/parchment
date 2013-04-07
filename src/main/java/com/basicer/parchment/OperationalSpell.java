@@ -36,17 +36,25 @@ public class OperationalSpell<T extends Parameter> extends Spell {
 		b.append("\n\n");
 		
 		for ( Method m : getClass().getDeclaredMethods() ) {
-			if ( m.getName().endsWith("Operation") ) {
-				String name = m.getName().substring(0, m.getName().length() - 9 );
+			if ( m.getName().endsWith("Operation") || m.getName().equals("create") ) {
+				String name = m.getName();
+				if ( name.endsWith("Operation") ) name = name.substring(0, m.getName().length() - 9 );
 				
 				
 				b.append("\n");
-				b.append("* " + getName() + " ");
+				b.append("* **" + getName() + "** ");
 				if ( this.getFirstParamaterTargetType(null) != FirstParamaterTargetType.Never ) b.append("target? ");
-				b.append(name);
+				b.append("**" + name + "**");
 				Class[] ptypes = m.getParameterTypes();
-				for ( int i = 2; i < ptypes.length; ++i ) {
-					b.append(" arg" + (i-2));
+				for ( int i = 1; i < ptypes.length; ++i ) {
+					if ( ptypes[i] == Context.class ) continue;
+					String tname = ptypes[i].getSimpleName();
+					if ( tname.endsWith("Parameter") && !tname.equals("Parameter") ) {
+						tname = tname.substring(0, tname.indexOf("Parameter")).toLowerCase();
+						b.append(" //" + tname + (i-1) + "//");
+					} else {
+						b.append(" //arg" + (i-1) + "//");
+					}
 				}
 				b.append("\n\n");
 			}
