@@ -22,6 +22,7 @@ import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.Callable;
 import java.util.logging.Logger;
 
 import com.basicer.parchment.Debug;
@@ -34,12 +35,14 @@ import com.basicer.parchment.TCLCommand;
 import com.basicer.parchment.TCLEngine;
 import com.basicer.parchment.TCLUtils;
 
+import com.basicer.parchment.EvaluationResult.Code;
 import com.basicer.parchment.craftbukkit.Book;
 import com.basicer.parchment.parameters.*;
 import com.basicer.parchment.spells.Heal;
 import com.basicer.parchment.spells.Spout;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -57,6 +60,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.ItemSpawnEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -238,7 +243,7 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 	
 	@EventHandler
 	public void onItemSpawn(ItemSpawnEvent e) {
-		Book.ensureSpellWritten(e.getEntity().getItemStack());
+		//Book.ensureSpellWritten(e.getEntity().getItemStack());
 	}
 
 
@@ -246,7 +251,7 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 	public void onPlayerInteract(PlayerInteractEvent e) {
 		Player p = e.getPlayer();
 		ItemStack holding = p.getItemInHand();
-		if ( holding != null ) Book.ensureSpellWritten(holding);
+		//if ( holding != null ) Book.ensureSpellWritten(holding);
 		TCLCommand s = null;
 		Context ctx = createContext(p);
 		
@@ -299,7 +304,7 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 		
 		// p.sendMessage("MATERIAL IS " + holding.getType().toString());
 		
-		String ss = Book.readSpell(holding);
+		String ss = BindingUtils.getBinding(holding);
 		if ( ss == null ) {
 			Debug.trace("Your blade is dull");
 			e.setCancelled(false);

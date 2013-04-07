@@ -20,6 +20,8 @@ import com.basicer.parchment.Context;
 import com.basicer.parchment.OperationalSpell;
 import com.basicer.parchment.Spell;
 import com.basicer.parchment.Spell.DefaultTargetType;
+import com.basicer.parchment.annotations.Operation;
+import com.basicer.parchment.bukkit.BindingUtils;
 import com.basicer.parchment.craftbukkit.Book;
 import com.basicer.parchment.parameters.DoubleParameter;
 import com.basicer.parchment.parameters.IntegerParameter;
@@ -48,29 +50,25 @@ public class Item extends OperationalSpell<ItemParameter>  {
 		return super.doaffect(target, ctx);
 	}
 	
-	public static ItemStack create(Context ctx) {
-		org.bukkit.inventory.ItemStack isc = new org.bukkit.inventory.ItemStack(0);
+	public static ItemStack create(Context ctx, MaterialParameter type) {
+		Material mtype = Material.AIR;
+		if ( type != null ) mtype = type.asMaterial(ctx);
+		org.bukkit.inventory.ItemStack isc = new org.bukkit.inventory.ItemStack(mtype);
 		return isc;
 		
 	}
 	
 	public static Parameter bindOperation(ItemStack itm, Context ctx, StringParameter bind) {
 
-		if ( bind != null ) {			
-			Book.setSpell(itm, bind.asString());
+		if ( bind != null ) {
+			BindingUtils.setBinding(itm, bind.asString(ctx));
 		}
-		String bound = Book.readSpell(itm);
+		String bound = BindingUtils.getBinding(itm);
 		return Parameter.from(bound == null ? "null" : bound);
 	}
 	
-	public static Parameter ammountOperation(ItemStack itm, Context ctx, IntegerParameter amnt) {
-		return amountOperation(itm, ctx, amnt);
-	}
-	
-	public static Parameter amtOperation(ItemStack itm, Context ctx, IntegerParameter amnt) {
-		return amountOperation(itm, ctx, amnt);
-	}
-		
+			
+	@Operation(aliases = {"ammount","amt"})
 	public static Parameter amountOperation(ItemStack itm, Context ctx, IntegerParameter amnt) {
 		if ( amnt != null ) {
 			itm.setAmount(amnt.asInteger());
@@ -78,6 +76,7 @@ public class Item extends OperationalSpell<ItemParameter>  {
 		return Parameter.from(itm.getAmount());
 	}
 	
+	@Operation(aliases = {"dmg","data","durability"})
 	public static Parameter damageOperation(ItemStack itm, Context ctx, IntegerParameter dmg) {
 		if ( dmg != null ) {
 			itm.setDurability((short)((int)dmg.asInteger()));
@@ -85,19 +84,7 @@ public class Item extends OperationalSpell<ItemParameter>  {
 		return Parameter.from(itm.getDurability());
 	}
 	
-	public static Parameter dmgOperation(ItemStack itm, Context ctx, IntegerParameter dmg) {
-		return damageOperation(itm, ctx, dmg);
-	}
-	
-	public static Parameter dataOperation(ItemStack itm, Context ctx, IntegerParameter dmg) {
-		return damageOperation(itm, ctx, dmg);
-	}
-	
-	public static Parameter durabilityOperation(ItemStack itm, Context ctx, IntegerParameter dmg) {
-		return damageOperation(itm, ctx, dmg);
-	}
-	
-	
+	@Operation(aliases = {"repair"})
 	public static Parameter fixOperation(ItemStack itm, Context ctx) {
 		itm.setDurability((short)0);
 		return Parameter.from(itm.getDurability());
@@ -124,10 +111,7 @@ public class Item extends OperationalSpell<ItemParameter>  {
 		
 	}
 	
-	public static Parameter repairOperation(ItemStack itm, Context ctx) {
-		return fixOperation(itm, ctx);
-	}
-	
+	@Operation(aliases = {"type"})
 	public static Parameter materialOperation(ItemStack itm, Context ctx, MaterialParameter mat) {
 		if ( mat != null ) {
 			itm.setType(mat.as(Material.class));
@@ -135,29 +119,25 @@ public class Item extends OperationalSpell<ItemParameter>  {
 		return Parameter.from(itm.getType());
 	}
 	
-	public static Parameter typeOperation(ItemStack itm, Context ctx, MaterialParameter mat) {
-		if ( mat != null ) {
-			itm.setType(mat.as(Material.class));
-		}
-		return Parameter.from(itm.getType());
-	}
-	
-	public static Parameter maxOperation(ItemStack itm, Context ctx) {
-		return moreOperation(itm, ctx);
-	}
-	
+
+	@Operation(aliases = {"max"})
 	public static Parameter moreOperation(ItemStack itm, Context ctx) {
 		itm.setAmount(itm.getMaxStackSize());
 		return Parameter.from(itm.getAmount());
 	}
 	
 	public static Parameter nameOperation(ItemStack itm, Context ctx, StringParameter name) {
+/*
 		ItemMeta m = itm.getItemMeta();
 		if ( name != null ) {
 			m.setDisplayName(name.asString());
 			itm.setItemMeta(m);
 		}
 		return Parameter.from(m.getDisplayName());
+*/
+		if ( name != null ) BindingUtils.setItemName(itm, name.asString(ctx));
+		return Parameter.from(BindingUtils.getItemName(itm));
+		
 	}
 	
 	public static Parameter dropOperation(ItemStack itm, Context ctx, Parameter where) {
@@ -408,7 +388,12 @@ public class Item extends OperationalSpell<ItemParameter>  {
 		if ( name.equals("SILKTOUCH") ) return Enchantment.SILK_TOUCH;
 		if ( name.equals("PUNCH") ) return Enchantment.ARROW_KNOCKBACK;
 		if ( name.equals("SHARPNESS") ) return Enchantment.DAMAGE_ALL;
+		if ( name.equals("FLAME") ) return Enchantment.ARROW_FIRE;
+		if ( name.equals("FIRE") ) return Enchantment.FIRE_ASPECT;
+		if ( name.equals("SMITE")) return Enchantment.DAMAGE_UNDEAD;
+		if ( name.equals("BANE")) return Enchantment.DAMAGE_ARTHROPODS;
 		
+		if ( name.equals("FAST")) return Enchantment.DIG_SPEED;
 		return null;
 	}
 	
