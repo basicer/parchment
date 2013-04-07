@@ -78,6 +78,7 @@ public class SpellFactory {
 		addBuiltinSpell(Shoot.class);
 		addBuiltinSpell(Explode.class);
 		addBuiltinSpell(Entity.class);
+		addBuiltinSpell(LEntity.class);
 		addBuiltinSpell(Player.class);
 		addBuiltinSpell(Server.class);
 		addBuiltinSpell(World.class);

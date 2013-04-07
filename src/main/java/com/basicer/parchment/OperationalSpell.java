@@ -11,7 +11,7 @@ import com.basicer.parchment.tcl.OperationalTCLCommand;
 
 public class OperationalSpell<T extends Parameter> extends Spell {
 	
-	public Class<? extends OperationalSpell<?>> getBaseClass() { return null; }
+	public static Class<? extends OperationalSpell<?>> getBaseClass() { return null; }
 	
 	@Override
 	public String[] getArguments() { return new String[] { "args" }; }

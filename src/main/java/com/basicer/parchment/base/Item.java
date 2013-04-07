@@ -262,11 +262,22 @@ public class Item extends OperationalSpell<ItemParameter>  {
 		return Parameter.from(io);
 	}
 	
-	public static Parameter equipOperation(ItemStack itm, Context ctx, PlayerParameter to) {
-		if ( to == null ) to = ctx.getCaster().cast(PlayerParameter.class);
+	public static Parameter equipOperation(ItemStack itm, Context ctx, Parameter to) {
+		if ( to == null ) to = ctx.getCaster().cast(LivingEntityParameter.class);
 		if ( to == null ) fizzle("You must pick someone to give the item to.");
 		
-		Player p = to.asPlayer(ctx);
+		
+		
+		LivingEntity p = null;
+		if ( to instanceof LivingEntityParameter ) {
+			p = ((LivingEntityParameter)to).asLivingEntity(ctx);
+		} else if ( to instanceof StringParameter ) {
+			Player plr = to.cast(PlayerParameter.class, ctx).asPlayer(ctx);
+			if ( plr == null ) fizzle("Equip must be a LivingEntity or player");
+			p = plr;
+		} else {
+			fizzle("Equip must be a LivingEntity or player");
+		}
 		
 		switch ( itm.getType() ) {
 			case DIAMOND_CHESTPLATE:
@@ -299,7 +310,8 @@ public class Item extends OperationalSpell<ItemParameter>  {
 				p.getEquipment().setLeggings(itm);
 				break;
 			default:
-				fizzle("Dont know how to equip " + itm.getType());
+				//fizzle("Dont know how to equip " + itm.getType());
+				p.getEquipment().setItemInHand(itm);
 		}
 		
 		return Parameter.from(itm);

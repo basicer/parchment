@@ -28,6 +28,7 @@ import com.basicer.parchment.parameters.DoubleParameter;
 import com.basicer.parchment.parameters.EntityParameter;
 import com.basicer.parchment.parameters.IntegerParameter;
 import com.basicer.parchment.parameters.ItemParameter;
+import com.basicer.parchment.parameters.LivingEntityParameter;
 import com.basicer.parchment.parameters.LocationParameter;
 import com.basicer.parchment.parameters.MaterialParameter;
 import com.basicer.parchment.parameters.Parameter;
@@ -40,6 +41,11 @@ public class Entity extends OperationalSpell<EntityParameter>  {
 	public Parameter affect(EntityParameter target, Context ctx) {
 		return this.doaffect(target, ctx);
 	}
+	
+	public Parameter affect(LivingEntityParameter target, Context ctx) {
+		return this.doaffect(target, ctx);
+	}
+	
 	
 	public Parameter affect(PlayerParameter target, Context ctx) {
 		return this.doaffect(target, ctx);

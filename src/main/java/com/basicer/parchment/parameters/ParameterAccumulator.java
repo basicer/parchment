@@ -117,7 +117,8 @@ public class ParameterAccumulator {
 					resolved = ngn.getEvaluationResult();
 					return;
 				}
-				progress.append(ngn.getResult().asString());
+				Parameter s = ngn.getResult();
+				progress.append(s == null ? "" : s.asString());
 				ngn = null;
 			}
 			return;

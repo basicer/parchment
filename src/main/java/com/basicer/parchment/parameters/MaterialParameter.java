@@ -29,7 +29,7 @@ public class MaterialParameter extends Parameter {
 		if ( m != null ) return new MaterialParameter(m);
 		
 
-		name = name.replace("shovel", "spade").replace("pants","leggings").replace("hat","helmet");
+		name = name.replace("shovel", "spade").replace("pants","leggings").replace("hat","helm").replace("helmet", "helm");
 		
 		m = org.bukkit.Material.matchMaterial(name);
 		if ( m != null ) return new MaterialParameter(m);
@@ -46,7 +46,7 @@ public class MaterialParameter extends Parameter {
 		if ( name.equals("dpick") ) 	return new MaterialParameter(Material.DIAMOND_PICKAXE);
 		if ( name.equals("dpants") ) 	return new MaterialParameter(Material.DIAMOND_LEGGINGS);
 		if ( name.equals("dchest") ) 	return new MaterialParameter(Material.DIAMOND_CHESTPLATE);
-		if ( name.equals("dhelmet") ) 	return new MaterialParameter(Material.DIAMOND_HELMET);
+		if ( name.equals("dhelm") ) 	return new MaterialParameter(Material.DIAMOND_HELMET);
 		if ( name.equals("dboots") ) 	return new MaterialParameter(Material.DIAMOND_BOOTS);
 
 		if ( name.equals("gsword") ) 	return new MaterialParameter(Material.GOLD_SWORD);
@@ -56,7 +56,7 @@ public class MaterialParameter extends Parameter {
 		if ( name.equals("gpick") ) 	return new MaterialParameter(Material.GOLD_PICKAXE);
 		if ( name.equals("gpants") ) 	return new MaterialParameter(Material.GOLD_LEGGINGS);
 		if ( name.equals("gchest") ) 	return new MaterialParameter(Material.GOLD_CHESTPLATE);
-		if ( name.equals("ghelmet") ) 	return new MaterialParameter(Material.GOLD_HELMET);
+		if ( name.equals("ghelm") ) 	return new MaterialParameter(Material.GOLD_HELMET);
 		if ( name.equals("gboots") ) 	return new MaterialParameter(Material.GOLD_BOOTS);
 		
 		
@@ -67,7 +67,7 @@ public class MaterialParameter extends Parameter {
 		if ( name.equals("ipick") ) 	return new MaterialParameter(Material.IRON_PICKAXE);
 		if ( name.equals("ipants") ) 	return new MaterialParameter(Material.IRON_LEGGINGS);
 		if ( name.equals("ichest") ) 	return new MaterialParameter(Material.IRON_CHESTPLATE);
-		if ( name.equals("ihelmet") ) 	return new MaterialParameter(Material.IRON_HELMET);
+		if ( name.equals("ihelm") ) 	return new MaterialParameter(Material.IRON_HELMET);
 		if ( name.equals("iboots") ) 	return new MaterialParameter(Material.IRON_BOOTS);
 		
 		

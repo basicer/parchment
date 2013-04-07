@@ -22,13 +22,9 @@ public class ScriptedSpell extends Spell {
 	public DefaultTargetType getDefaultTargetType(Context ctx, String source) {
 		Parameter p = this.spellStatic.get("defaultTargetType");
 		if ( p == null ) return super.getDefaultTargetType(ctx, source);
-		String s = p.asString();
-		if ( s == null ) return DefaultTargetType.None;
-		Debug.trace("I see you want: " + s);
-		if ( s.equals("self") ) return DefaultTargetType.Self;
-		if ( s.equals("block") ) return DefaultTargetType.TargetBlock;
-		if ( s.equals("place") ) return DefaultTargetType.TargetPlace;
-		return DefaultTargetType.None;
+		DefaultTargetType t = p.asEnum(DefaultTargetType.class);
+		Debug.trace("I see you want: " + t);
+		return t;
 	}
 
 

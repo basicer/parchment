@@ -11,10 +11,6 @@ import com.basicer.parchment.parameters.*;
 
 public class Server extends OperationalSpell<ServerParameter> {
 	
-	public Class<? extends OperationalSpell<?>> getBaseClass() { return null; }
-	
-	
-	
 	@Override
 	public FirstParamaterTargetType getFirstParamaterTargetType(Context ctx) {
 		return FirstParamaterTargetType.Never;

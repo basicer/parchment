@@ -38,8 +38,8 @@ public class World extends OperationalSpell<WorldParameter> {
 	}
 	
 	public static Parameter spawnOperation(org.bukkit.World world, Context ctx, StringParameter type, LocationParameter where) {
-		world.spawnEntity(where.asLocation(ctx), (EntityType)type.asEnum(EntityType.class));
-		return where;
+		org.bukkit.entity.Entity e = world.spawnEntity(where.asLocation(ctx), (EntityType)type.asEnum(EntityType.class));
+		return Parameter.from(e);
 	}
 
 	public static Parameter soundOperation(org.bukkit.World world, Context ctx, StringParameter type, LocationParameter where, DoubleParameter volume, DoubleParameter pitch) {

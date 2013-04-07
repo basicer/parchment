@@ -18,7 +18,7 @@ import com.basicer.parchment.parameters.*;
 
 public class Player extends OperationalSpell<PlayerParameter> {
 	
-	public Class<? extends OperationalSpell<?>> getBaseClass() { return Entity.class; }
+	public static Class<? extends OperationalSpell<?>> getBaseClass() { return LEntity.class; }
 	
 	
 	
@@ -93,20 +93,6 @@ public class Player extends OperationalSpell<PlayerParameter> {
 		return Parameter.from(pent.getPlayerListName());
 	}
 
-	
-	public static Parameter holdOperation(org.bukkit.entity.Player pent, Context ctx, Parameter set) {
-		if ( set != null ) {
-			if ( set instanceof ItemParameter) {
-				pent.setItemInHand(((ItemParameter) set).asItemStack(ctx));
-			} else {
-				MaterialParameter m = set.cast(MaterialParameter.class);
-				if ( m == null ) fizzle(set.asString() + " is not a valid arguement for hold");
-				pent.setItemInHand(new ItemStack(m.asMaterial(ctx), 1));
-			}
-		}
-		
-		return Parameter.from(pent.getItemInHand());
-	}
 	
 
 	public static Parameter gamemodeOperation(org.bukkit.entity.Player pent, Context ctx, Parameter set) {

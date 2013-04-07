@@ -68,11 +68,12 @@ public abstract class OperationalTCLCommand extends TCLCommand {
 			
 			
 			out = invokeMapped(command, op, args, ctx, obj);
-			
-			Object ov = out.getUnderlyingValue();
-			if ( type.isInstance(ov) ) {
-				Debug.trace("Obj now " + ov);
-				obj = (U)ov;
+			if ( out != null ) {
+				Object ov = out.getUnderlyingValue();
+				if ( type.isInstance(ov) ) {
+					Debug.trace("Obj now " + ov);
+					obj = (U)ov;
+				}
 			}
 			
 		}
@@ -84,12 +85,41 @@ public abstract class OperationalTCLCommand extends TCLCommand {
 
 	public static Parameter invokeMapped(TCLCommand command, String op, Queue<Parameter> args, Context ctx, Object obj  ) {
 		Class<?> c = command.getClass();
-		Method m = locateMethod(c, op);
+		//Method m = locateMethod(c, op);
 		//TODO: This only goes one level deep
+		//if ( command instanceof OperationalSpell<?> ) {
+		//	OperationalSpell<?> os = (OperationalSpell<?>) command;
+		//	if ( m == null && os.getBaseClass() != null ) m = locateMethod(os.getBaseClass(), op);
+		//}
+		
+		Class<?> tc = c;
+		Method m = locateMethod(tc, op);
 		if ( command instanceof OperationalSpell<?> ) {
-			OperationalSpell<?> os = (OperationalSpell<?>) command;
-			if ( m == null && os.getBaseClass() != null ) m = locateMethod(os.getBaseClass(), op);
+			while ( m == null ) {
+				try {
+					Method up = tc.getMethod("getBaseClass");
+					tc = (Class<?>)up.invoke(null);
+					if ( tc == null ) break;
+					m = locateMethod(tc, op);
+				} catch (NoSuchMethodException e) {
+					break;
+				} catch (SecurityException e) {
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalArgumentException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (InvocationTargetException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+			}
+			
 		}
+		
 		if ( m == null ) throw new FizzleException("No such operation on " + command.getName() + ": " + op);
 		
 		Class[] method_types = m.getParameterTypes();

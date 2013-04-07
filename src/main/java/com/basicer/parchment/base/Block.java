@@ -4,6 +4,8 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.TreeType;
 import org.bukkit.World;
+import org.bukkit.block.BlockFace;
+import org.bukkit.entity.FallingBlock;
 
 
 import com.basicer.parchment.Context;
@@ -68,6 +70,37 @@ public class Block extends OperationalSpell<BlockParameter> {
 		if ( type != null ) t = type.asEnum(TreeType.class);
 		
 		return Parameter.from(block.getWorld().generateTree(block.getLocation().add(0, 1.0, 0), t) ? 1 : 0);
+	}
+	
+	public static Parameter fallOperation(org.bukkit.block.Block block, Context ctx) {
+		
+		Material type = block.getType();
+		byte data = block.getData();
+		
+		block.setType(Material.AIR);
+		FallingBlock b = block.getWorld().spawnFallingBlock(block.getLocation(), type, data);
+		
+		return Parameter.from(b);
+	}
+	
+	
+	public static Parameter northOperation(org.bukkit.block.Block block, Context ctx) {
+		return Parameter.from(block.getRelative(BlockFace.NORTH));
+	}
+	public static Parameter southOperation(org.bukkit.block.Block block, Context ctx) {
+		return Parameter.from(block.getRelative(BlockFace.SOUTH));
+	}
+	public static Parameter eastOperation(org.bukkit.block.Block block, Context ctx) {
+		return Parameter.from(block.getRelative(BlockFace.EAST));
+	}
+	public static Parameter westOperation(org.bukkit.block.Block block, Context ctx) {
+		return Parameter.from(block.getRelative(BlockFace.WEST));
+	}
+	public static Parameter upOperation(org.bukkit.block.Block block, Context ctx) {
+		return Parameter.from(block.getRelative(BlockFace.UP));
+	}
+	public static Parameter downOperation(org.bukkit.block.Block block, Context ctx) {
+		return Parameter.from(block.getRelative(BlockFace.DOWN));
 	}
 	
 	@Override
