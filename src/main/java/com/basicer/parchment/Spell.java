@@ -11,6 +11,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
+import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 
@@ -254,7 +256,10 @@ public abstract class Spell extends TCLCommand {
 				t = ctx.getCaster();
 				break;
 			case World:
-				t = Parameter.from(ctx.getWorld());
+				World w = ctx.getWorld();
+				if ( w == null ) w = ctx.getCaster().as(World.class);
+				
+				if ( w != null ) t = Parameter.from(w);
 				break;
 			case TargetBlock:
 				if ( casterp == null ) return null;
@@ -273,8 +278,10 @@ public abstract class Spell extends TCLCommand {
 				sight = casterp.getLastTwoTargetBlocks(null, dist);
 				if ( sight.size() < 2 ) return null;
 				Block blk2 = sight.get(0);
-				if( blk2.isEmpty() ) return null;
-				return Parameter.from(blk2, sight.get(0).getFace(sight.get(1)));
+				return Parameter.from(sight.get(0));
+				
+				
+				
 		}
 		
 		
