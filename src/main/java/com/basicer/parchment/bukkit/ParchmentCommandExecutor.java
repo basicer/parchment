@@ -107,6 +107,8 @@ public class ParchmentCommandExecutor implements CommandExecutor {
 				b.append(qargs.poll());
 			}
 
+			//Todo: Show a prettyer error.
+			if ( b == null ) return false;
 			TCLEngine e = new TCLEngine(b.toString(), ctx);
 			while ( e.step() ) {}
 			if ( e.getCode() == Code.ERROR ) {
