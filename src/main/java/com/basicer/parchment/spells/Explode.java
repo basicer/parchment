@@ -3,6 +3,7 @@ package com.basicer.parchment.spells;
 import org.bukkit.Location;
 
 import com.basicer.parchment.Context;
+import com.basicer.parchment.Debug;
 import com.basicer.parchment.Spell;
 import com.basicer.parchment.Spell.DefaultTargetType;
 import com.basicer.parchment.Spell.FirstParamaterTargetType;
@@ -20,16 +21,23 @@ public class Explode extends Spell {
 	}
 
 	@Override
-	public String[] getArguments() { return new String[] { "power?" }; }
+	public String[] getArguments() { return new String[] { "-nobreak", "-nofire", "power?" }; }
 
 	public Parameter affect(Parameter location, Context ctx) {
 		Location l = location.as(Location.class);
 		
 		double power = 4;
+		boolean breakblock = true;
+		boolean fire = true;
 		Parameter powerp = ctx.get("power");
-		if ( powerp != null ) power = powerp.asDouble();
 		
-		l.getWorld().createExplosion(l, (float)power);
+		Debug.info(ctx.getDebuggingString() );
+		
+		if ( powerp != null ) power = powerp.asDouble();
+		if ( ctx.has("nobreak") && ctx.get("nobreak").asBoolean() ) breakblock = false;
+		if ( ctx.has("nofire") && ctx.get("nofire").asBoolean() ) fire = false;
+		
+		l.getWorld().createExplosion(l.getX(), l.getY(), l.getZ(), (float)power, fire, breakblock);
 		
 		
 		return null;

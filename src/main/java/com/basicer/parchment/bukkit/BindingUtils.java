@@ -4,9 +4,14 @@ import org.bukkit.Material;
 import org.bukkit.inventory.*;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import com.basicer.parchment.Debug;
+
 public class BindingUtils {
 	
 	public static String getItemName(ItemStack item) {
+		if ( item.getItemMeta() == null ) {
+			return null;
+		}
 		if ( !item.getItemMeta().hasDisplayName() ) return null;
 		String name = item.getItemMeta().getDisplayName();
 		if ( !name.endsWith("§]§r") ) return name;
@@ -16,9 +21,14 @@ public class BindingUtils {
 	}
 	
 	public static void setItemName(ItemStack item, String name) {
+		if ( name == null ) throw new IllegalArgumentException("Name is null");
 		String code = getBindingCode(item);
 		if ( code != null ) name += code;
 		ItemMeta m = item.getItemMeta();
+		if ( m == null ) {
+			Debug.info("Item %s has no meta?!", item.toString());
+			return;
+		}
 		m.setDisplayName(name);
 		item.setItemMeta(m);
 	}
@@ -61,7 +71,9 @@ public class BindingUtils {
 	}
 	
 	public static String getBindingCode(ItemStack item) {
-		String name = item.getItemMeta().getDisplayName();
+		ItemMeta meta = item.getItemMeta();
+		if ( meta == null ) return null;
+		String name = meta.getDisplayName();
 		if ( name == null ) return null;
 		if ( !name.endsWith("§]§r") ) return null;
 		int beginning = name.indexOf("§[");

@@ -73,6 +73,8 @@ import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.mcstats.Metrics;
+import org.mcstats.Metrics.Graph;
+import org.mcstats.Metrics.Plotter;
 import org.yaml.snakeyaml.reader.StreamReader;
 
 import com.comphenix.protocol.ProtocolLibrary;
@@ -104,6 +106,14 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 		
 		try {
 			metrics = new Metrics(this);
+			metrics.createGraph("Scripts").addPlotter(new Plotter("Scripts") {
+				@Override
+				public int getValue() {
+					Debug.info("You have %d Scripts", spellfactory.getScriptCommandCount());
+					return spellfactory.getScriptCommandCount();
+				}
+				
+			});
 			metrics.start();
 		} catch (IOException ex) {
 			ex.printStackTrace();

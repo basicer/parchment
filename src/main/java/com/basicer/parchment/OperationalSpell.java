@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import com.avaje.ebean.enhance.asm.Type;
+import com.basicer.parchment.annotations.Operation;
 import com.basicer.parchment.parameters.ItemParameter;
 import com.basicer.parchment.parameters.Parameter;
 import com.basicer.parchment.tcl.OperationalTCLCommand;
@@ -46,6 +47,7 @@ public class OperationalSpell<T extends Parameter> extends Spell {
 				if ( this.getFirstParamaterTargetType(null) != FirstParamaterTargetType.Never ) b.append("target? ");
 				b.append("**" + name + "**");
 				Class[] ptypes = m.getParameterTypes();
+				Operation annotation = m.getAnnotation(Operation.class);
 				for ( int i = 1; i < ptypes.length; ++i ) {
 					if ( ptypes[i] == Context.class ) continue;
 					String tname = ptypes[i].getSimpleName();
@@ -55,6 +57,17 @@ public class OperationalSpell<T extends Parameter> extends Spell {
 					} else {
 						b.append(" //arg" + (i-1) + "//");
 					}
+
+				}
+				if ( annotation != null ) {
+					String text = annotation.desc();
+					if ( text.length() > 0 ) {
+						b.append("\n   \\\\");
+						b.append(text);
+						b.append("\n");
+					}
+				} else {
+					b.append("\n   \\\\ Undocumented\n");
 				}
 				b.append("\n\n");
 			}

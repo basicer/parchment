@@ -10,6 +10,7 @@ import org.bukkit.entity.FallingBlock;
 
 import com.basicer.parchment.Context;
 import com.basicer.parchment.OperationalSpell;
+import com.basicer.parchment.annotations.Operation;
 import com.basicer.parchment.parameters.*;
 
 
@@ -32,10 +33,6 @@ public class Block extends OperationalSpell<BlockParameter> {
  	}
 	
 
-	public static Parameter typeOperation(org.bukkit.block.Block block, Context ctx, MaterialParameter type) {
-		return materialOperation(block, ctx, type);
-	}
-	
 	public static Parameter typeNoPhysicsOperation(org.bukkit.block.Block block, Context ctx, MaterialParameter type) {
 		if ( type != null ) {
 			block.setTypeId(type.as(Material.class).getId(), false);
@@ -43,6 +40,7 @@ public class Block extends OperationalSpell<BlockParameter> {
 		return Parameter.from(block.getType());
 	}
 	
+	@Operation(aliases = {"type"}, desc = "Change the type of target block to a new type.")
 	public static Parameter materialOperation(org.bukkit.block.Block block, Context ctx, MaterialParameter type) {
 		if ( type != null ) {
 			block.setType(type.asMaterial(ctx));
@@ -50,6 +48,7 @@ public class Block extends OperationalSpell<BlockParameter> {
 		return Parameter.from(block.getType());
 	}
 	
+	@Operation(desc = "Break target block as if broken by a player.")
 	public static Parameter breakOperation(org.bukkit.block.Block block, Context ctx) {
 		return Parameter.from(block.breakNaturally());
 	}
@@ -65,13 +64,15 @@ public class Block extends OperationalSpell<BlockParameter> {
 		return Parameter.from(block.getData());
 	}
 	
+	@Operation(desc = "Grow a tree of the given type on top of this block.  Returns 1 uppon success, 0 otherwise.")
 	public static Parameter growtreeOperation(org.bukkit.block.Block block, Context ctx, StringParameter type) {
 		TreeType t = TreeType.TREE;			
 		if ( type != null ) t = type.asEnum(TreeType.class);
-		
+		if ( t == null ) fizzle("No such tree type: " + type.asString());
 		return Parameter.from(block.getWorld().generateTree(block.getLocation().add(0, 1.0, 0), t) ? 1 : 0);
 	}
 	
+	@Operation(desc = "Change target block into a falling block.  Return the new entity.")
 	public static Parameter fallOperation(org.bukkit.block.Block block, Context ctx) {
 		
 		Material type = block.getType();
@@ -83,22 +84,32 @@ public class Block extends OperationalSpell<BlockParameter> {
 		return Parameter.from(b);
 	}
 	
-	
+	@Operation(desc = "Return the block north of this block.")
 	public static Parameter northOperation(org.bukkit.block.Block block, Context ctx) {
 		return Parameter.from(block.getRelative(BlockFace.NORTH));
 	}
+	
+	@Operation(desc = "Return the block south of this block.")
 	public static Parameter southOperation(org.bukkit.block.Block block, Context ctx) {
 		return Parameter.from(block.getRelative(BlockFace.SOUTH));
 	}
+	
+	@Operation(desc = "Return the block east of this block.")
 	public static Parameter eastOperation(org.bukkit.block.Block block, Context ctx) {
 		return Parameter.from(block.getRelative(BlockFace.EAST));
 	}
+	
+	@Operation(desc = "Return the block west of this block.")
 	public static Parameter westOperation(org.bukkit.block.Block block, Context ctx) {
 		return Parameter.from(block.getRelative(BlockFace.WEST));
 	}
+	
+	@Operation(desc = "Return the block above this block.")
 	public static Parameter upOperation(org.bukkit.block.Block block, Context ctx) {
 		return Parameter.from(block.getRelative(BlockFace.UP));
 	}
+	
+	@Operation(desc = "Return the block below this block.")
 	public static Parameter downOperation(org.bukkit.block.Block block, Context ctx) {
 		return Parameter.from(block.getRelative(BlockFace.DOWN));
 	}

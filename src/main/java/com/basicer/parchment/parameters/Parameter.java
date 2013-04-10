@@ -244,7 +244,7 @@ public abstract class Parameter implements Iterable<Parameter> {
 	public static DoubleParameter 	from(Double d)		{ return d == null ? null : new DoubleParameter(d); }
 	public static IntegerParameter 	from(int i) 		{ return new IntegerParameter(i); }
 	public static IntegerParameter 	from(Integer i)		{ return i == null ? null : new IntegerParameter(i); }
-	public static IntegerParameter 	from(boolean b)		{ return new IntegerParameter(b ? 1 : 0); }
+	public static BooleanParameter 	from(boolean b)		{ return new BooleanParameter(b); }
 	
 	
 /*

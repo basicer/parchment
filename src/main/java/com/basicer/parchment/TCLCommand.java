@@ -76,8 +76,8 @@ public abstract class TCLCommand {
 			if ( (params[ptr] instanceof StringParameter) ) {
 				String str  = params[ptr].asString(ctx);
 				if ( str.startsWith("-") && flags.contains(str) ) { //TODO: TCL might want us to check the spot 
-					ctx.put(str.substring(1), Parameter.from(true));
-					++ptr;
+					put.put(str.substring(1), Parameter.from(true));
+					++ptr; --i; continue;
 				}
 			}
 			if ( nfo.required || ( given > required ) ) {

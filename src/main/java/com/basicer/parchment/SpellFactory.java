@@ -18,6 +18,15 @@ public class SpellFactory {
 		return commands.get(name.toLowerCase());
 	}
 	
+	public int getScriptCommandCount() {
+		int count = 0;
+		Enumeration<TCLCommand> en = commands.elements();
+		while ( en.hasMoreElements() ) {
+			if ( en.nextElement() instanceof ScriptedSpell ) ++count;
+		}
+		return count;
+	}
+	
 	Dictionary<String, TCLCommand> commands;
 	public SpellFactory() {
 		commands = new Hashtable<String,TCLCommand>();

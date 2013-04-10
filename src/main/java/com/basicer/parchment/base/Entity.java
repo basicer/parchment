@@ -23,6 +23,7 @@ import com.basicer.parchment.Context;
 import com.basicer.parchment.OperationalSpell;
 import com.basicer.parchment.Spell;
 import com.basicer.parchment.Spell.DefaultTargetType;
+import com.basicer.parchment.annotations.Operation;
 import com.basicer.parchment.parameters.BlockParameter;
 import com.basicer.parchment.parameters.DoubleParameter;
 import com.basicer.parchment.parameters.EntityParameter;
@@ -66,12 +67,15 @@ public class Entity extends OperationalSpell<EntityParameter>  {
 		return affect(target.cast(LocationParameter.class), ctx);
 	}
 	
+	@Operation(desc = "Return target entity's name.")
 	public static Parameter nameOperation(org.bukkit.entity.Entity ent, Context ctx) {
 		String name = ent.getType().getName();
 		if ( name == null ) return null;
 		return Parameter.from(name);	
 	}
 	
+
+	@Operation(desc = "Set target entity's velocity to zero and reset fall distance.")
 	public static Parameter stillOperation(org.bukkit.entity.Entity ent, Context ctx) {
 		ent.setVelocity(new Vector(0,0,0));
 		ent.setFallDistance(0.0f);
@@ -99,17 +103,12 @@ public class Entity extends OperationalSpell<EntityParameter>  {
 	}
 	
 	
-	public static Parameter tpOperation(org.bukkit.entity.Entity ent, Context ctx, Parameter location) {
-		return teleportOperation(ent, ctx, location);
-	}
-	
-	
 	public static Parameter ignightOperation(org.bukkit.entity.Entity ent, Context ctx) {
 		ent.setFireTicks(10 * 15);
 		return Parameter.from(ent);
 	}
 	
-	
+	@Operation(aliases = {"tp"}, desc = "Teleport target entity's to given location.  Return the new loaction.")
 	public static Parameter teleportOperation(org.bukkit.entity.Entity ent, Context ctx, Parameter location) {
 		LivingEntity lent = null;
 		if ( ent instanceof LivingEntity ) lent = (LivingEntity) ent;
@@ -133,7 +132,9 @@ public class Entity extends OperationalSpell<EntityParameter>  {
 				
 				double distance = location.asDouble();
 				List<org.bukkit.block.Block> blocks = lent.getLastTwoTargetBlocks(null, (int)distance + 1);
-				org.bukkit.block.Block bloc = blocks.get(1);
+				org.bukkit.block.Block bloc = blocks.size() > 1 ? blocks.get(1) : blocks.get(0);
+				
+				//TODO: Backtrace this from the end point so we can go though things?
 				
 				bloc = bloc.getRelative(BlockFace.UP);
 				if ( !bloc.isEmpty() ) bloc = blocks.get(0);
@@ -170,7 +171,9 @@ public class Entity extends OperationalSpell<EntityParameter>  {
 		return Parameter.from(c.getTarget());
 	}
 
-	
+	public static Parameter ongroundOperation(org.bukkit.entity.Entity ent, Context ctx) {
+		return Parameter.from(ent.isOnGround() ? 1 : 0);
+	}
 
 
 	

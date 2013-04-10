@@ -11,6 +11,7 @@ import org.bukkit.entity.EntityType;
 import com.basicer.parchment.Context;
 import com.basicer.parchment.OperationalSpell;
 import com.basicer.parchment.Spell.FirstParamaterTargetType;
+import com.basicer.parchment.annotations.Operation;
 import com.basicer.parchment.parameters.*;
 
 
@@ -33,10 +34,11 @@ public class World extends OperationalSpell<WorldParameter> {
 	public static Parameter growtreeOperation(org.bukkit.World world, Context ctx, LocationParameter where, StringParameter type) {
 		TreeType t = TreeType.TREE;			
 		if ( type != null ) t = type.asEnum(TreeType.class);
-		
+		if ( t == null ) fizzle("No such tree type: " + type.asString());
 		return Parameter.from(world.generateTree(where.asLocation(ctx), t) ? 1 : 0);
 	}
 	
+	@Operation(desc = "Spawn an enitity of the given type at some location.  Returns the entity.")
 	public static Parameter spawnOperation(org.bukkit.World world, Context ctx, StringParameter type, LocationParameter where) {
 		org.bukkit.entity.Entity e = world.spawnEntity(where.asLocation(ctx), (EntityType)type.asEnum(EntityType.class));
 		return Parameter.from(e);
@@ -61,6 +63,10 @@ public class World extends OperationalSpell<WorldParameter> {
 		return type;
 	}
 
+	public static Parameter pvpOperation(org.bukkit.World world, Context ctx, BooleanParameter type) {
+		if ( type != null ) world.setPVP(type.asBoolean());
+		return Parameter.from(world.getPVP());
+	}
 
 	@Override
 	public DefaultTargetType getDefaultTargetType(Context ctx, String source) {
