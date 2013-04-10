@@ -1,6 +1,7 @@
 package com.basicer.parchment.base;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Bukkit;
@@ -9,11 +10,13 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.permissions.PermissionAttachmentInfo;
 
 import com.basicer.parchment.Context;
 import com.basicer.parchment.OperationalSpell;
 import com.basicer.parchment.Spell.FirstParamaterTargetType;
 
+import com.basicer.parchment.annotations.Operation;
 import com.basicer.parchment.parameters.*;
 
 public class Player extends OperationalSpell<PlayerParameter> {
@@ -71,7 +74,8 @@ public class Player extends OperationalSpell<PlayerParameter> {
 	}
 	
 	
-	public static Parameter flightOperation(org.bukkit.entity.Player pent, Context ctx, StringParameter on) {
+	@Operation(aliases = {"fly"})
+	public static Parameter flightOperation(org.bukkit.entity.Player pent, Context ctx, BooleanParameter on) {
 		if ( on == null ) return Parameter.from(pent.getAllowFlight());
 		pent.setAllowFlight(on.asBoolean());
 		return Parameter.from(pent.getAllowFlight());
@@ -94,6 +98,24 @@ public class Player extends OperationalSpell<PlayerParameter> {
 	}
 
 	
+	
+	public static Parameter opOperation(org.bukkit.entity.Player pent, Context ctx, BooleanParameter v) {
+		if ( v != null ) pent.setOp(v.asBoolean(ctx));
+		return Parameter.from(pent.isOp() ? 1 : 0);
+	}
+	
+	public static Parameter haspermissionOperation(org.bukkit.entity.Player pent, Context ctx, StringParameter v) {
+		if ( v == null ) fizzle("What permission where you lookin for ?");
+		return Parameter.from(pent.hasPermission(v.asString(ctx)));
+	}
+	
+	public static Parameter permissionsOperation(org.bukkit.entity.Player pent, Context ctx) {
+		ArrayList<Parameter> list = new ArrayList<Parameter>();
+		for ( PermissionAttachmentInfo i : pent.getEffectivePermissions() ) {
+			list.add(Parameter.from(i.getPermission()));
+		}
+		return ListParameter.from(list);
+	}
 
 	public static Parameter gamemodeOperation(org.bukkit.entity.Player pent, Context ctx, Parameter set) {
 		if ( set != null ) {
@@ -110,6 +132,7 @@ public class Player extends OperationalSpell<PlayerParameter> {
 		return Parameter.from(pent);
 	}
 	
+	@Operation(desc = "Restore target player's hunger, saturation, and exaustion.")
 	public static Parameter feedOperation(org.bukkit.entity.Player pent, Context ctx) {
 		pent.setFoodLevel(20);
 		pent.setSaturation(10);
