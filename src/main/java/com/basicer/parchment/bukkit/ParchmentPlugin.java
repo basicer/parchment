@@ -109,7 +109,7 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 			metrics.createGraph("Scripts").addPlotter(new Plotter("Scripts") {
 				@Override
 				public int getValue() {
-					Debug.info("You have %d Scripts", spellfactory.getScriptCommandCount());
+					Debug.trace("You have %d Scripts", spellfactory.getScriptCommandCount());
 					return spellfactory.getScriptCommandCount();
 				}
 				

@@ -98,7 +98,7 @@ public class ParchmentCommandExecutor implements CommandExecutor {
 
 
 		if (action.equals("cast") || action.equals("c")) {
-			sender.sendMessage(ChatColor.LIGHT_PURPLE.toString() + "Warning: /cast is depricated.  Use /tcl instead!");
+			sender.sendMessage(ChatColor.LIGHT_PURPLE.toString() + "Warning: /cast is depricated, and will likely change function.  Use /tcl instead!");
 			action = "tcl";
 		}
 			
