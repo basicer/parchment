@@ -1,5 +1,6 @@
 package com.basicer.parchment.parameters;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
@@ -38,8 +39,7 @@ public class PlayerParameter extends LivingEntityParameter {
 	
 	public static PlayerParameter castFrom(StringParameter from, Context ctx) {
 		System.err.println("Attempting player cast " + from.asString() + " to Player");
-		if ( ctx == null ) return null;
-		Server s = ctx.getServer();
+		Server s = Bukkit.getServer();
 		if ( s == null ) return null;
 		System.out.println("Server s looks for " + from.asString());
 		Player p = s.getPlayer(from.asString());

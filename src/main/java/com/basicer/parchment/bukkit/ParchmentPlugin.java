@@ -139,6 +139,7 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 		
 		CommandExecutor x = new ParchmentCommandExecutor(this);
 		getCommand("cast").setExecutor(x);
+		getCommand("tcl").setExecutor(x);
 		getCommand("parchment").setExecutor(x);
 		getCommand("scriptmode").setExecutor(x);
 
@@ -235,9 +236,6 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 		if ( p != null ) {
 			ctx.setCaster(Parameter.from(p));
 			ctx.setWorld(Parameter.from(p.getWorld()));
-			ctx.setServer(Parameter.from(p.getServer()));
-		} else {
-			ctx.setServer(Parameter.from(Bukkit.getServer()));
 		}
 		ctx.put("origin", Parameter.from("createContext"));
 		return ctx;

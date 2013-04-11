@@ -12,6 +12,10 @@ commands:
     aliases: [c]
     description: Shortcut for /parchment cast
     usage: §f[§eP§rarchment§f]§r Command Failed.
+  tcl:
+    aliases: [t]
+    description: Shortcut for /parchment tcl
+    usage: §f[§eP§rarchment§f]§r Command Failed.
   scriptmode:
     description: Enter script mode.
     usage: §f[§eP§rarchment§f]§r Command Failed.

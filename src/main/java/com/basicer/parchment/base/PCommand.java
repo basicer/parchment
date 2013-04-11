@@ -1,5 +1,6 @@
 package com.basicer.parchment.base;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -20,7 +21,7 @@ public class PCommand extends TCLCommand {
 
 		Parameter cmd = ctx.get("command");
 		CommandSender sender = ctx.getCaster().as(Player.class,ctx); 
-		Server s = ctx.getServer();
+		Server s = Bukkit.getServer();
 		
 		boolean okay = s.dispatchCommand(sender, cmd.asString());
 		

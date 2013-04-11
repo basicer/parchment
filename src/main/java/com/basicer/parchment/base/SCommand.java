@@ -21,7 +21,7 @@ public class SCommand extends TCLCommand {
 		Parameter cmd = ctx.get("command");
 		CommandSender sender = ctx.getCaster().as(Player.class);
 		if ( sender == null ) sender = Bukkit.getConsoleSender();
-		Server s = ctx.getServer();
+		Server s = Bukkit.getServer();
 		
 		//boolean okay = s.dispatchCommand(sender, cmd.asString());
 		boolean okay = s.dispatchCommand(sender, cmd.asString());

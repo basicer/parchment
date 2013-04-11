@@ -246,7 +246,10 @@ public abstract class Spell extends TCLCommand {
 	protected Parameter resolveTarget(Context ctx) {
 		Parameter t = ctx.getTarget();
 		if ( t != null ) return t;
-		LivingEntity casterp = ctx.getCaster().as(LivingEntity.class);
+		Parameter caster = ctx.getCaster();
+		LivingEntity casterp = null;
+		if ( caster != null ) caster.as(LivingEntity.class);
+		
 		List<Block> sight = null;
 		int dist = 250;
 		switch ( this.getDefaultTargetType(ctx, ctx.getSource()) ) {

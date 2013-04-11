@@ -54,7 +54,6 @@ public class Context {
 		if ( var.equals("target") ) return getTarget();
 		if ( var.equals("caster") ) return getCaster();
 		if ( var.equals("world") ) return Parameter.from(getWorld());
-		if ( var.equals("server") ) return Parameter.from(getServer());
 		if ( var.equals("source") ) return Parameter.from(getSource());
 		if ( var.equals("this") ) return getThis();
 		
@@ -154,17 +153,7 @@ public class Context {
 	public void setWorld(Parameter target) {
 		put("world", target);
 	}
-	
-	public Server getServer() {
-		Parameter s = resolve("server");
-		if ( s == null ) return null;
-		return s.as(Server.class);
-	}
 
-	public void setServer(Parameter target) {
-		put("server", target);
-	}
-	
 	public ArrayList<Parameter> getArgs() {
 		Parameter lg = get("args");
 		if ( lg == null ) return new ArrayList<Parameter>();

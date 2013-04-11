@@ -20,6 +20,7 @@ import org.bukkit.conversations.Prompt;
 import org.bukkit.entity.Player;
 
 import com.basicer.parchment.Context;
+import com.basicer.parchment.Debug;
 import com.basicer.parchment.TCLEngine;
 import com.basicer.parchment.TCLUtils;
 import com.basicer.parchment.EvaluationResult.Code;
@@ -44,15 +45,14 @@ public class ParchmentCommandExecutor implements CommandExecutor {
 		String action = label;
 
 		final Context ctx = commandctx.createSubContext();
+		ctx.setSpellFactory(plugin.getSpellFactory());
 		if (sender instanceof Player) {
 			Player p = (Player) sender;
-			ctx.setSpellFactory(plugin.getSpellFactory());
 			ctx.setCaster(Parameter.from(p));
 			ctx.setWorld(Parameter.from(p.getWorld()));
-			ctx.setServer(Parameter.from(p.getServer()));
 			ctx.setSource("command");
 		} else {
-			return false;
+			
 		}
 		
 		if ( label.equals("scriptmode") ) {
@@ -98,6 +98,11 @@ public class ParchmentCommandExecutor implements CommandExecutor {
 
 
 		if (action.equals("cast") || action.equals("c")) {
+			sender.sendMessage(ChatColor.LIGHT_PURPLE.toString() + "Warning: /cast is depricated.  Use /tcl instead!");
+			action = "tcl";
+		}
+			
+		if (action.equals("tcl") || action.equals("t")) {
 			StringBuilder b = null;
 			while (!qargs.isEmpty()) {
 				if (b == null)
