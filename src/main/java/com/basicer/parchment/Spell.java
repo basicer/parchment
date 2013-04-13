@@ -248,7 +248,7 @@ public abstract class Spell extends TCLCommand {
 		if ( t != null ) return t;
 		Parameter caster = ctx.getCaster();
 		LivingEntity casterp = null;
-		if ( caster != null ) caster.as(LivingEntity.class);
+		if ( caster != null ) casterp = caster.as(LivingEntity.class);
 		
 		List<Block> sight = null;
 		int dist = 250;
