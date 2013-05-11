@@ -26,6 +26,7 @@ public class Set extends TCLCommand {
 		String name = null;
 		String index = null;
 		StringBuilder varb = new StringBuilder();
+		
 
 		try { 
 			TCLUtils.readVariableInHand(s, varb);
@@ -46,7 +47,7 @@ public class Set extends TCLCommand {
 		}
 		
 		Debug.trace("|%s| %s to %s (%s) = %s", varName, write ? "Write" : "read",  name, index, value); 
-		
+		if ( value != null ) value = value.cloneIfMutable();
 		if ( index == null ) {
 			if ( write ) {
 				if ( value == null ) ctxu.unset(name); 

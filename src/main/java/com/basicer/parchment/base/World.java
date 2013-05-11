@@ -1,8 +1,6 @@
 package com.basicer.parchment.base;
 
 import org.bukkit.Effect;
-import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.TreeType;
 import org.bukkit.entity.EntityType;
@@ -10,7 +8,6 @@ import org.bukkit.entity.EntityType;
 
 import com.basicer.parchment.Context;
 import com.basicer.parchment.OperationalSpell;
-import com.basicer.parchment.Spell.FirstParamaterTargetType;
 import com.basicer.parchment.annotations.Operation;
 import com.basicer.parchment.parameters.*;
 
@@ -18,8 +15,8 @@ import com.basicer.parchment.parameters.*;
 public class World extends OperationalSpell<WorldParameter> {
 
 	@Override
-	public FirstParamaterTargetType getFirstParamaterTargetType(Context ctx) {
-		return FirstParamaterTargetType.ExactMatch;
+	public FirstParameterTargetType getFirstParameterTargetType(Context ctx) {
+		return FirstParameterTargetType.ExactMatch;
 	}
 
 	

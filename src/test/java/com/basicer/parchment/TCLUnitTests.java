@@ -1,16 +1,12 @@
 package com.basicer.parchment;
 
-import java.io.BufferedReader;
-import java.io.Console;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.InputStreamReader;
 import java.io.PushbackReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.basicer.parchment.EvaluationResult.Code;
 import com.basicer.parchment.parameters.DictionaryParameter;
 import com.basicer.parchment.parameters.Parameter;
 import com.basicer.parchment.test.Test;
@@ -96,7 +92,7 @@ public class TCLUnitTests extends TestCase {
 				commandctx.setSpellFactory(spellfactory);
 
 				TCLEngine x = new TCLEngine(pbr, commandctx);
-				x.resiliant = true;
+				x.resilient = true;
 				while (x.step()) {
 				}
 				//if ( x.getCode() == Code.ERROR ) throw new RuntimeException(filename + " : " + x.getResult());

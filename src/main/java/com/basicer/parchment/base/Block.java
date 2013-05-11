@@ -115,8 +115,8 @@ public class Block extends OperationalSpell<BlockParameter> {
 	}
 	
 	@Override
-	public FirstParamaterTargetType getFirstParamaterTargetType(Context ctx) {
-		return FirstParamaterTargetType.FuzzyMatch;
+	public FirstParameterTargetType getFirstParameterTargetType(Context ctx) {
+		return FirstParameterTargetType.FuzzyMatch;
 	}
 	
 	

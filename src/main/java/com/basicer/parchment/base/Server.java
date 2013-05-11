@@ -1,11 +1,8 @@
 package com.basicer.parchment.base;
 
 
-import org.bukkit.Location;
-
 import com.basicer.parchment.Context;
 import com.basicer.parchment.OperationalSpell;
-import com.basicer.parchment.Spell.FirstParamaterTargetType;
 
 import com.basicer.parchment.annotations.Operation;
 import com.basicer.parchment.parameters.*;
@@ -13,8 +10,8 @@ import com.basicer.parchment.parameters.*;
 public class Server extends OperationalSpell<ServerParameter> {
 	
 	@Override
-	public FirstParamaterTargetType getFirstParamaterTargetType(Context ctx) {
-		return FirstParamaterTargetType.Never;
+	public FirstParameterTargetType getFirstParameterTargetType(Context ctx) {
+		return FirstParameterTargetType.Never;
 	}
 
 

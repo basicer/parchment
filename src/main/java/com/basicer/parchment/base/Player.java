@@ -7,14 +7,12 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 
 import com.basicer.parchment.Context;
 import com.basicer.parchment.OperationalSpell;
-import com.basicer.parchment.Spell.FirstParamaterTargetType;
 
 import com.basicer.parchment.annotations.Operation;
 import com.basicer.parchment.parameters.*;
@@ -26,8 +24,8 @@ public class Player extends OperationalSpell<PlayerParameter> {
 	
 	
 	@Override
-	public FirstParamaterTargetType getFirstParamaterTargetType(Context ctx) {
-		return FirstParamaterTargetType.FuzzyMatch;
+	public FirstParameterTargetType getFirstParameterTargetType(Context ctx) {
+		return FirstParameterTargetType.FuzzyMatch;
 	}
 
 
@@ -54,6 +52,17 @@ public class Player extends OperationalSpell<PlayerParameter> {
 	public static Parameter clearOperation(org.bukkit.entity.Player pent, Context ctx) {
 		pent.getInventory().clear();
 		return Parameter.from(pent);
+	}
+	
+	public static Parameter inventorylistOperation(org.bukkit.entity.Player pent, Context ctx) {
+		Inventory inv = pent.getInventory();
+		ArrayList<Parameter> out = new ArrayList<Parameter>();
+		for ( ItemStack i : inv.getContents() ) {
+			out.add(Parameter.from(i));
+		}
+		
+		return ListParameter.from(out);
+		
 	}
 	
 	public static Parameter offerOperation(org.bukkit.entity.Player pent, Context ctx, List<Parameter> args) {

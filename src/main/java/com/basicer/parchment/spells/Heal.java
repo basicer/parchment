@@ -4,16 +4,13 @@ import org.bukkit.entity.LivingEntity;
 
 import com.basicer.parchment.Spell;
 import com.basicer.parchment.Context;
-import com.basicer.parchment.Spell.DefaultTargetType;
-import com.basicer.parchment.Spell.FirstParamaterTargetType;
 import com.basicer.parchment.parameters.*;
-import com.mysql.jdbc.log.Log;
 
 public class Heal extends Spell {
 	
 	@Override
-	public FirstParamaterTargetType getFirstParamaterTargetType(Context ctx) {
-		return FirstParamaterTargetType.FuzzyMatch;
+	public FirstParameterTargetType getFirstParameterTargetType(Context ctx) {
+		return FirstParameterTargetType.FuzzyMatch;
 	}
 
 	@Override

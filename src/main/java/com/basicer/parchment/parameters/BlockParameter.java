@@ -10,7 +10,7 @@ import com.basicer.parchment.Context;
 
 public class BlockParameter extends Parameter {
 	private Block self;
-	
+	private BlockFace extra;
 	
 	BlockParameter(Block self) {
 		this.self = self;
@@ -41,5 +41,16 @@ public class BlockParameter extends Parameter {
 
 	public Material asMaterial(Context ctx) {
 		return self.getType();
+	}
+	
+	protected void addExtraCastParameters(Object[] extra) {
+		if ( extra.length != 1 ) return;
+		if ( extra[0] instanceof BlockFace ) {
+			BlockFace b = (BlockFace) extra[0];
+			this.extra = b;
+		} else if ( extra[0] instanceof Block ) { 
+			this.extra = ((Block) extra[0]).getFace(self);
+		
+		}
 	}
 }

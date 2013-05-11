@@ -114,6 +114,10 @@ public abstract class TCLCommand {
 		b.append("wrong # args: should be \"");
 		b.append(getName());
 		for ( String s : getArguments() ) {
+			if (s.equals("args")) {
+				b.append(" ?arg ...?");
+				continue;
+			}
 			b.append(" ");
 			if ( s.endsWith("?")) b.append("?");
 			b.append(s);

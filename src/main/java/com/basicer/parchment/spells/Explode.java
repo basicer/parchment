@@ -5,8 +5,6 @@ import org.bukkit.Location;
 import com.basicer.parchment.Context;
 import com.basicer.parchment.Debug;
 import com.basicer.parchment.Spell;
-import com.basicer.parchment.Spell.DefaultTargetType;
-import com.basicer.parchment.Spell.FirstParamaterTargetType;
 import com.basicer.parchment.parameters.Parameter;
 
 public class Explode extends Spell {
@@ -16,8 +14,8 @@ public class Explode extends Spell {
 
 
 	@Override
-	public FirstParamaterTargetType getFirstParamaterTargetType(Context ctx) {
-		return FirstParamaterTargetType.FuzzyMatch;
+	public FirstParameterTargetType getFirstParameterTargetType(Context ctx) {
+		return FirstParameterTargetType.FuzzyMatch;
 	}
 
 	@Override

@@ -10,6 +10,7 @@ import com.basicer.parchment.base.*;
 import com.basicer.parchment.spells.*;
 import com.basicer.parchment.tcl.*;
 import com.basicer.parchment.tcl.Error;
+import com.basicer.parchment.tclutil.Hash;
 import com.basicer.parchment.test.Test;
 
 public class SpellFactory {
@@ -67,12 +68,20 @@ public class SpellFactory {
 		addBuiltinCommand(StringCmd.class);
 		
 		addBuiltinCommand(LIndex.class);
+		addBuiltinCommand(LAppend.class);
+		addBuiltinCommand(LLength.class);
 	}
 	
 	public void load() {
 		
 		
 		loadTCLOnly();
+		
+		addBuiltinCommand(ET.class);
+		
+		addBuiltinCommand(After.class);
+		addBuiltinCommand(Hash.class);
+		
 		addBuiltinCommand(Expand.class);
 		addBuiltinCommand(SCommand.class);
 		addBuiltinCommand(PCommand.class);

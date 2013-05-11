@@ -4,9 +4,7 @@ import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import com.avaje.ebean.enhance.asm.Type;
 import com.basicer.parchment.annotations.Operation;
-import com.basicer.parchment.parameters.ItemParameter;
 import com.basicer.parchment.parameters.Parameter;
 import com.basicer.parchment.tcl.OperationalTCLCommand;
 
@@ -44,7 +42,7 @@ public class OperationalSpell<T extends Parameter> extends Spell {
 				
 				b.append("\n");
 				b.append("* **" + getName() + "** ");
-				if ( this.getFirstParamaterTargetType(null) != FirstParamaterTargetType.Never ) b.append("target? ");
+				if ( this.getFirstParameterTargetType(null) != FirstParameterTargetType.Never ) b.append("target? ");
 				b.append("**" + name + "**");
 				Class[] ptypes = m.getParameterTypes();
 				Operation annotation = m.getAnnotation(Operation.class);

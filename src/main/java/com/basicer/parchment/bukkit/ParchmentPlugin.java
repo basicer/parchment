@@ -34,6 +34,7 @@ import com.basicer.parchment.SpellFactory;
 import com.basicer.parchment.TCLCommand;
 import com.basicer.parchment.TCLEngine;
 import com.basicer.parchment.TCLUtils;
+import com.basicer.parchment.ThreadManager;
 
 import com.basicer.parchment.EvaluationResult.Code;
 import com.basicer.parchment.craftbukkit.Book;
@@ -67,6 +68,7 @@ import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.PluginMessageListener;
@@ -194,9 +196,23 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 		loader.run();
 		loader.runTaskTimer(this, 100, 100);
 
+		
+	
+		new TCLStepper().runTaskLater(this, 0);
+		
 		pm.registerEvents(listener, this);
 	}
 
+	//Lol Java.
+	private ParchmentPlugin getThis() { return this; }
+	
+	private class TCLStepper extends BukkitRunnable {
+		public void run() {
+			long next = ThreadManager.instance().doWork();
+			new TCLStepper().runTaskLater(getThis(), 1); //Check every tick, most of the time we dont do anything.
+		}
+	}
+	
 	private void writeWikiHelp() {
 		StringBuilder b = new StringBuilder();
 		List<TCLCommand> sx = new ArrayList<TCLCommand>();

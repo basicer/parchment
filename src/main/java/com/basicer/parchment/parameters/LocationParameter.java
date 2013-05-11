@@ -1,8 +1,10 @@
 package com.basicer.parchment.parameters;
 
 import org.bukkit.Location;
+import org.bukkit.World;
 
 import com.basicer.parchment.Context;
+import com.basicer.parchment.Debug;
 
 public class LocationParameter extends Parameter {
 	private Location self;
@@ -21,7 +23,7 @@ public class LocationParameter extends Parameter {
 	*/
 	
 	public Location asLocation(Context ctx) {
-		return self;
+		return new Location(self.getWorld(), self.getX(), self.getY(), self.getZ());
 	}
 	
 	@Override
@@ -51,6 +53,7 @@ public class LocationParameter extends Parameter {
 	@Override
 	public void writeIndex(String s, Parameter p) {
 		double val = p.asDouble();
+		Debug.info("OK %s is now %f", s, val);
 		if ( s.equalsIgnoreCase("X") ) self.setX(val);
 		if ( s.equalsIgnoreCase("Y") ) self.setY(val);
 		if ( s.equalsIgnoreCase("Z") ) self.setZ(val);
@@ -63,4 +66,11 @@ public class LocationParameter extends Parameter {
 	}
 	
 	public boolean isArray() { return true; }
+	
+	@Override
+	public Parameter cloneIfMutable() { return new LocationParameter(self); }
+
+	public World asWorld(Context ctx) {
+		return self.getWorld();
+	}
 }

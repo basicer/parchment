@@ -3,32 +3,27 @@ package com.basicer.parchment;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
-import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 
 
 import com.basicer.parchment.Context.ParameterPtr;
-import com.basicer.parchment.EvaluationResult.Code;
 import com.basicer.parchment.parameters.*;
 
 public abstract class Spell extends TCLCommand {
 	
 	public enum DefaultTargetType { None, Self, TargetBlock, TargetPlace, World };
-	public enum FirstParamaterTargetType { Never, ExactMatch, FuzzyMatch };
+	public enum FirstParameterTargetType { Never, ExactMatch, FuzzyMatch, Always };
 	
 	
-	public FirstParamaterTargetType getFirstParamaterTargetType(Context ctx) {
-		return FirstParamaterTargetType.ExactMatch;
+	public FirstParameterTargetType getFirstParameterTargetType(Context ctx) {
+		return FirstParameterTargetType.ExactMatch;
 	}
 	
 	public DefaultTargetType getDefaultTargetType(Context ctx, String source) { 
@@ -74,9 +69,11 @@ public abstract class Spell extends TCLCommand {
 				}
 			}
 			if ( test != null ) {
-				switch ( getFirstParamaterTargetType(ctxi) ) {
+				switch ( getFirstParameterTargetType(ctxi) ) {
 					case Never:
 						test = null;
+						break;
+					case Always:
 						break;
 					case ExactMatch:
 						if ( !this.canAffect(test.getClass()) ) {
@@ -87,7 +84,8 @@ public abstract class Spell extends TCLCommand {
 						List<Class<? extends Parameter>> list = getAffectors();
 						boolean match = false;
 						for ( Class<? extends Parameter> c : list ) {
-							if ( test.cast(c, ctxi) != null ) {
+							Parameter casted = test.cast(c, ctxi);
+							if ( casted != null ) {
 								match = true;
 								break;
 							} else {
@@ -103,12 +101,13 @@ public abstract class Spell extends TCLCommand {
 				if ( test != null ) {
 					
 					Debug.trace("Casting first param to target for " + this.getClass().getSimpleName());
+					Debug.trace("Target now: " + test.toString());
 					Parameter[] nparams = new Parameter[params.length - 1];
 					Debug.trace("C " + params.length);
 					Debug.trace("X " + nparams.length);
 					nparams[0] = params[0];
 					System.arraycopy(params, 2, nparams, 1, nparams.length - 1);
-					targetOveride = params[1];
+					targetOveride = test;
 					params = nparams;
 					
 				}
@@ -174,10 +173,12 @@ public abstract class Spell extends TCLCommand {
 			out = new ArrayList<Parameter>();
 		}
 		if ( targets == null ) s.fizzle("Not target, but applying affector.");
+		Parameter save = ctx.get("target");
 		ParameterPtr result;
 		targetloop:
 		for ( Parameter t : targets ) {
 			for ( Class<? extends Parameter> c : list ) {
+				ctx.setTarget(t);
 				result = s.tryAffect(c, t, ctx);
 				if ( result != null ) {					
 					// Combine returned lists into one large list.
@@ -193,6 +194,7 @@ public abstract class Spell extends TCLCommand {
 			for ( Class<? extends Parameter> c : list ) {
 				Parameter casted = t.cast(c, ctx);
 				if ( casted == null ) continue;
+				ctx.setTarget(casted);
 				result = s.tryAffect(c, casted, ctx);
 				if ( result != null ) {
 					// Combine returned lists into one large list.
@@ -203,7 +205,9 @@ public abstract class Spell extends TCLCommand {
 				}	
 			}
 		}
-		
+
+		if ( save != null ) ctx.put("target", save);
+
 		if ( out.size() == 0 ) return null;
 		else if ( out.size() == 1 ) return out.iterator().next();
 		else return Parameter.createList(out.toArray(new Parameter[0]));
@@ -281,7 +285,7 @@ public abstract class Spell extends TCLCommand {
 				sight = casterp.getLastTwoTargetBlocks(null, dist);
 				if ( sight.size() < 2 ) return null;
 				Block blk2 = sight.get(0);
-				return Parameter.from(sight.get(0));
+				return Parameter.from(blk2, blk2.getFace(sight.get(1)));
 				
 				
 				

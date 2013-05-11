@@ -82,7 +82,9 @@ public class ListParameter extends Parameter {
 				b.append(x);
 			}
 			*/
-			b.append(com.basicer.parchment.tcl.List.encode(p.asString(), false));
+			if ( p != null ) {
+				b.append(com.basicer.parchment.tcl.List.encode(p.asString(), false));
+			} else b.append("{}");
 		}
 		return b.toString();
 	}
@@ -108,5 +110,18 @@ public class ListParameter extends Parameter {
 	
 	public boolean isArray() { return true; }
 
+	@Override
+	public Parameter cloneIfMutable() { return new ListParameter(self); }
+
+
+	public void add(Parameter parameter) {
+		self.add(parameter);
+	}
+
+
+	public int length() {
+		return self.size();
+	}
+	
 
 }

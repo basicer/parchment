@@ -27,12 +27,19 @@ public class ScriptedSpell extends Spell {
 		return t;
 	}
 
+	@Override
+	public FirstParameterTargetType getFirstParameterTargetType(Context ctx) {
+		Parameter p = this.spellStatic.get("firstParameterTargetType");
+		if ( p == null ) return super.getFirstParameterTargetType(ctx);
+		FirstParameterTargetType t = p.asEnum(FirstParameterTargetType.class);
+		return t;
+	}
 
 	@Override
 	public EvaluationResult extendedExecute(Context ctx, TCLEngine e) {
 		//We need to throw out scripted spell's parameter context.
 		Debug.trace("EE with " + ctx.getDebuggingString());
-		return executeBinding("cast", ctx.up(1), e, ctx.getArgs());
+		return executeBinding("cast", ctx.up(0), e, ctx.getArgs());
 	}
 	
 	
@@ -117,6 +124,7 @@ public class ScriptedSpell extends Spell {
 		
 		String name = triggers.get(binding);
 		Debug.trace("LeCasting : " + name + " for " + binding);
+		Debug.trace("Casting context is " + ctx.getDebuggingString());
 		if ( name == null ) return null;
 		
 		final Spell closure_s = this;
@@ -139,7 +147,7 @@ public class ScriptedSpell extends Spell {
 			
 			Context cmp = ctx.copyAndMergeProcs(this.spellStatic);
 			final  Context ctx2 = proc.bindContext(up, cmp);
-
+			if ( target != null ) ctx2.setTarget(target); //Not sure why I need this, but it doesnt work without.
 
 			/* if ( binding.equals("affect") ) {
 				ctx2.putProc("super", new TCLCommand() {
@@ -153,6 +161,7 @@ public class ScriptedSpell extends Spell {
 					@Override
 					public EvaluationResult extendedExecute(Context ctx, TCLEngine e) {
 						Debug.info("Wow you used super");
+						Debug.info("Your super context was:" + ctx.toString());
 						return new EvaluationResult(closure_s.applyAffectors(closure_s, ctx2));
 					}
 				});

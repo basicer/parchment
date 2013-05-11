@@ -1,8 +1,6 @@
 import java.io.*;
 import java.util.logging.*;
 
-import junit.framework.TestResult;
-
 import org.bukkit.entity.Player;
 
 import com.basicer.parchment.Context;

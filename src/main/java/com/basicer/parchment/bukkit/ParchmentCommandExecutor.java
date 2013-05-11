@@ -21,8 +21,11 @@ import org.bukkit.entity.Player;
 
 import com.basicer.parchment.Context;
 import com.basicer.parchment.Debug;
+import com.basicer.parchment.EvaluationResult;
+import com.basicer.parchment.EvaluationResult.BranchEvaluationResult;
 import com.basicer.parchment.TCLEngine;
 import com.basicer.parchment.TCLUtils;
+import com.basicer.parchment.ThreadManager;
 import com.basicer.parchment.EvaluationResult.Code;
 import com.basicer.parchment.parameters.Parameter;
 
@@ -36,7 +39,7 @@ public class ParchmentCommandExecutor implements CommandExecutor {
 		commandctx = new Context(); 
 	}
 	
-	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+	public boolean onCommand(final CommandSender sender, Command cmd, String label, String[] args) {
 
 		if (!sender.isOp())
 			return false;
@@ -114,11 +117,20 @@ public class ParchmentCommandExecutor implements CommandExecutor {
 
 			//Todo: Show a prettyer error.
 			if ( b == null ) return false;
-			TCLEngine e = new TCLEngine(b.toString(), ctx);
-			while ( e.step() ) {}
-			if ( e.getCode() == Code.ERROR ) {
-				sender.sendMessage(ChatColor.RED +"Error: " + e.getResult().asString());
-			}
+			ThreadManager.instance().submitWork(new BranchEvaluationResult(b.toString(), ctx, new EvaluationResult.EvalCallback() {
+
+				public EvaluationResult result(EvaluationResult e) {
+					if ( e.getCode() == Code.ERROR ) {
+						sender.sendMessage(ChatColor.RED +"Error: " + e.getValue().asString());
+					}	
+
+					return EvaluationResult.OK;
+				}
+				
+			}));
+			
+
+			
 			
 		} else if (action.equals("run")) {
 			String file = qargs.poll() + ".tcl";

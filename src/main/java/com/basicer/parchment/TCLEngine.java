@@ -19,7 +19,7 @@ public class TCLEngine {
 	private EvaluationResult result = EvaluationResult.OK;
 	private TCLEngine sub;
 	private BranchEvaluationResult subbr;
-	public boolean resiliant = false;
+	public boolean resilient = false;
 
 	public TCLEngine(String src, Context ctx) {
 		sourcecode = new PushbackReader(new StringReader(src));
@@ -35,10 +35,19 @@ public class TCLEngine {
 		result = er;
 		this.ctx = ctx;
 	}
+	
+	public TCLEngine(BranchEvaluationResult br) {
+		result = br;
+		this.ctx = br.getContext();
+	}
 
 	ParameterAccumulator[] pargs = null;
 
 	public boolean step() {
+		return step(false);
+	}
+	
+	public boolean step(boolean allow_sleeping) {
 		if ( sub != null ) {
 			if ( sub.step() ) return true;
 			result = sub.getEvaluationResult();
@@ -53,6 +62,7 @@ public class TCLEngine {
 
 		if ( subbr != null ) {
 			try {
+				//To user land.
 				result = subbr.invokeCallback(result);
 			} catch (FizzleException ex) {
 				result = EvaluationResult.makeError(ex.getMessage());
@@ -62,7 +72,10 @@ public class TCLEngine {
 		}
 
 		if ( result instanceof EvaluationResult.BranchEvaluationResult ) {
+			
 			EvaluationResult.BranchEvaluationResult br = (EvaluationResult.BranchEvaluationResult) result;
+			Long when = br.getScheduleAfter();
+			if ( when != null && when > System.currentTimeMillis() && allow_sleeping ) return true;
 			if ( br.getToRun() != null ) sub = new TCLEngine(br.getToRun(), br.getContext());
 			subbr = br;
 			return true;
@@ -70,19 +83,20 @@ public class TCLEngine {
 			if ( result.getCode() == Code.ERROR ) {
 				ctx.top().put("errorInfo", result.getValue());
 			}
-			if ( !resiliant ) return false;
+			if ( !resilient) return false;
 		}
 
 		if ( pargs != null ) {
 			for ( int pi = 0; pi < pargs.length; ++pi ) {
 				ParameterAccumulator r = pargs[pi];
 				if ( !r.isResolved() ) {
+					//To User Land
 					r.resolveStep();
 					return true;
 				}
 				if ( r.getEvaluationResult().getCode() == Code.ERROR ) {
 					result = r.getEvaluationResult();
-					if ( resiliant ) {
+					if (resilient) {
 						pargs = null;
 						return true;
 					} else {
@@ -95,6 +109,8 @@ public class TCLEngine {
 			for ( int i = 0; i < pargs.length; ++i ) {
 				rpargs[i] = pargs[i].getEvaluationResult().getValue();
 			}
+			
+			//To User Land
 			String name = rpargs[0].asString();
 
 			TCLCommand s = ctx.getCommand(name);
@@ -104,7 +120,9 @@ public class TCLEngine {
 				return true;
 			}
 			try {
+				//To User Land (Calls asString())
 				Context c2 = s.bindContext(rpargs, ctx);
+				//To User Land
 				result = s.extendedExecute(c2, this);
 				pargs = null;
 				return true;
@@ -118,6 +136,7 @@ public class TCLEngine {
 		if ( sourcecode == null ) return false; //We where evaluating with result given.
 		
 		try {
+			//TODO: This is userland because ReadVariableName cheaty evalautes.
 			pargs = parseLine(sourcecode, ctx);
 		} catch (FizzleException ex) {
 			result = EvaluationResult.makeError(ex.getMessage());
@@ -324,6 +343,11 @@ public class TCLEngine {
 		// TODO Auto-generated method stub
 		if ( result == null ) return null;
 		return result.getCode();
+	}
+
+	public EvaluationResult getDeepestEvaluationResult() {
+		if ( this.sub != null ) return sub.getDeepestEvaluationResult();
+		return result;
 	}
 
 }

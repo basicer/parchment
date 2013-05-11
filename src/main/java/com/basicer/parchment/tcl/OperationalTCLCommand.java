@@ -29,7 +29,6 @@ public abstract class OperationalTCLCommand extends TCLCommand {
 		
 		if ( !type.isInstance(o) ) throw new FizzleException("Target mismatch");
 	
-		U obj = (U) o;
 		if ( args.size() < 1 ) return target;
 	
 		
@@ -52,10 +51,9 @@ public abstract class OperationalTCLCommand extends TCLCommand {
 					//to drop it before it's too late.
 					Object[] method_args = prepareMethodCall(op, args, ctx, null, m, false);
 					U ni = (U) m.invoke(command, method_args);
-					obj = ni;
 					
-					out = Parameter.from(obj);
 					target = (TT)Parameter.from(ni);
+					out = target;
 					continue;
 				} catch (SecurityException e) {
 					throw new RuntimeException(e);
@@ -71,12 +69,12 @@ public abstract class OperationalTCLCommand extends TCLCommand {
 	
 			
 			
-			out = invokeMapped(command, op, args, ctx, obj);
+			out = invokeMapped(command, op, args, ctx, target);
 			if ( out != null ) {
 				Object ov = out.getUnderlyingValue();
 				if ( type.isInstance(ov) ) {
 					Debug.trace("Obj now " + ov);
-					obj = (U)ov;
+					target = (TT) Parameter.from(ov);
 				}
 			}
 			
@@ -87,7 +85,7 @@ public abstract class OperationalTCLCommand extends TCLCommand {
 		
 	}
 
-	public static Parameter invokeMapped(TCLCommand command, String op, Queue<Parameter> args, Context ctx, Object obj  ) {
+	public static Parameter invokeMapped(TCLCommand command, String op, Queue<Parameter> args, Context ctx, Parameter obj  ) {
 		Class<?> c = command.getClass();
 		//Method m = locateMethod(c, op);
 		//TODO: This only goes one level deep
@@ -144,11 +142,13 @@ public abstract class OperationalTCLCommand extends TCLCommand {
 		}
 	}
 
-	private static Object[] prepareMethodCall(String op, Queue<Parameter> args, Context ctx, Object obj, Method m, boolean strict) {
+	private static Object[] prepareMethodCall(String op, Queue<Parameter> args, Context ctx, Parameter obj, Method m, boolean strict) {
 		Class[] method_types = m.getParameterTypes();
 		Object[] method_args = new Object[method_types.length];
 		int i = 0;
-		if ( method_types[0] != Context.class) method_args[i++] = obj;
+		if ( method_types[0] != Context.class) {
+			method_args[i++] = obj == null ? null : obj.getUnderlyingValue();
+		}
 		method_args[i++] = ctx;
 		for (; i < method_args.length; ++i ) {
 			if ( args.size() < 1 ) break;

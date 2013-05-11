@@ -174,7 +174,20 @@ public class Entity extends OperationalSpell<EntityParameter>  {
 	public static Parameter ongroundOperation(org.bukkit.entity.Entity ent, Context ctx) {
 		return Parameter.from(ent.isOnGround() ? 1 : 0);
 	}
+	
+	public static Parameter removeOperation(org.bukkit.entity.Entity ent, Context ctx) {
+		ent.remove();
+		return Parameter.EmptyString;
+	}
 
-
+	public static Parameter pickupdelayOperation(org.bukkit.entity.Entity ent, Context ctx, IntegerParameter ticks) {
+		
+		if (!(ent instanceof org.bukkit.entity.Item)) fizzle("Entity needs to be an Item Entity is " + ent.getClass().getSimpleName());
+		org.bukkit.entity.Item i = (org.bukkit.entity.Item) ent;
+		if ( ticks != null ) {
+			i.setPickupDelay(ticks.asInteger(ctx));
+		}
+		return Parameter.from(i.getPickupDelay());
+	}
 	
 }

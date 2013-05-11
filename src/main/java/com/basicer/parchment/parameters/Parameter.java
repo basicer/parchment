@@ -263,7 +263,7 @@ public abstract class Parameter implements Iterable<Parameter> {
 
 */
 	
-	private static Parameter tryParamCast(Object o, Class<? extends Parameter> type, boolean strict)
+	private static Parameter tryParamCast(Object o, Class<? extends Parameter> type, boolean strict, Object[] extra)
 	{
 		Class<?> xtype = o.getClass();
 		try {
@@ -277,7 +277,9 @@ public abstract class Parameter implements Iterable<Parameter> {
 					if ( !types[0].isAssignableFrom(xtype) ) return null;
 				}
 				con.setAccessible(true);
-				return (Parameter) con.newInstance(o);
+				Parameter out = (Parameter) con.newInstance(o);
+				out.addExtraCastParameters(extra);
+				return out;
 			}
 			return null;
 		} catch (SecurityException e) {
@@ -294,19 +296,23 @@ public abstract class Parameter implements Iterable<Parameter> {
 	
 	}
 	
-	public static Parameter from(Object o)
-	{
+	protected void addExtraCastParameters(Object[] extra) {
+		
+	}
+	
+	public static Parameter from(Object o, Object... args ) {
+	
 		if ( o == null ) return null;
 		Class type = o.getClass();
 		if ( registeredTypes == null ) return null;
 		//Todo: Cache this and sort it.
 		for ( Class c : registeredTypes ) {
-			Parameter result = tryParamCast(o, c, true);
+			Parameter result = tryParamCast(o, c, true, args);
 			if ( result != null ) return result;
 		}
 
 		for ( Class c2 : registeredTypes ) {
-			Parameter result = tryParamCast(o, c2, false);
+			Parameter result = tryParamCast(o, c2, false, args);
 			if ( result != null ) return result;
 		}
 		
@@ -314,10 +320,7 @@ public abstract class Parameter implements Iterable<Parameter> {
 
 	}
 	
-	public static Parameter from(Object o, Object... args ) {
-		Debug.trace("WARNING| IMPLEMENT EXTRA ARGUEMENTS");
-		return from(o);
-	}
+
 	
 	public static Parameter fromObject(Object data) {
 		Class datatype = data.getClass();
@@ -433,5 +436,6 @@ public abstract class Parameter implements Iterable<Parameter> {
 		return in;
 	}
 
+	public Parameter cloneIfMutable() { return this; }
 	
 }

@@ -12,9 +12,11 @@ import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.util.Vector;
 
 import com.basicer.parchment.Context;
 import com.basicer.parchment.OperationalSpell;
@@ -142,9 +144,9 @@ public class Item extends OperationalSpell<ItemParameter>  {
 		
 	}
 	
-	@Operation(desc = "Drop the target item(s) into the world at the given location.  Returns the resulting entity." )
-	public static Parameter dropOperation(ItemStack itm, Context ctx, Parameter where) {
+	private static LocationParameter resolveWhere(Parameter where, Context ctx) {
 		LocationParameter loc = where.cast(LocationParameter.class, ctx);
+		where.cast(LocationParameter.class, ctx);
 		if ( loc == null ) {
 			PlayerParameter p = where.cast(PlayerParameter.class, ctx);
 			if ( p != null ) {
@@ -155,10 +157,26 @@ public class Item extends OperationalSpell<ItemParameter>  {
 			}
 		}
 		
+		 
 		if ( loc == null ) fizzle("Couldnt convert " + where.asString() + " to location");
-		org.bukkit.entity.Entity ent = ctx.getWorld().dropItem(loc.asLocation(ctx), itm);
+		return loc;
+	}
+	
+	@Operation(desc = "Drop the target item(s) into the world at the given location.  Returns the resulting entity." )
+	public static Parameter dropOperation(ItemStack itm, Context ctx, Parameter where) {
+		LocationParameter loc = resolveWhere(where, ctx);
+		org.bukkit.entity.Entity ent = loc.asWorld(ctx).dropItemNaturally(loc.asLocation(ctx), itm);
 		
 		
+		return Parameter.from(ent);
+	}
+	
+	@Operation(desc = "Place the target item(s) into the world at the given location.  Returns the resulting entity." )
+	public static Parameter placeOperation(ItemStack itm, Context ctx, Parameter where) {
+		LocationParameter loc = resolveWhere(where, ctx);
+		org.bukkit.entity.Entity ent = loc.asWorld(ctx).dropItem(loc.asLocation(ctx), itm);
+		ent.setVelocity(new Vector(0,0 ,0));
+		ent.teleport(loc.asLocation(ctx), TeleportCause.PLUGIN);
 		return Parameter.from(ent);
 	}
 	

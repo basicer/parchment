@@ -6,7 +6,7 @@ import java.util.logging.Logger;
 
 public class Debug {
 	
-	public static boolean ShowTrace = false;
+	public static boolean ShowTrace = true;
 	
 	public static void trace(String format, Object... args) {
 		String str = String.format(format, args);
