@@ -42,6 +42,10 @@ import com.basicer.parchment.parameters.*;
 import com.basicer.parchment.spells.Heal;
 import com.basicer.parchment.spells.Spout;
 
+import net.milkbowl.vault.chat.Chat;
+import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.permission.Permission;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
@@ -70,6 +74,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -82,16 +87,36 @@ import org.yaml.snakeyaml.reader.StreamReader;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 
-import net.minecraft.server.*;
+
 
 public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessageListener {
 
-	ProtocolManager	manager;
-	SpellFactory	spellfactory;
-	BukkitRunnable  loader;
-	Metrics			metrics;
-	GlobalListener	listener;
-	
+	private ProtocolManager	manager;
+	private SpellFactory	spellfactory;
+	private BukkitRunnable  loader;
+	private Metrics			metrics;
+	private GlobalListener	listener;
+
+	private Permission		vault_permission;
+	private Economy 		vault_economy;
+	private Chat 			vault_chat;
+
+	public static ParchmentPlugin getInstance() {
+		return (ParchmentPlugin)Bukkit.getPluginManager().getPlugin("Parchment");
+	}
+
+	public Permission getVaultPermission() {
+		return vault_permission;
+	}
+
+	public Economy getVaultEconomy() {
+		return vault_economy;
+	}
+
+	public Chat getVaultChat() {
+		return vault_chat;
+	}
+
 	public void onDisable() {
 		loader.cancel();
 		Bukkit.getMessenger().unregisterIncomingPluginChannel(this);
@@ -138,7 +163,25 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 		if (pm.getPlugin("ProtocolLib") != null) {
 			manager = ProtocolLibrary.getProtocolManager();
 		}
-		
+
+		if ( pm.getPlugin("Vault") != null ) {
+			RegisteredServiceProvider<Permission> perm = getServer().getServicesManager().getRegistration(Permission.class);
+			if ( perm != null ) {
+				vault_permission = perm.getProvider();
+			}
+			RegisteredServiceProvider<Economy> eco = getServer().getServicesManager().getRegistration(Economy.class);
+			if ( eco != null ) {
+				vault_economy = eco.getProvider();
+			}
+			RegisteredServiceProvider<Chat> chat = getServer().getServicesManager().getRegistration(Chat.class);
+			if ( chat != null ) {
+				vault_chat = chat.getProvider();
+			}
+
+		} else {
+			getLogger().info("No Vault");
+		}
+
 		CommandExecutor x = new ParchmentCommandExecutor(this);
 		getCommand("cast").setExecutor(x);
 		getCommand("tcl").setExecutor(x);

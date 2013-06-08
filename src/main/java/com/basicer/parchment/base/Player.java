@@ -4,6 +4,9 @@ package com.basicer.parchment.base;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.basicer.parchment.bukkit.ParchmentPlugin;
+import net.milkbowl.vault.chat.Chat;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -140,7 +143,31 @@ public class Player extends OperationalSpell<PlayerParameter> {
 		pent.closeInventory();
 		return Parameter.from(pent);
 	}
-	
+
+	/* Vault Stuff */
+
+	private static Object getEconomyOrFizzle() {
+		Economy e = ParchmentPlugin.getInstance().getVaultEconomy();
+		if ( e == null ) fizzle("That operation requires Vault");
+		if ( !e.isEnabled() ) fizzle("That operations requires Vault economy");
+		return e;
+	}
+
+	@Operation(desc = "Returns the amount of money a player has from vault.")
+	public static Parameter moneyOperation(org.bukkit.entity.Player pent, Context ctx) {
+		return  Parameter.from(((Economy) getEconomyOrFizzle()).getBalance(pent.getName()));
+	}
+
+	public static Parameter giveMoneyOperation(org.bukkit.entity.Player pent, Context ctx, DoubleParameter amount) {
+		return  Parameter.from(((Economy) getEconomyOrFizzle()).depositPlayer(pent.getName(), amount.asDouble(ctx)).balance);
+	}
+
+	public static Parameter takeMoneyOperation(org.bukkit.entity.Player pent, Context ctx, DoubleParameter amount) {
+		return  Parameter.from(((Economy)getEconomyOrFizzle()).withdrawPlayer(pent.getName(), amount.asDouble(ctx)).balance);
+	}
+
+
+
 	@Operation(desc = "Restore target player's hunger, saturation, and exaustion.")
 	public static Parameter feedOperation(org.bukkit.entity.Player pent, Context ctx) {
 		pent.setFoodLevel(20);
