@@ -167,6 +167,29 @@ public class Player extends OperationalSpell<PlayerParameter> {
 	}
 
 
+	public static Parameter levelOperation(org.bukkit.entity.Player pent, Context ctx, IntegerParameter amount) {
+		if ( amount != null ) pent.setLevel(amount.asInteger(ctx));
+		return Parameter.from(pent.getLevel());
+	}
+
+	@Operation(aliases = {"xp", "experience"})
+	public static Parameter expOperation(org.bukkit.entity.Player pent, Context ctx, IntegerParameter amount) {
+		if ( amount != null ) pent.setTotalExperience(amount.asInteger(ctx).intValue());
+		return Parameter.from(pent.getTotalExperience());
+	}
+
+	@Operation(aliases = {"givexp"})
+		 public static Parameter giveexpOperation(org.bukkit.entity.Player pent, Context ctx, IntegerParameter amount) {
+		if ( amount != null ) pent.giveExp(amount.asInteger());
+		return Parameter.from(pent.getTotalExperience());
+	}
+
+
+	public static Parameter giveLevelOperation(org.bukkit.entity.Player pent, Context ctx, IntegerParameter amount) {
+		if ( amount != null ) pent.giveExpLevels(amount.asInteger(ctx));
+		return Parameter.from(pent.getLevel());
+	}
+
 
 	@Operation(desc = "Restore target player's hunger, saturation, and exaustion.")
 	public static Parameter feedOperation(org.bukkit.entity.Player pent, Context ctx) {

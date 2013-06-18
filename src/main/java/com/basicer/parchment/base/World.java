@@ -1,5 +1,8 @@
 package com.basicer.parchment.base;
 
+import java.util.List;
+import java.util.ArrayList;
+
 import org.bukkit.Effect;
 import org.bukkit.Sound;
 import org.bukkit.TreeType;
@@ -63,6 +66,12 @@ public class World extends OperationalSpell<WorldParameter> {
 	public static Parameter pvpOperation(org.bukkit.World world, Context ctx, BooleanParameter type) {
 		if ( type != null ) world.setPVP(type.asBoolean());
 		return Parameter.from(world.getPVP());
+	}
+
+	public static Parameter playersOperation(org.bukkit.World world, Context ctx) {
+		ArrayList<Parameter> players = new ArrayList<Parameter>();
+		for ( org.bukkit.entity.Player p : world.getPlayers() ) players.add(Parameter.from(p));
+		return ListParameter.from(players);
 	}
 
 	@Override
