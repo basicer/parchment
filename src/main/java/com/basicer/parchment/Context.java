@@ -43,7 +43,7 @@ public class Context {
 	public Parameter get(String var) {
 		ParameterPtr ptr = variables.get(var);
 		if ( ptr == null ) return null;
-		return ptr.val;
+		return ptr.getValue();
 	}
 	
 	public Parameter getRespectingGlobals(String var) {
@@ -59,7 +59,7 @@ public class Context {
 		
 		ParameterPtr ptr = variables.get(var);
 		if ( ptr == null ) return null;
-		return ptr.val;
+		return ptr.getValue();
 	}
 	
 	public boolean hasRespectingGlobals(String var) {
@@ -71,10 +71,9 @@ public class Context {
 	public void put(String var, Parameter value) {
 		ParameterPtr nv = getRaw(var);
 		if ( nv != null ) {
-			nv.val = value;
+			nv.setValue(value);
 		} else {
-			nv = new ParameterPtr();
-			nv.val = value;
+			nv = new ParameterPtr(value);
 			variables.put(var, nv);
 		}
 	}
@@ -261,7 +260,15 @@ public class Context {
 		public ParameterPtr() {
 
 		}
-		public Parameter val;
+		private Parameter val;
+
+		Parameter getValue() {
+			return val;
+		}
+
+		void setValue(Parameter val) {
+			this.val = val;
+		}
 	}
 
 	public void setCommand(String name, TCLCommand proc) {

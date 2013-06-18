@@ -62,10 +62,13 @@ public abstract class Spell extends TCLCommand {
 		Parameter targetOveride = null;
 		if ( params.length > 1 ) {
 			Parameter test = params[1];
+			Parameter target = test;
 			if ( test instanceof ListParameter) {
 				if ( test.getHomogeniousType() != null ) {
 					test = ((ListParameter)test).index(0);
 					Debug.trace("Casted list type");
+				} else {
+					Debug.trace("List is not homogenious");
 				}
 			}
 			if ( test != null ) {
@@ -92,7 +95,7 @@ public abstract class Spell extends TCLCommand {
 								Debug.trace("FAIL MATCH " + c.getSimpleName() + " to " + test.getClass().getSimpleName());
 							}
 						}
-						
+
 						if ( !match ) test = null;
 						break;
 						
@@ -101,13 +104,13 @@ public abstract class Spell extends TCLCommand {
 				if ( test != null ) {
 					
 					Debug.trace("Casting first param to target for " + this.getClass().getSimpleName());
-					Debug.trace("Target now: " + test.toString());
+					Debug.trace("Target now: " + target.toString());
 					Parameter[] nparams = new Parameter[params.length - 1];
 					Debug.trace("C " + params.length);
 					Debug.trace("X " + nparams.length);
 					nparams[0] = params[0];
 					System.arraycopy(params, 2, nparams, 1, nparams.length - 1);
-					targetOveride = test;
+					targetOveride = target;
 					params = nparams;
 					
 				}
@@ -182,8 +185,8 @@ public abstract class Spell extends TCLCommand {
 				result = s.tryAffect(c, t, ctx);
 				if ( result != null ) {					
 					// Combine returned lists into one large list.
-					if ( result.val != null ) {
-						for ( Parameter rr : result.val ) {
+					if ( result.getValue() != null ) {
+						for ( Parameter rr : result.getValue() ) {
 							out.add(rr);
 						}				
 					}
@@ -198,7 +201,7 @@ public abstract class Spell extends TCLCommand {
 				result = s.tryAffect(c, casted, ctx);
 				if ( result != null ) {
 					// Combine returned lists into one large list.
-					for ( Parameter rr : result.val ) {
+					for ( Parameter rr : result.getValue() ) {
 						out.add(rr);
 					}
 					continue targetloop;
@@ -312,7 +315,7 @@ public abstract class Spell extends TCLCommand {
 			Method m = this.getClass().getMethod("affect", types);
 			Parameter p = (Parameter) m.invoke(this, t, ctx);
 			ParameterPtr o = new ParameterPtr();
-			o.val = p;
+			o.setValue(p);
 			return o;
 		} catch (NoSuchMethodException e) {
 			throw new RuntimeException(e);

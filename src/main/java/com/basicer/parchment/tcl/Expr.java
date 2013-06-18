@@ -1,5 +1,8 @@
 package com.basicer.parchment.tcl;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -10,32 +13,81 @@ import com.basicer.parchment.FizzleException;
 import com.basicer.parchment.TCLCommand;
 import com.basicer.parchment.TCLEngine;
 import com.basicer.parchment.TCLUtils;
-import com.basicer.parchment.parameters.DoubleParameter;
-import com.basicer.parchment.parameters.IntegerParameter;
-import com.basicer.parchment.parameters.ParameterAccumulator;
-import com.basicer.parchment.parameters.Parameter;
+import com.basicer.parchment.parameters.*;
 
 import java.io.PushbackReader;
 import java.io.StringReader;
 import java.util.LinkedList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+
 
 public class Expr extends TCLCommand {
 
 	@Override
 	public EvaluationResult extendedExecute(Context ctx, TCLEngine e) {
-		Queue<Parameter> q = new LinkedList<Parameter>(ctx.getArgs()); 
+
+		String expr = ListParameter.from(ctx.getArgs()).asString(ctx);
+
 		try {
-			return new EvaluationResult(parse(q, q.poll(), 0));
+			return new EvaluationResult(eval(expr, ctx, e));
 		} catch ( RuntimeException ex ) {
+			ex.printStackTrace();
 			return EvaluationResult.makeError(ex.getMessage());
 		}
 	}
-	
+
+	private static String evaluateFunction(String func, String params, Context ctx, TCLEngine e) {
+
+		ArrayList<Parameter> pl = new ArrayList<Parameter>();
+
+
+		String[] args = params.split(",");
+		for ( String p : args ) {
+			p = p.trim();
+			if (p.length() > 0 ) pl.add(eval(p, ctx, e));
+		}
+
+
+
+
+		Parameter out;
+
+		Method method = null;
+		try {
+			method = Expr.class.getDeclaredMethod(func + "Func", pl.getClass());
+		} catch ( NoSuchMethodException ex ) {
+			throw new FizzleException("No such expr function: " + func);
+		}
+
+
+		try {
+			out = (Parameter)method.invoke(null, pl);
+		} catch ( InvocationTargetException ex ) {
+			throw new RuntimeException(ex.getTargetException());
+		}catch ( IllegalAccessException ex ) {
+			throw new RuntimeException(ex);
+		}
+
+		return com.basicer.parchment.tcl.List.encode(out.asString(), true);
+	}
 	
 	public static Parameter eval(String expr, Context ctx, TCLEngine e) {
-		
+		Debug.info("in Considering %s", expr);
+		final Pattern pattern = Pattern.compile("([a-z]+)\\(([^()]*)\\)");
+		final Matcher matcher = pattern.matcher(expr);
+
+		while ( matcher.find() ) {
+			Debug.info("Found %s", matcher.group(1));
+			expr = expr.substring(0, matcher.start()) + evaluateFunction(matcher.group(1), matcher.group(2), ctx, e) + expr.substring(matcher.end());
+			matcher.reset(expr);
+		}
+
+
 		PushbackReader s = new PushbackReader(new StringReader(expr));
 		Queue<Parameter> tokens = new LinkedList<Parameter>();
+
 		for ( ParameterAccumulator p : e.parseLine(s, ctx) ) {
 			//Debug.trace("TKN " + p.asString());
 			tokens.add(p.cheatyResolveOrFizzle());
@@ -147,6 +199,55 @@ public class Expr extends TCLCommand {
 		if ( x.equals("||") ) return 2;
 		
 		return 0;
+	}
+
+
+	private static Parameter randFunc(ArrayList<Parameter> args) {
+		return Parameter.from(StrictMath.random());
+	}
+
+	private static Parameter absFunc(ArrayList<Parameter> args) {
+		if ( args.size() != 1 ) throw new FizzleException("abs expects 1 arguments");
+		double value = args.get(0).asDouble();
+		value = Math.abs(value);
+		if ( args.get(0) instanceof IntegerParameter ) return IntegerParameter.from(value);
+		return DoubleParameter.from(value);
+	}
+
+	private static Parameter intFunc(ArrayList<Parameter> args) {
+		if ( args.size() != 1 ) throw new FizzleException("int expects 1 arguments");
+		double value = args.get(0).asDouble();
+		return IntegerParameter.from((int)value);
+	}
+
+	private static Parameter roundFunc(ArrayList<Parameter> args) {
+		if ( args.size() != 1 ) throw new FizzleException("round expects 1 arguments");
+		double value = args.get(0).asDouble();
+		return IntegerParameter.from(Math.round(value));
+	}
+
+	private static Parameter doubleFunc(ArrayList<Parameter> args) {
+		if ( args.size() != 1 ) throw new FizzleException("double expects 1 arguments");
+		double value = args.get(0).asDouble();
+		return DoubleParameter.from(value);
+	}
+
+	private static Parameter sinFunc(ArrayList<Parameter> args) {
+		if ( args.size() != 1 ) throw new FizzleException("sin expects 1 arguments");
+		double value = args.get(0).asDouble();
+		return DoubleParameter.from(Math.sin(value));
+	}
+
+	private static Parameter cosFunc(ArrayList<Parameter> args) {
+		if ( args.size() != 1 ) throw new FizzleException("cos expects 1 arguments");
+		double value = args.get(0).asDouble();
+		return DoubleParameter.from(Math.cos(value));
+	}
+
+	private static Parameter tanFunc(ArrayList<Parameter> args) {
+		if ( args.size() != 1 ) throw new FizzleException("tan expects 1 arguments");
+		double value = args.get(0).asDouble();
+		return DoubleParameter.from(Math.tan(value));
 	}
 
 }

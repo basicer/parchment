@@ -81,8 +81,7 @@ public class ScriptedSpell extends Spell {
 		Debug.trace("T IS " + t);
 		if ( type != PlayerParameter.class ) return null;
 		executeBinding("affect:player", ctx, null);
-		ParameterPtr x = new ParameterPtr();
-		x.val = Parameter.EmptyString;
+		ParameterPtr x = new ParameterPtr(Parameter.EmptyString);
 		return x;
 	}
 
