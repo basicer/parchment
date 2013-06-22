@@ -2,15 +2,16 @@ package com.basicer.parchment;
 
 import java.util.Dictionary;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Map;
 
 import com.basicer.parchment.base.*;
 import com.basicer.parchment.spells.*;
 import com.basicer.parchment.tcl.*;
 import com.basicer.parchment.tcl.Error;
 import com.basicer.parchment.tclutil.Hash;
+import com.basicer.parchment.tclutil.LShuffle;
+import com.basicer.parchment.tclutil.Static;
+import com.basicer.parchment.tclutil.With;
 import com.basicer.parchment.test.Test;
 
 public class SpellFactory {
@@ -70,6 +71,7 @@ public class SpellFactory {
 		addBuiltinCommand(LIndex.class);
 		addBuiltinCommand(LAppend.class);
 		addBuiltinCommand(LLength.class);
+		addBuiltinCommand(LShuffle.class);
 	}
 	
 	public void load() {
@@ -81,6 +83,7 @@ public class SpellFactory {
 		
 		addBuiltinCommand(After.class);
 		addBuiltinCommand(Hash.class);
+		addBuiltinCommand(With.class);
 		
 		addBuiltinCommand(Expand.class);
 		addBuiltinCommand(SCommand.class);

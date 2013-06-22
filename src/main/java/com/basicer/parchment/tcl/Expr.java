@@ -134,7 +134,7 @@ public class Expr extends TCLCommand {
 	
 	public static Parameter evaluate(Parameter lhs, Parameter pop, Parameter rhs) {
 		String op = pop.asString();
-		Debug.trace("EVAL: " + (lhs == null ? "null" : lhs.toString()) + " " + op + " " + (rhs == null ? "null" : rhs.toString()));
+		Debug.trace("EVAL: %s", (lhs == null ? "null" : lhs.toString()) + " " + op + " " + (rhs == null ? "null" : rhs.toString()));
 		
 		//TODO: Downcasting is not how TCL works, we need to look at the input arguments.
 		try {

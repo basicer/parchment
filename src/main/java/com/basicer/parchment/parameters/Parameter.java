@@ -155,7 +155,8 @@ public abstract class Parameter implements Iterable<Parameter> {
 	public boolean isArray() { return false; }
 	
 	public Parameter index(int  n) {
-		return this;
+		if ( n == 0 ) return this;
+		return Parameter.EmptyString;
 	}
 	
 	public void deleteIndex(String name) {

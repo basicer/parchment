@@ -6,5 +6,6 @@ import java.lang.annotation.*;
 @Target({ElementType.METHOD})
 public @interface Operation {
 	String[] aliases() default {};
+	String[] requires() default {};
 	String desc() default "";
 }

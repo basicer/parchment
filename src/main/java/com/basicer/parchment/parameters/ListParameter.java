@@ -1,9 +1,14 @@
 package com.basicer.parchment.parameters;
 
+import java.io.PushbackReader;
+import java.io.StringReader;
 import java.util.*;
 
 
 import com.basicer.parchment.Context;
+import com.basicer.parchment.Debug;
+import com.basicer.parchment.FizzleException;
+import com.basicer.parchment.TCLEngine;
 
 
 public class ListParameter extends Parameter {
@@ -102,12 +107,32 @@ public class ListParameter extends Parameter {
 		return new ListParameter(self);
 	}
 
+	@Override
+	public Parameter index(String n) {
+		try {
+			int id = Integer.parseInt(n);
+			return  index(id);
+		} catch ( NumberFormatException ex ) {
+			throw new FizzleException("Must index ListParameter with integer");
+		}
+
+	}
 
 	@Override
 	public Parameter index(int n) {
 		return self.get(n);
 	}
-	
+
+	public static ListParameter castFrom(StringParameter in, Context ctx) {
+		Debug.info("Making list");
+		ParameterAccumulator[] tkns = TCLEngine.parseLine(new PushbackReader(new StringReader(in.asString(ctx))), null, null);
+		ArrayList<Parameter> out = new ArrayList<Parameter>();
+		for ( ParameterAccumulator p : tkns ) {
+			out.add(p.cheatyResolveOrFizzle());
+		}
+		return from(out);
+	}
+
 	public boolean isArray() { return true; }
 
 	@Override
