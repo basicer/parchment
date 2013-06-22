@@ -37,7 +37,7 @@ public class After extends TCLCommand {
 			
 			return new EvaluationResult.BranchEvaluationResult(null, ctx, null, whenfunc);
 		}
-		ThreadManager.instance().submitWork(new EvaluationResult.BranchEvaluationResult(code.asString(ctx), ctx.up(0), null, whenfunc));
+		ThreadManager.instance().submitWork(new EvaluationResult.BranchEvaluationResult(code.asString(ctx), ctx.up(1).mergeAndCopyAsGlobal(), null, whenfunc));
 		return EvaluationResult.OK;
 	}
 	
