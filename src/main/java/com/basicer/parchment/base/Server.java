@@ -7,6 +7,8 @@ import com.basicer.parchment.OperationalSpell;
 import com.basicer.parchment.annotations.Operation;
 import com.basicer.parchment.parameters.*;
 
+import java.util.ArrayList;
+
 public class Server extends OperationalSpell<ServerParameter> {
 	
 	@Override
@@ -47,6 +49,13 @@ public class Server extends OperationalSpell<ServerParameter> {
 		server.reload();
 		return Parameter.EmptyString;
 	}
+
+	public static Parameter playersOperation(org.bukkit.Server server, Context ctx) {
+		ArrayList<Parameter> players = new ArrayList<Parameter>();
+		for ( org.bukkit.entity.Player p : server.getOnlinePlayers() ) players.add(Parameter.from(p));
+		return ListParameter.from(players);
+	}
+
 
 	@Operation(desc = "Send some string to all connected players.")
 	public static Parameter broadcastOperation(org.bukkit.Server server, Context ctx, StringParameter arg1) {

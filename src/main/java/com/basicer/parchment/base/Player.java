@@ -19,6 +19,9 @@ import com.basicer.parchment.OperationalSpell;
 
 import com.basicer.parchment.annotations.Operation;
 import com.basicer.parchment.parameters.*;
+import org.bukkit.scoreboard.ScoreboardManager;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.Team;
 
 public class Player extends OperationalSpell<PlayerParameter> {
 	
@@ -52,6 +55,7 @@ public class Player extends OperationalSpell<PlayerParameter> {
 	}
 
 
+	@Operation(desc ="Empties the players inventory.")
 	public static Parameter clearOperation(org.bukkit.entity.Player pent, Context ctx) {
 		pent.getInventory().clear();
 		return Parameter.from(pent);
@@ -84,7 +88,13 @@ public class Player extends OperationalSpell<PlayerParameter> {
 		pent.openInventory(i);
 		return Parameter.from(pent);
 	}
-	
+
+
+	@Operation(desc = "Force a player to say something.")
+	public static Parameter chatOperation(org.bukkit.entity.Player pent, Context ctx, Parameter text) {
+		pent.chat(text.asString(ctx));
+		return Parameter.from(pent);
+	}
 	
 	@Operation(aliases = {"fly"})
 	public static Parameter flightOperation(org.bukkit.entity.Player pent, Context ctx, BooleanParameter on) {
@@ -93,12 +103,18 @@ public class Player extends OperationalSpell<PlayerParameter> {
 		return Parameter.from(pent.getAllowFlight());
 	}
 	
-	public static Parameter flyspeedOperation(org.bukkit.entity.Player pent, Context ctx, DoubleParameter v) {
+	public static Parameter flySpeedOperation(org.bukkit.entity.Player pent, Context ctx, DoubleParameter v) {
 		if ( v != null ) pent.setFlySpeed(v.asDouble().floatValue());
 		return Parameter.from(pent.getFlySpeed());
 	}
-	
-	public static Parameter texturpackOperation(org.bukkit.entity.Player pent, Context ctx, StringParameter v) {
+
+	public static Parameter walkSpeedOperation(org.bukkit.entity.Player pent, Context ctx, DoubleParameter v) {
+		if ( v != null ) pent.setWalkSpeed(v.asDouble().floatValue());
+		return Parameter.from(pent.getWalkSpeed());
+	}
+
+
+	public static Parameter texturePackOperation(org.bukkit.entity.Player pent, Context ctx, StringParameter v) {
 		if ( v != null ) pent.setTexturePack(v.asString(ctx));
 		else fizzle("texturepack requires a texture pack to set.");
 		return Parameter.EmptyString;
@@ -116,7 +132,7 @@ public class Player extends OperationalSpell<PlayerParameter> {
 		return Parameter.from(pent.isOp() ? 1 : 0);
 	}
 	
-	public static Parameter haspermissionOperation(org.bukkit.entity.Player pent, Context ctx, StringParameter v) {
+	public static Parameter hasPermissionOperation(org.bukkit.entity.Player pent, Context ctx, StringParameter v) {
 		if ( v == null ) fizzle("What permission where you lookin for ?");
 		return Parameter.from(pent.hasPermission(v.asString(ctx)));
 	}
@@ -129,7 +145,7 @@ public class Player extends OperationalSpell<PlayerParameter> {
 		return ListParameter.from(list);
 	}
 
-	public static Parameter gamemodeOperation(org.bukkit.entity.Player pent, Context ctx, Parameter set) {
+	public static Parameter gameModeOperation(org.bukkit.entity.Player pent, Context ctx, Parameter set) {
 		if ( set != null ) {
 			GameMode m = set.asEnum(GameMode.class);
 			if ( m == null ) fizzle(set.asString() + " is not a valid arguement for hold");
@@ -139,7 +155,7 @@ public class Player extends OperationalSpell<PlayerParameter> {
 		return Parameter.from(pent.getGameMode().name());
 	}
 	
-	public static Parameter closeinventoryOperation(org.bukkit.entity.Player pent, Context ctx) {
+	public static Parameter closeInventoryOperation(org.bukkit.entity.Player pent, Context ctx) {
 		pent.closeInventory();
 		return Parameter.from(pent);
 	}
@@ -153,15 +169,17 @@ public class Player extends OperationalSpell<PlayerParameter> {
 		return e;
 	}
 
-	@Operation(desc = "Returns the amount of money a player has from vault.")
+	@Operation(desc = "Returns the amount of money a player has from vault.", requires = {"vault"})
 	public static Parameter moneyOperation(org.bukkit.entity.Player pent, Context ctx) {
 		return  Parameter.from(((Economy) getEconomyOrFizzle()).getBalance(pent.getName()));
 	}
 
+	@Operation(requires = {"vault"})
 	public static Parameter giveMoneyOperation(org.bukkit.entity.Player pent, Context ctx, DoubleParameter amount) {
 		return  Parameter.from(((Economy) getEconomyOrFizzle()).depositPlayer(pent.getName(), amount.asDouble(ctx)).balance);
 	}
 
+	@Operation(requires = {"vault"})
 	public static Parameter takeMoneyOperation(org.bukkit.entity.Player pent, Context ctx, DoubleParameter amount) {
 		return  Parameter.from(((Economy)getEconomyOrFizzle()).withdrawPlayer(pent.getName(), amount.asDouble(ctx)).balance);
 	}
@@ -179,7 +197,7 @@ public class Player extends OperationalSpell<PlayerParameter> {
 	}
 
 	@Operation(aliases = {"givexp"})
-		 public static Parameter giveexpOperation(org.bukkit.entity.Player pent, Context ctx, IntegerParameter amount) {
+		 public static Parameter giveExpOperation(org.bukkit.entity.Player pent, Context ctx, IntegerParameter amount) {
 		if ( amount != null ) pent.giveExp(amount.asInteger());
 		return Parameter.from(pent.getTotalExperience());
 	}
@@ -190,6 +208,18 @@ public class Player extends OperationalSpell<PlayerParameter> {
 		return Parameter.from(pent.getLevel());
 	}
 
+	public static Parameter teamOperation(org.bukkit.entity.Player pent, Context ctx, StringParameter team) {
+		Scoreboard sb = Bukkit.getScoreboardManager().getMainScoreboard();
+
+		if ( team != null ) {
+			Team old = sb.getPlayerTeam(pent);
+			if ( old != null ) old.removePlayer(pent);
+			Team nue = sb.getTeam(team.asString());
+			if ( nue == null ) fizzle("No such team: " + team.asString());
+			nue.addPlayer(pent);
+		}
+		return Parameter.from(sb.getPlayerTeam(pent).getName());
+	}
 
 	@Operation(desc = "Restore target player's hunger, saturation, and exaustion.")
 	public static Parameter feedOperation(org.bukkit.entity.Player pent, Context ctx) {
@@ -198,5 +228,11 @@ public class Player extends OperationalSpell<PlayerParameter> {
 		pent.setExhaustion(0.0f);
 		return Parameter.from(pent);
 	}
-	
+
+
+	@Operation(desc = "Displays text to that player.")
+	public static Parameter putsOperation(org.bukkit.entity.Player pent, Context ctx, Parameter text) {
+		pent.sendMessage(text.asString());
+		return Parameter.from(pent);
+	}
 }

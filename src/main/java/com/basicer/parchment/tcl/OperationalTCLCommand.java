@@ -7,11 +7,9 @@ import java.util.Queue;
 
 import com.basicer.parchment.Context;
 import com.basicer.parchment.Debug;
-import com.basicer.parchment.EvaluationResult;
 import com.basicer.parchment.FizzleException;
 import com.basicer.parchment.OperationalSpell;
 import com.basicer.parchment.TCLCommand;
-import com.basicer.parchment.TCLEngine;
 import com.basicer.parchment.annotations.Operation;
 import com.basicer.parchment.parameters.Parameter;
 
@@ -46,7 +44,7 @@ public abstract class OperationalTCLCommand extends TCLCommand {
 				continue;
 			} else if ( op.equals("new") || op.equals("create") ) {
 				try {
-					Method m = locateMethod(c, "create", "");
+					Method m = locateOperation(c, "create", "");
 					//TODO: We make this not strict for backward compatability, but we might want
 					//to drop it before it's too late.
 					Object[] method_args = prepareMethodCall(op, args, ctx, null, m, false);
@@ -87,22 +85,22 @@ public abstract class OperationalTCLCommand extends TCLCommand {
 
 	public static Parameter invokeMapped(TCLCommand command, String op, Queue<Parameter> args, Context ctx, Parameter obj  ) {
 		Class<?> c = command.getClass();
-		//Method m = locateMethod(c, op);
+		//Method m = locateOperation(c, op);
 		//TODO: This only goes one level deep
 		//if ( command instanceof OperationalSpell<?> ) {
 		//	OperationalSpell<?> os = (OperationalSpell<?>) command;
-		//	if ( m == null && os.getBaseClass() != null ) m = locateMethod(os.getBaseClass(), op);
+		//	if ( m == null && os.getBaseClass() != null ) m = locateOperation(os.getBaseClass(), op);
 		//}
 		
 		Class<?> tc = c;
-		Method m = locateMethod(tc, op, "Operation");
+		Method m = locateOperation(tc, op, "Operation");
 		if ( command instanceof OperationalSpell<?> ) {
 			while ( m == null ) {
 				try {
 					Method up = tc.getMethod("getBaseClass");
 					tc = (Class<?>)up.invoke(null);
 					if ( tc == null ) break;
-					m = locateMethod(tc, op, "Operation");
+					m = locateOperation(tc, op, "Operation");
 				} catch (NoSuchMethodException e) {
 					break;
 				} catch (SecurityException e) {
@@ -179,11 +177,11 @@ public abstract class OperationalTCLCommand extends TCLCommand {
 		return method_args;
 	}
 	
-	public static Method locateMethod(Class<?> c, String op, String suffix) {
+	public static Method locateOperation(Class<?> c, String op, String suffix) {
 		Method[] methods = c.getMethods();
 		for ( Method mc : methods ) {
 			
-			if ( !mc.getName().equals(op + suffix) ) {
+			if ( !mc.getName().equalsIgnoreCase(op + suffix) ) {
 				if ( mc.getAnnotation(Operation.class) == null ) continue;
 				Operation opp = mc.getAnnotation(Operation.class);
 				if ( opp.aliases() == null ) continue;

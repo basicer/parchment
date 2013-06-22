@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 
+import com.basicer.parchment.annotations.Operation;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
@@ -96,7 +97,12 @@ public class LEntity extends OperationalSpell<EntityParameter>  {
 		
 		return Parameter.from(pent.getItemInHand());
 	}
-	
+
+	@Operation(aliases={"hp"})
+	public static Parameter healthOperation(org.bukkit.entity.LivingEntity le, Context ctx, IntegerParameter set) {
+		if (set != null) le.setHealth(set.asInteger(ctx));
+		return Parameter.from(le.getHealth());
+	}
 	
 	public static Parameter targetOperation(org.bukkit.entity.LivingEntity lent, Context ctx, EntityParameter target) {
 		if (!(lent instanceof Creature)) fizzle("Entity needs to be a Creature.");

@@ -200,7 +200,7 @@ public abstract class Parameter implements Iterable<Parameter> {
 		try {
 			Debug.trace("Trying Static Caster | " + type + " from " + this.getClass());
 			m = type.getDeclaredMethod("castFrom", this.getClass(), Context.class);
-			Debug.trace("I survived");
+			Debug.trace("I survived: " + m);
 			//System.out.println("Using Static Caster" + type);
 			T out = (T)m.invoke(null, this, ctx);
 			Debug.trace("Using Static Caster" + type + " | " + out);
