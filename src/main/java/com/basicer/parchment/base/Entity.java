@@ -66,7 +66,23 @@ public class Entity extends OperationalSpell<EntityParameter>  {
 	public Parameter affect(BlockParameter target, Context ctx) {
 		return affect(target.cast(LocationParameter.class), ctx);
 	}
-	
+
+	public static org.bukkit.entity.Entity create(Context ctx, StringParameter type, LocationParameter where) {
+		//where.asWorld(ctx).spawn(where.asLocation(ctx), Class.forName(type));
+		org.bukkit.World world = where.asWorld(ctx);
+
+		org.bukkit.entity.EntityType etype = type.asEnum(org.bukkit.entity.EntityType.class);
+		if ( etype == null ) fizzle("No such entity type: " + type.asString(ctx));
+		if ( etype.isSpawnable() ) fizzle("Entity type is not spawnable.");
+		try {
+			return world.spawnEntity(where.asLocation(ctx), etype);
+		} catch ( IllegalArgumentException ex ) {
+			fizzle(ex.getMessage());
+			return null;
+		}
+
+	}
+
 	@Operation(desc = "Return target entity's name.")
 	public static Parameter nameOperation(org.bukkit.entity.Entity ent, Context ctx) {
 		String name = ent.getType().getName();
@@ -82,7 +98,7 @@ public class Entity extends OperationalSpell<EntityParameter>  {
 		return Parameter.from(true);
 	}
 	
-	public static Parameter addpotionOperation(org.bukkit.entity.Entity ent, Context ctx, StringParameter name, DoubleParameter dur, IntegerParameter power)
+	public static Parameter addPotionOperation(org.bukkit.entity.Entity ent, Context ctx, StringParameter name, DoubleParameter dur, IntegerParameter power)
 	{
 		if ( !( ent instanceof LivingEntity )) fizzle("Operation requires living Entity");
 		LivingEntity lent = (LivingEntity) ent;
@@ -93,7 +109,7 @@ public class Entity extends OperationalSpell<EntityParameter>  {
 		return Parameter.from(ent);
 	}
 	
-	public static Parameter clearpotionsOperation(org.bukkit.entity.Entity ent, Context ctx) {
+	public static Parameter clearPotionsOperation(org.bukkit.entity.Entity ent, Context ctx) {
 		if ( !( ent instanceof LivingEntity )) fizzle("Operation requires living Entity");
 		LivingEntity lent = (LivingEntity) ent;
 		for ( PotionEffect e : lent.getActivePotionEffects() ) {
@@ -102,8 +118,9 @@ public class Entity extends OperationalSpell<EntityParameter>  {
 		return Parameter.from(ent);
 	}
 	
-	
-	public static Parameter ignightOperation(org.bukkit.entity.Entity ent, Context ctx) {
+
+	@Operation(aliases = {"ignight"})
+	public static Parameter igniteOperation(org.bukkit.entity.Entity ent, Context ctx) {
 		ent.setFireTicks(10 * 15);
 		return Parameter.from(ent);
 	}
@@ -171,7 +188,7 @@ public class Entity extends OperationalSpell<EntityParameter>  {
 		return Parameter.from(c.getTarget());
 	}
 
-	public static Parameter ongroundOperation(org.bukkit.entity.Entity ent, Context ctx) {
+	public static Parameter onGroundOperation(org.bukkit.entity.Entity ent, Context ctx) {
 		return Parameter.from(ent.isOnGround() ? 1 : 0);
 	}
 	

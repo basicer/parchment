@@ -35,8 +35,9 @@ public class ThreadManager {
 		public boolean doWork() {
 			boolean out = true;
 			int i = 0;
+			long timeout = System.currentTimeMillis() + 100;
 			while ( true ) {
-				if ( ++i > 10 ) break;
+				if ( System.currentTimeMillis() > timeout ) break;
 				out = this.engine.step(true);
 				EvaluationResult deepest = this.engine.getDeepestEvaluationResult();
 				if ( deepest != null && deepest instanceof EvaluationResult.BranchEvaluationResult ) {
@@ -72,7 +73,7 @@ public class ThreadManager {
 			WorkItem i = work.peek();
 			if ( i == null ) return System.currentTimeMillis() + SLEEP_STEP;
 			if ( i.nextTimeSlice > System.currentTimeMillis() ) return i.nextTimeSlice;
-			Debug.info("Doing work, Pool at %d items.", work.size());
+			Debug.trace("Doing work, Pool at %d items.", work.size());
 			work.poll();
 			if ( i.doWork() != false ) work.add(i); 
 			else i = work.peek();

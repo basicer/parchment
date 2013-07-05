@@ -37,7 +37,7 @@ public class Heal extends Spell {
 		 
 		double health = ltarget.getHealth() / 2.0;
 		double ammt = ctx.getWithTypeOr("amount", Parameter.from(ltarget.getMaxHealth() - health)).asDouble();
-		int new_health = (int)((health + ammt) * 2);
+		double new_health = (health + ammt) * 2;
 		
 		if ( new_health > ltarget.getMaxHealth() ) new_health = ltarget.getMaxHealth();
 		if ( new_health < 0 ) new_health = 0;

@@ -48,7 +48,13 @@ public abstract class OperationalTCLCommand extends TCLCommand {
 					//TODO: We make this not strict for backward compatability, but we might want
 					//to drop it before it's too late.
 					Object[] method_args = prepareMethodCall(op, args, ctx, null, m, false);
-					U ni = (U) m.invoke(command, method_args);
+					U ni = null;
+					try {
+						ni = (U) m.invoke(command, method_args);
+					} catch ( InvocationTargetException ex ) {
+						if ( ex.getTargetException() instanceof  FizzleException ) throw (FizzleException)ex.getTargetException();
+						throw ex;
+					}
 					
 					target = (TT)Parameter.from(ni);
 					out = target;

@@ -64,9 +64,25 @@ public class LEntity extends OperationalSpell<EntityParameter>  {
 	public Parameter affect(BlockParameter target, Context ctx) {
 		return affect(target.cast(LocationParameter.class), ctx);
 	}
-	
 
-	
+
+	public static org.bukkit.entity.LivingEntity create(Context ctx, StringParameter type, LocationParameter where) {
+		//where.asWorld(ctx).spawn(where.asLocation(ctx), Class.forName(type));
+		org.bukkit.World world = where.asWorld(ctx);
+		org.bukkit.entity.EntityType etype = type.asEnum(org.bukkit.entity.EntityType.class);
+		if ( etype == null ) fizzle("No such entity type: " + type.asString(ctx));
+		if ( etype.isSpawnable() ) fizzle("Entity type is not spawnable.");
+		if ( !etype.isAlive() ) fizzle("Must choose living entity type.");
+		try {
+			return (LivingEntity)world.spawnEntity(where.asLocation(ctx), etype);
+		} catch ( IllegalArgumentException ex ) {
+			fizzle(ex.getMessage());
+			return null;
+		}
+
+
+	}
+
 	public static Parameter addpotionOperation(org.bukkit.entity.LivingEntity lent, Context ctx, StringParameter name, DoubleParameter dur, IntegerParameter power)
 	{	
 		PotionEffectType eff = PotionEffectType.getByName(name.asString().toUpperCase());
@@ -99,9 +115,15 @@ public class LEntity extends OperationalSpell<EntityParameter>  {
 	}
 
 	@Operation(aliases={"hp"})
-	public static Parameter healthOperation(org.bukkit.entity.LivingEntity le, Context ctx, IntegerParameter set) {
-		if (set != null) le.setHealth(set.asInteger(ctx));
+	public static Parameter healthOperation(org.bukkit.entity.LivingEntity le, Context ctx, DoubleParameter set) {
+		if (set != null) le.setHealth(set.asDouble(ctx));
 		return Parameter.from(le.getHealth());
+	}
+
+	@Operation(aliases={"maxhp"})
+	public static Parameter maxHealthOperation(org.bukkit.entity.LivingEntity le, Context ctx, DoubleParameter set) {
+		if (set != null) le.setMaxHealth(set.asDouble(ctx));
+		return Parameter.from(le.getMaxHealth());
 	}
 	
 	public static Parameter targetOperation(org.bukkit.entity.LivingEntity lent, Context ctx, EntityParameter target) {
@@ -115,6 +137,20 @@ public class LEntity extends OperationalSpell<EntityParameter>  {
 		return Parameter.from(c.getTarget());
 	}
 
+	public static Parameter equipOperation(org.bukkit.entity.LivingEntity lent, Context ctx, Parameter what) {
+		if ( what instanceof  ItemParameter ) {
+			Item.equipNaturally(lent, ((ItemParameter) what).asItemStack(ctx));
+			return Parameter.from(lent);
+		}
+
+		Material mat = what.cast(MaterialParameter.class, ctx).asMaterial(ctx);
+		if ( mat == null ) fizzle(what.asString() + " is not a material.");
+		org.bukkit.inventory.ItemStack isc = new org.bukkit.inventory.ItemStack(mat);
+		Item.equipNaturally(lent, isc);
+
+		return Parameter.from(lent);
+
+	}
 	
 
 

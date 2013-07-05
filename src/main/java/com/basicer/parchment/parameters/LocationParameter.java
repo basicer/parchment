@@ -73,4 +73,20 @@ public class LocationParameter extends Parameter {
 	public World asWorld(Context ctx) {
 		return self.getWorld();
 	}
+
+
+	public static LocationParameter castFrom(StringParameter from, Context ctx) {
+		String[] parts = from.asString(ctx).split(" ");
+		if ( parts.length != 3 ) return null;
+		double[] nums = new double[parts.length];
+		for ( int i = 0; i < nums.length; ++i ) {
+			try {
+				nums[i] = Double.parseDouble(parts[i]);
+			} catch ( NumberFormatException ex ) {
+				return null;
+			}
+		}
+
+		return new LocationParameter(new org.bukkit.Location(ctx.getWorld(), nums[0], nums[1], nums[2]));
+	}
 }

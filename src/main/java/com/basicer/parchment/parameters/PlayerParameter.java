@@ -38,10 +38,10 @@ public class PlayerParameter extends LivingEntityParameter {
 	public World asWorld(Context ctx) { return self.getWorld(); }
 	
 	public static PlayerParameter castFrom(StringParameter from, Context ctx) {
-		System.err.println("Attempting player cast " + from.asString() + " to Player");
+
 		Server s = Bukkit.getServer();
 		if ( s == null ) return null;
-		System.out.println("Server s looks for " + from.asString());
+
 		Player p = s.getPlayer(from.asString());
 		if ( p == null ) return null;
 		return new PlayerParameter(p);

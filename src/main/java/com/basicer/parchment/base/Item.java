@@ -285,7 +285,14 @@ public class Item extends OperationalSpell<ItemParameter>  {
 		} else {
 			fizzle("Equip must be a LivingEntity or player");
 		}
+
+		equipNaturally(p, itm);
+
 		
+		return Parameter.from(itm);
+	}
+
+	public static void equipNaturally(LivingEntity p, ItemStack itm) {
 		switch ( itm.getType() ) {
 			case DIAMOND_CHESTPLATE:
 			case GOLD_CHESTPLATE:
@@ -320,10 +327,7 @@ public class Item extends OperationalSpell<ItemParameter>  {
 				//fizzle("Dont know how to equip " + itm.getType());
 				p.getEquipment().setItemInHand(itm);
 		}
-		
-		return Parameter.from(itm);
 	}
-	
 	
 	@Operation(desc = "Equip a **copy** of target itemstack onto a player in the specified slot." )
 	public static Parameter equipexOperation(ItemStack itm, Context ctx, PlayerParameter to, StringParameter p ) {
