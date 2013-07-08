@@ -107,6 +107,10 @@ public class ListParameter extends Parameter {
 		return new ListParameter(self);
 	}
 
+	public static ListParameter from(LinkedList<Parameter> self) {
+		return new ListParameter(new ArrayList(self));
+	}
+
 	@Override
 	public Parameter index(String n) {
 		try {

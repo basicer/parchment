@@ -13,7 +13,9 @@ public abstract class TCLCommand {
 	protected TCLCommand getThis() { return null; }
 	public String[] getArguments() { return new String[] {"args"}; }
 	//public abstract String[] getArguments();
-	
+
+
+
 	public Context bindContext(Parameter[] params, Context ctx) {
 		class ParamInfo {
 			String name;
@@ -151,6 +153,8 @@ public abstract class TCLCommand {
 		b.append("\n\n");
 		return b.toString();
 	}
+
+	public boolean supportedByServer() { return true; }
 		
 	public abstract EvaluationResult extendedExecute(Context c2, TCLEngine e);
 }

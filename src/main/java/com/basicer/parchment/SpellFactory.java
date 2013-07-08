@@ -103,6 +103,8 @@ public class SpellFactory {
 		addBuiltinSpell(Player.class);
 		addBuiltinSpell(Server.class);
 		addBuiltinSpell(World.class);
+
+		addBuiltinSpell(Disguise.class);
 	}
 	
 	public void addCustomSpell(String name, ScriptedSpell spell) {
@@ -112,6 +114,7 @@ public class SpellFactory {
 	public <T extends Spell> void addBuiltinSpell(Class<T> spell) {
 		try {
 			TCLCommand s = spell.newInstance();
+			if ( !s.supportedByServer() ) return;
 			commands.put(s.getName(), s);
 		} catch (InstantiationException e) {
 			return;

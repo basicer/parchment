@@ -25,16 +25,8 @@ import java.util.Queue;
 import java.util.concurrent.Callable;
 import java.util.logging.Logger;
 
-import com.basicer.parchment.Debug;
-import com.basicer.parchment.EvaluationResult;
-import com.basicer.parchment.ScriptedSpell;
-import com.basicer.parchment.Spell;
-import com.basicer.parchment.Context;
-import com.basicer.parchment.SpellFactory;
-import com.basicer.parchment.TCLCommand;
-import com.basicer.parchment.TCLEngine;
-import com.basicer.parchment.TCLUtils;
-import com.basicer.parchment.ThreadManager;
+import com.avaje.ebean.EbeanServer;
+import com.basicer.parchment.*;
 
 import com.basicer.parchment.EvaluationResult.Code;
 import com.basicer.parchment.craftbukkit.Book;
@@ -65,11 +57,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.ItemSpawnEvent;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerChatEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerItemHeldEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.plugin.Plugin;
@@ -313,6 +301,34 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 		//Book.ensureSpellWritten(e.getEntity().getItemStack());
 	}
 
+
+	@EventHandler
+	public void onPlayerCommandPreprocessEvent(PlayerCommandPreprocessEvent e) {
+		Enumeration<TCLCommand> enu = this.spellfactory.getAll().elements();
+
+		String[] parts = e.getMessage().split(" ");
+		String binding = parts[0].substring(1);
+
+
+		Debug.info("Got command: " + binding);
+		while ( enu.hasMoreElements() ) {
+			TCLCommand cmd = enu.nextElement();
+			if ( !(cmd instanceof ScriptedSpell )) continue;
+			ScriptedSpell s = (ScriptedSpell) cmd;
+			if ( !s.canExecuteBinding("command:" + binding) ) continue;
+
+			Context ctx = createContext(null);
+			ctx.setCaster(Parameter.from(e.getPlayer()));
+			ArrayList<Parameter> args = new ArrayList<Parameter>();
+			for ( String part : parts ) args.add(Parameter.from(part));
+			EvaluationResult er = s.executeBinding("command:" + binding, ctx, null, args);
+			Debug.trace(" >>- " + er);
+
+
+			e.setCancelled(true);
+
+		}
+	}
 
 	@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent e) {

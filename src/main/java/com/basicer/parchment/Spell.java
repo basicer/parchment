@@ -138,7 +138,7 @@ public abstract class Spell extends TCLCommand {
 			if ( !name.equals("cast") ) fizzle("Can only use cast binding on this spell.");
 			return new EvaluationResult(this.cast(ctx));
 		} catch ( FizzleException fizzle ) {
-			ctx.sendDebugMessage("The spell fizzles: " + fizzle.getMessage());
+			//ctx.sendDebugMessage("The spell fizzles: " + fizzle.getMessage());
 			return EvaluationResult.makeError(fizzle.getMessage());
 		}
 	}

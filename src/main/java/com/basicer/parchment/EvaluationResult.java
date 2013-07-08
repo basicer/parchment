@@ -63,12 +63,12 @@ public class EvaluationResult {
 		
 		@Override
 		public Parameter getValue() {
-			throw new RuntimeException("You've dome something wrong");
+			throw new RuntimeException("You've done something wrong");
 		}
 
 		@Override
 		public Code getCode() {
-			throw new RuntimeException("You've dome something wrong");
+			throw new RuntimeException("You've done something wrong");
 		}
 
 		public Long getScheduleAfter() {

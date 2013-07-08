@@ -320,7 +320,12 @@ public abstract class Parameter implements Iterable<Parameter> {
 		throw new RuntimeException("Failed cast on " + type.getSimpleName());
 
 	}
-	
+
+
+	public boolean valueEquals(Parameter other) {
+		if ( getUnderlyingValue().equals(other.getUnderlyingValue()) ) return true;
+		return false;
+	}
 
 	
 	public static Parameter fromObject(Object data) {
