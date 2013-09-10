@@ -183,10 +183,7 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 		spellfactory.load();
 		
 		
-		if ( pm.getPlugin("Spout") != null ) {
-			spellfactory.addBuiltinSpell(Spout.class);
-		}
-		
+
 		writeWikiHelp();
 		
 		final Logger logger = this.getLogger();
