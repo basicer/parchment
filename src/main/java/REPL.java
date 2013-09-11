@@ -1,6 +1,6 @@
 import java.io.*;
 
-import com.basicer.parchment.parameters.ArrayParameter;
+import com.basicer.parchment.parameters.DictionaryParameter;
 
 import com.basicer.parchment.Context;
 import com.basicer.parchment.EvaluationResult.Code;
@@ -20,7 +20,7 @@ public class REPL {
 		BufferedReader in = new BufferedReader(converter);
 		Context commandctx = new Context(); 
 		
-		ArrayParameter platform = new ArrayParameter();
+		DictionaryParameter platform = new DictionaryParameter();
 		platform.writeIndex("os", Parameter.from(System.getProperty("os.name")));
 		platform.writeIndex("osVersion", Parameter.from(System.getProperty("os.version")));
 		

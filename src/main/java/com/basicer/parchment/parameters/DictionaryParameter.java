@@ -1,5 +1,6 @@
 package com.basicer.parchment.parameters;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,17 +9,17 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import com.basicer.parchment.Context;
 
-public class ArrayParameter extends Parameter {
+public class DictionaryParameter extends Parameter {
 
 	@Override
 	public Class getUnderlyingType() { return Map.class; }
 
 	private Map<String, Parameter> self;
-	ArrayParameter(Map<String, Parameter> self) {
+	DictionaryParameter(Map<String, Parameter> self) {
 		this.self = self;
 	}
 	
-	public ArrayParameter() {
+	public DictionaryParameter() {
 		this.self = new HashMap<String, Parameter>();
 	}
 	
@@ -33,9 +34,23 @@ public class ArrayParameter extends Parameter {
 	public void deleteIndex(String name) {
 		self.remove(name);
 	}
-	
-	public String asString(Context ctx) { 
-		return "[Dictionary: " + self.toString() + "]";
+
+	/*
+	 * We sorta treat arrays and Dicts the same way right now.  It's kinda
+	 * freaky, but it sure is handy.
+	 */
+	public String asString(Context ctx) {
+		return asList(ctx).asString(ctx);
+	}
+
+	public ListParameter asList(Context ctx) {
+		ArrayList<Parameter> pairs = new ArrayList<Parameter>();
+		for ( String s : self.keySet() ) {
+			pairs.add(Parameter.from(s));
+			pairs.add(self.get(s));
+		}
+
+		return ListParameter.from(pairs);
 	}
 	
 	public boolean isArray() { return true; }

@@ -11,7 +11,7 @@ import com.basicer.parchment.FizzleException;
 import com.basicer.parchment.TCLCommand;
 import com.basicer.parchment.TCLEngine;
 import com.basicer.parchment.TCLUtils;
-import com.basicer.parchment.parameters.ArrayParameter;
+import com.basicer.parchment.parameters.DictionaryParameter;
 import com.basicer.parchment.parameters.Parameter;
 import com.basicer.parchment.tclstrings.ErrorStrings;
 
@@ -63,7 +63,7 @@ public class Set extends TCLCommand {
 		Parameter p = ctxu.getRespectingGlobals(name);
 		
 		if ( p == null && write) {
-			p = new ArrayParameter();
+			p = new DictionaryParameter();
 			ctxu.put(name, p);
 		} else if ( p == null ){
 			throw new FizzleException(String.format(ErrorStrings.NoSuchVarArray, name, index));

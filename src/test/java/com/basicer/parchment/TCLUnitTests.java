@@ -7,7 +7,7 @@ import java.io.PushbackReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.basicer.parchment.parameters.ArrayParameter;
+import com.basicer.parchment.parameters.DictionaryParameter;
 import com.basicer.parchment.parameters.Parameter;
 import com.basicer.parchment.test.Test;
 import com.basicer.parchment.test.Test.TestResult;
@@ -80,7 +80,7 @@ public class TCLUnitTests extends TestCase {
 
 				Context commandctx = new Context();
 
-				ArrayParameter platform = new ArrayParameter();
+				DictionaryParameter platform = new DictionaryParameter();
 				platform.writeIndex("os", Parameter.from(System.getProperty("os.name")));
 				platform.writeIndex("osVersion", Parameter.from(System.getProperty("os.version")));
 

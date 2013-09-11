@@ -434,7 +434,7 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 			Debug.trace("Got h: " + cmd.getName());
 
 			Context ctx = createContext(null);
-			ArrayParameter evt = new ArrayParameter();
+			DictionaryParameter evt = new DictionaryParameter();
 			if ( e instanceof Cancellable ) {
 				Cancellable c = (Cancellable) e;
 				ctx.put("cancel", Parameter.from(((Cancellable) e).isCancelled()));
