@@ -7,11 +7,12 @@ import java.util.List;
 import com.basicer.parchment.bukkit.ParchmentPlugin;
 import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.economy.Economy;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
+import org.bukkit.*;
+import org.bukkit.Color;
+import org.bukkit.entity.*;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 
 import com.basicer.parchment.Context;
@@ -19,9 +20,7 @@ import com.basicer.parchment.OperationalSpell;
 
 import com.basicer.parchment.annotations.Operation;
 import com.basicer.parchment.parameters.*;
-import org.bukkit.scoreboard.ScoreboardManager;
-import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.scoreboard.Team;
+import org.bukkit.scoreboard.*;
 
 public class Player extends OperationalSpell<PlayerParameter> {
 	
@@ -88,6 +87,48 @@ public class Player extends OperationalSpell<PlayerParameter> {
 		pent.openInventory(i);
 		return Parameter.from(pent);
 	}
+
+	private enum ThingsThatCanBeShot { Arrow, Egg, EnderPearl, Fireball, Fish, LargeFireball, SmallFireball, Snowball, ThrownExpBottle, ThrownPotion, WitherSkull }
+
+	@Operation(argnames = {"what"}, desc = "Shoots the named projectile, like an arrow.  Returns the new entity.")
+	public static Parameter shootOperation(org.bukkit.entity.Player pent, Context ctx, StringParameter what) {
+		org.bukkit.entity.Entity shot = null;
+		if ( what == null ) shot = pent.launchProjectile(Arrow.class);
+		else {
+			String swhat = what.asString(ctx);
+			ThingsThatCanBeShot shootable = what.asEnum(ThingsThatCanBeShot.class);
+			if ( shootable == null ) fizzle("I don't know how to shoot: " + what.asString());
+			switch ( shootable ) {
+				case Arrow:
+					shot = pent.launchProjectile(Arrow.class);
+					break;
+				case Snowball:
+					shot = pent.launchProjectile(Snowball.class);
+					break;
+				case Fireball:
+					shot = pent.launchProjectile(Fireball.class);
+					break;
+			}
+		}
+		/*
+		Fireball s = pent.launchProjectile(Fireball.class);
+		s.setVelocity(s.getVelocity().multiply(6));
+		//Spawn the Firework, get the FireworkMeta.
+		Firework fw = (Firework) s.getWorld().spawnEntity(s.getLocation(), EntityType.FIREWORK);
+		FireworkMeta fwm = fw.getFireworkMeta();
+
+
+
+		FireworkEffect effect = FireworkEffect.builder().flicker(true).withColor(Color.BLUE).withFade(Color.RED).with(FireworkEffect.Type.BALL).trail(true).build();
+		fwm.addEffect(effect);
+		//fwm.setPower(0);
+		fw.setFireworkMeta(fwm);
+		//fw.setVelocity(s.getVelocity());
+		//s.remove();
+		*/
+		return Parameter.from(shot);
+	}
+
 
 
 	@Operation(desc = "Force a player to say something.")
@@ -208,8 +249,13 @@ public class Player extends OperationalSpell<PlayerParameter> {
 		return Parameter.from(pent.getLevel());
 	}
 
+	private static  Scoreboard getScoreBaord(org.bukkit.entity.Player pent, Context ctx) {
+		if ( pent.getScoreboard() != null ) return pent.getScoreboard();
+		return Bukkit.getScoreboardManager().getMainScoreboard();
+	}
+
 	public static Parameter teamOperation(org.bukkit.entity.Player pent, Context ctx, StringParameter team) {
-		Scoreboard sb = Bukkit.getScoreboardManager().getMainScoreboard();
+		Scoreboard sb = getScoreBaord(pent, ctx);
 
 		if ( team != null ) {
 			Team old = sb.getPlayerTeam(pent);
@@ -219,6 +265,25 @@ public class Player extends OperationalSpell<PlayerParameter> {
 			nue.addPlayer(pent);
 		}
 		return Parameter.from(sb.getPlayerTeam(pent).getName());
+	}
+
+	public static Parameter scoreOperation(org.bukkit.entity.Player pent, Context ctx, StringParameter objective, IntegerParameter value) {
+		Scoreboard sb =  getScoreBaord(pent, ctx);
+		Objective o = sb.getObjective(objective.asString());
+		if ( o == null ) fizzle("No such objective" + objective.asString(ctx));
+		for ( Score s : sb.getScores(pent) ) {
+			if ( s.getObjective() != o ) continue;
+			if ( value != null ) s.setScore(value.asInteger(ctx));
+			return Parameter.from(s.getScore());
+		}
+
+		fizzle("Coudln't find that player/score pair.");
+		return null; //Unreached
+	}
+
+	public static Parameter scoreboardOperation(org.bukkit.entity.Player pent, Context ctx, OpaqueParameter<Scoreboard> value) {
+		if ( value != null ) pent.setScoreboard(value.getValue());
+			return OpaqueParameter.create(pent.getScoreboard());
 	}
 
 	@Operation(desc = "Restore target player's hunger, saturation, and exaustion.")

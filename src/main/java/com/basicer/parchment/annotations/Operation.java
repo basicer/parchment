@@ -7,5 +7,6 @@ import java.lang.annotation.*;
 public @interface Operation {
 	String[] aliases() default {};
 	String[] requires() default {};
+	String[] argnames() default {};
 	String desc() default "";
 }

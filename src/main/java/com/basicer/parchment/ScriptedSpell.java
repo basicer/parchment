@@ -46,7 +46,6 @@ public class ScriptedSpell extends Spell {
 	public ScriptedSpell(String name, String source, SpellFactory f) {
 		super();
 		this.name = name;
-		triggers = new HashMap<String, String>();
 		spellStatic.put("this", Parameter.from(this));
 		spellStatic.setSpellFactory(f);
 		TCLUtils.evaluate(source, this.spellStatic);
@@ -57,7 +56,6 @@ public class ScriptedSpell extends Spell {
 	public ScriptedSpell(String name, PushbackReader source, SpellFactory f) {
 		super();
 		this.name = name;
-		triggers = new HashMap<String, String>();
 		spellStatic.put("this", Parameter.from(this));
 		spellStatic.setSpellFactory(f);
 		TCLUtils.evaluate(source, this.spellStatic);
@@ -65,10 +63,12 @@ public class ScriptedSpell extends Spell {
 	}
 
 	public void setTrigger(String name, String source) {
+		if ( triggers == null ) triggers = new HashMap<String, String>();
 		triggers.put(name, source);
 	}
 	
 	public void setAffect(Class<? extends Parameter> name, String source) {
+		if ( triggers == null ) triggers = new HashMap<String, String>();
 		triggers.put("affect:" + name.getSimpleName(), source);
 	}
 	
@@ -114,13 +114,15 @@ public class ScriptedSpell extends Spell {
 	}
 	
 	public boolean canExecuteBinding(String binding) {
+		if ( triggers == null ) return false;
 		String name = triggers.get(binding);
 		return ( name != null );
 		
 	}
 	
 	public EvaluationResult executeBinding(String binding, final Context ctx, final TCLEngine engine,  ArrayList<Parameter> argz) {
-		
+
+		if ( triggers == null ) return null;
 		String name = triggers.get(binding);
 		Debug.trace("LeCasting : " + name + " for " + binding);
 		Debug.trace("Casting context is " + ctx.getDebuggingString());
@@ -173,14 +175,12 @@ public class ScriptedSpell extends Spell {
 			Debug.trace("CMP " + cmp.getDebuggingString());
 			Debug.trace("--------------------");
 			*/
-			Debug.trace("Brokering SC proc " + ctx2.getDebuggingString());
+			Debug.trace("%s", "Brokering SC proc " + ctx2.getDebuggingString());
 			
 			EvaluationResult er = proc.extendedExecute(ctx2, engine);
-			TCLEngine ngn = new TCLEngine(er, ctx);   //TODO: We cant use this, can we use engine we have?
-			while ( ngn.step() ) {}
-			return ngn.getEvaluationResult();
-			
-			
+			return er;
+
+
 		} else {
 			return new EvaluationResult(super.cast(ctx));
 		}

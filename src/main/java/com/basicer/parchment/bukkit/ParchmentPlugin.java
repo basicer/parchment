@@ -5,52 +5,31 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PushbackReader;
 import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.concurrent.Callable;
 import java.util.logging.Logger;
 
-import com.avaje.ebean.EbeanServer;
 import com.basicer.parchment.*;
 
-import com.basicer.parchment.EvaluationResult.Code;
-import com.basicer.parchment.craftbukkit.Book;
 import com.basicer.parchment.parameters.*;
-import com.basicer.parchment.spells.Heal;
-import com.basicer.parchment.spells.Spout;
 
 import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.block.Block;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.conversations.Conversation;
-import org.bukkit.conversations.ConversationContext;
-import org.bukkit.conversations.Prompt;
-import org.bukkit.craftbukkit.libs.jline.internal.Log.Level;
 import org.bukkit.event.Event;
 
-import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
@@ -60,21 +39,16 @@ import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.Vector;
 import org.mcstats.Metrics;
-import org.mcstats.Metrics.Graph;
 import org.mcstats.Metrics.Plotter;
-import org.yaml.snakeyaml.reader.StreamReader;
 
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
-
 
 
 public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessageListener {
@@ -111,14 +85,15 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 		
 	}
 
-	
+
 	public void onEnable() {
 		this.saveDefaultConfig();
 		PluginManager pm = this.getServer().getPluginManager();
 		pm.registerEvents(this, this);
 		spellfactory = new SpellFactory();
 		listener = new GlobalListener(this);
-		
+
+
 		try {
 			metrics = new Metrics(this);
 			metrics.createGraph("Scripts").addPlotter(new Plotter("Scripts") {
@@ -206,13 +181,21 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 					if ( best < s.lastModified() ) best = s.lastModified();
 					
 					String sname = s.getName().substring(0, (int) (s.getName().length() - 4));
+					FileInputStream fis = null;
 					try {
-						PushbackReader reader = new PushbackReader(new InputStreamReader(new FileInputStream(s)));
+						 fis = new FileInputStream(s);
+						PushbackReader reader = new PushbackReader(new InputStreamReader(fis));
 						spellfactory.addCustomSpell(sname, new ScriptedSpell(sname, reader, spellfactory));
 						logger.info("Loaded " + sname + " / " + time);
 					} catch (FileNotFoundException e) {
 						logger.warning("Couldnt load " + sname);
 
+					} finally {
+						try {
+							if ( fis != null ) fis.close();
+						} catch (IOException e) {
+							//TODO: Im not even sure what to do about his one.
+						}
 					}
 
 				}
@@ -304,22 +287,30 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 		Enumeration<TCLCommand> enu = this.spellfactory.getAll().elements();
 
 		String[] parts = e.getMessage().split(" ");
-		String binding = parts[0].substring(1);
+		final String binding = parts[0].substring(1);
 
 
 		Debug.info("Got command: " + binding);
 		while ( enu.hasMoreElements() ) {
 			TCLCommand cmd = enu.nextElement();
 			if ( !(cmd instanceof ScriptedSpell )) continue;
-			ScriptedSpell s = (ScriptedSpell) cmd;
+			final ScriptedSpell s = (ScriptedSpell) cmd;
 			if ( !s.canExecuteBinding("command:" + binding) ) continue;
 
-			Context ctx = createContext(null);
+			final Context ctx = createContext(null);
 			ctx.setCaster(Parameter.from(e.getPlayer()));
-			ArrayList<Parameter> args = new ArrayList<Parameter>();
+			final ArrayList<Parameter> args = new ArrayList<Parameter>();
 			for ( String part : parts ) args.add(Parameter.from(part));
-			EvaluationResult er = s.executeBinding("command:" + binding, ctx, null, args);
-			Debug.trace(" >>- " + er);
+
+
+			ThreadManager.instance().submitWork(new EvaluationResult.BranchEvaluationResult(null, ctx, new EvaluationResult.EvalCallback() {
+
+				public EvaluationResult result(EvaluationResult e) {
+					return s.executeBinding("command:" + binding, ctx, null, args);
+				}
+
+			}));
+
 
 
 			e.setCancelled(true);
@@ -424,8 +415,7 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 
 	public void handleEvent(Event e) {
 		//Bukkit.getLogger().info(e.getEventName() + " : " + e.toString());
-		Enumeration<TCLCommand> enu = this.spellfactory.getAll().elements();
-		
+
 		String binding = e.getEventName();
 		if ( !binding.endsWith("Event") ) {
 			return;
@@ -433,15 +423,18 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 		
 		binding = binding.substring(0, binding.length() - 5).toLowerCase();
 		//Bukkit.getLogger().info("->" + binding);
-		 
+		if ( binding.equals("entityportalenter")) return;
+
+
+		Debug.trace("Got event: " + binding);
+		Enumeration<ScriptedSpell> enu = this.spellfactory.findAllWithBinding("bukkit:" + binding);
 		while ( enu.hasMoreElements() ) {
-			TCLCommand cmd = enu.nextElement();
-			if ( !(cmd instanceof ScriptedSpell )) continue;
-			ScriptedSpell s = (ScriptedSpell) cmd;
-			if ( !s.canExecuteBinding("bukkit:" + binding) ) continue;
-			
+			ScriptedSpell cmd = enu.nextElement();
+
+			Debug.trace("Got h: " + cmd.getName());
+
 			Context ctx = createContext(null);
-			DictionaryParameter evt = new DictionaryParameter();
+			ArrayParameter evt = new ArrayParameter();
 			if ( e instanceof Cancellable ) {
 				Cancellable c = (Cancellable) e;
 				ctx.put("cancel", Parameter.from(((Cancellable) e).isCancelled()));
@@ -472,7 +465,10 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 			args.add(evt);
 
 			
-			EvaluationResult er = s.executeBinding("bukkit:" + binding, ctx, null, args);
+			EvaluationResult er = cmd.executeBinding("bukkit:" + binding, ctx, null, args);
+			TCLEngine ngn = new TCLEngine(er, ctx);   //TODO: We cant use this, can we use engine we have?
+			while ( ngn.step() ) {}
+			er = ngn.getEvaluationResult();
 			Debug.trace(" >>- " + er);
 			
 			

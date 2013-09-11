@@ -3,13 +3,10 @@ package com.basicer.parchment.tcl;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Queue;
 
-import com.basicer.parchment.Context;
-import com.basicer.parchment.Debug;
-import com.basicer.parchment.FizzleException;
-import com.basicer.parchment.OperationalSpell;
-import com.basicer.parchment.TCLCommand;
+import com.basicer.parchment.*;
 import com.basicer.parchment.annotations.Operation;
 import com.basicer.parchment.parameters.Parameter;
 
@@ -17,11 +14,36 @@ import com.basicer.parchment.parameters.Parameter;
 
 public abstract class OperationalTCLCommand extends TCLCommand {
 
+	protected class WrongNumberOfArgumentsException extends IllegalArgumentException {
+
+	}
+
 	@Override
 	public String[] getArguments() { return new String[] { "args" }; }
-	
+
+
+	public EvaluationResult basicExtendedExecute(Context ctx, TCLEngine e) {
+		try {
+
+			Queue<Parameter> args = new LinkedList<Parameter>(ctx.getArgs());
+
+			Parameter operation = args.poll();
+			String op = operation.asString();
+
+			if ( op == null ) throw new FizzleException("Operation not a string.");
+			if ( op.startsWith("-") ) op = op.substring(1, op.length());
+
+			Parameter out = invokeMapped(this, op, args, ctx, null);
+			return new EvaluationResult(out);
+
+		} catch ( FizzleException ex ) {
+			return EvaluationResult.makeError(ex.getMessage());
+		}
+	}
+
+
 	public static <U,TT extends Parameter> Parameter operationalDispatch(TCLCommand command, Class<U> type, TT target, Context ctx, Queue<Parameter> args) {
-	
+
 		if ( target == null ) throw new FizzleException("No target.");
 		Object o = target.getUnderlyingValue();
 		
@@ -70,9 +92,7 @@ public abstract class OperationalTCLCommand extends TCLCommand {
 				}
 			}
 
-	
-			
-			
+
 			out = invokeMapped(command, op, args, ctx, target);
 			if ( out != null ) {
 				Object ov = out.getUnderlyingValue();
@@ -138,6 +158,19 @@ public abstract class OperationalTCLCommand extends TCLCommand {
 		} catch (IllegalArgumentException e) {
 			throw new RuntimeException(e);
 		} catch (InvocationTargetException e) {
+
+			if ( e.getTargetException() instanceof WrongNumberOfArgumentsException ) {
+				Operation oa = m.getAnnotation(Operation.class);
+				if ( oa == null || oa.argnames() == null) throw new FizzleException("wrong # args: args unknown");
+				StringBuilder sb = new StringBuilder();
+				for ( String s : oa.argnames() ) {
+					if (sb.length() > 0 ) sb.append(" ");
+					if ( s.endsWith("?") ) sb.append("?");
+					sb.append(s);
+				}
+				throw new FizzleException("wrong # args: should be \"command " + op + " " + sb.toString() + "\"");
+			}
+
 			if ( e.getTargetException() instanceof RuntimeException ) { 
 				throw (RuntimeException)e.getTargetException();
 			} else {
@@ -157,7 +190,7 @@ public abstract class OperationalTCLCommand extends TCLCommand {
 		for (; i < method_args.length; ++i ) {
 			if ( args.size() < 1 ) break;
 			Parameter p = args.peek();
-			if ( p.asString() != null && p.asString().startsWith("-") ) break;
+			//if ( p.asString() != null && p.asString().startsWith("-") ) break;
 			
 			if ( method_types[i].getSimpleName().equals("List") ) { //TODO: Surely we can do better.
 				args.poll();
@@ -173,6 +206,7 @@ public abstract class OperationalTCLCommand extends TCLCommand {
 					method_args[i] = p.cast(method_types[i], ctx);
 				} catch ( Exception ex ) { }
 				if ( method_args[i] == null ) {
+					Debug.info("Failed cast: " + method_types[i].getSimpleName());
 					if ( strict ) throw new FizzleException(op + " expected " + method_types[i].getSimpleName() + ", got " + p.getClass().getSimpleName());
 					else return method_args;
 				} else {
@@ -180,6 +214,7 @@ public abstract class OperationalTCLCommand extends TCLCommand {
 				}
 			}
 		}
+
 		return method_args;
 	}
 	

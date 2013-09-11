@@ -27,5 +27,12 @@ public class WorldParameter extends Parameter {
 		if ( ctx == null ) return null;		
 		return Bukkit.getWorld(str.asString(ctx));		
 	}
+
+	public static WorldParameter castFrom(StringParameter from, Context ctx) {
+		World w = Bukkit.getServer().getWorld(from.asString(ctx));
+		if ( w == null ) return null;
+		return new WorldParameter(w);
+
+	}
 	
 }

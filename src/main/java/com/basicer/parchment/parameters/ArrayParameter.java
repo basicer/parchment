@@ -8,17 +8,17 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import com.basicer.parchment.Context;
 
-public class DictionaryParameter extends Parameter {
+public class ArrayParameter extends Parameter {
 
 	@Override
 	public Class getUnderlyingType() { return Map.class; }
 
 	private Map<String, Parameter> self;
-	DictionaryParameter(Map<String, Parameter> self) {
+	ArrayParameter(Map<String, Parameter> self) {
 		this.self = self;
 	}
 	
-	public DictionaryParameter() {
+	public ArrayParameter() {
 		this.self = new HashMap<String, Parameter>();
 	}
 	

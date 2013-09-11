@@ -74,6 +74,10 @@ public class World extends OperationalSpell<WorldParameter> {
 		return ListParameter.from(players);
 	}
 
+	public static Parameter spawnpointOperation(org.bukkit.World world, Context ctx) {
+		return Parameter.from(world.getSpawnLocation());
+	}
+
 	@Override
 	public DefaultTargetType getDefaultTargetType(Context ctx, String source) {
 		return DefaultTargetType.World;

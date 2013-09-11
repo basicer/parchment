@@ -43,7 +43,9 @@ public class Block extends OperationalSpell<BlockParameter> {
 	@Operation(aliases = {"type"}, desc = "Change the type of target block to a new type.")
 	public static Parameter materialOperation(org.bukkit.block.Block block, Context ctx, MaterialParameter type) {
 		if ( type != null ) {
-			block.setType(type.asMaterial(ctx));
+			Material m = type.asMaterial(ctx);
+			if ( m == null ) fizzle("Unknown material " + type.asString());
+			block.setType(m);
 		}
 		return Parameter.from(block.getType());
 	}
@@ -105,7 +107,7 @@ public class Block extends OperationalSpell<BlockParameter> {
 	}
 	
 	@Operation(desc = "Return the block above this block.")
-	public static Parameter upOperation(org.bukkit.block.Block block, Context ctx) {
+		 public static Parameter upOperation(org.bukkit.block.Block block, Context ctx) {
 		return Parameter.from(block.getRelative(BlockFace.UP));
 	}
 	
@@ -113,7 +115,14 @@ public class Block extends OperationalSpell<BlockParameter> {
 	public static Parameter downOperation(org.bukkit.block.Block block, Context ctx) {
 		return Parameter.from(block.getRelative(BlockFace.DOWN));
 	}
-	
+
+	@Operation(desc = "Return the block some distance from a block face.", argnames = {"direction", "amount"})
+	public static Parameter relOperation(org.bukkit.block.Block block, Context ctx, StringParameter dir, IntegerParameter amount) {
+		BlockFace face = dir.asEnum(BlockFace.class);
+		if ( amount == null ) return Parameter.from(block.getRelative(face, 1));
+		return Parameter.from(block.getRelative(face, amount.asInteger(ctx)));
+	}
+
 	@Override
 	public FirstParameterTargetType getFirstParameterTargetType(Context ctx) {
 		return FirstParameterTargetType.FuzzyMatch;

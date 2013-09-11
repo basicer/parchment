@@ -6,6 +6,8 @@ import com.basicer.parchment.TCLCommand;
 import com.basicer.parchment.TCLEngine;
 import com.basicer.parchment.parameters.Parameter;
 
+import java.util.ArrayList;
+
 public class Upvar extends TCLCommand {
 
 	@Override
@@ -16,11 +18,15 @@ public class Upvar extends TCLCommand {
 		int level = ctx.get("level").asInteger();
 		
 		Context tctx = ctx.up(1);
-		
-		for ( Parameter p : ctx.get("args") ) {
-			tctx.upvar(level, p.asString());
+		ArrayList<Parameter> args = ctx.getArgs();
+
+		for ( int i = 0; i < args.size(); i += 2) {
+			String target = args.get(i).asString();
+			String name = args.get(i+1) == null ? target : args.get(i+1).asString();
+			tctx.upvar(level, target, name);
 		}
-		
+
+
 		
 		
 		return EvaluationResult.OK;

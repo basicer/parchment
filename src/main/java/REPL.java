@@ -1,16 +1,12 @@
 import java.io.*;
-import java.util.logging.*;
 
-import org.bukkit.entity.Player;
+import com.basicer.parchment.parameters.ArrayParameter;
 
 import com.basicer.parchment.Context;
 import com.basicer.parchment.EvaluationResult.Code;
 import com.basicer.parchment.SpellFactory;
 import com.basicer.parchment.TCLEngine;
-import com.basicer.parchment.TCLUtils;
-import com.basicer.parchment.parameters.DictionaryParameter;
 import com.basicer.parchment.parameters.Parameter;
-import com.basicer.parchment.test.Test;
 
 
 public class REPL {
@@ -24,7 +20,7 @@ public class REPL {
 		BufferedReader in = new BufferedReader(converter);
 		Context commandctx = new Context(); 
 		
-		DictionaryParameter platform = new DictionaryParameter();
+		ArrayParameter platform = new ArrayParameter();
 		platform.writeIndex("os", Parameter.from(System.getProperty("os.name")));
 		platform.writeIndex("osVersion", Parameter.from(System.getProperty("os.version")));
 		

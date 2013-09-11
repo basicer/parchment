@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
@@ -18,7 +19,7 @@ import com.basicer.parchment.parameters.*;
 
 public abstract class Spell extends TCLCommand {
 	
-	public enum DefaultTargetType { None, Self, TargetBlock, TargetPlace, World };
+	public enum DefaultTargetType { None, Self, TargetBlock, TargetPlace, World, Server };
 	public enum FirstParameterTargetType { Never, ExactMatch, FuzzyMatch, Always };
 	
 	
@@ -40,7 +41,7 @@ public abstract class Spell extends TCLCommand {
 				Debug.trace(this.getClass().getName() + " => TargetBlock");
 				return DefaultTargetType.TargetBlock;
 			}  else if ( this.canAffect(ServerParameter.class) ) {
-				return DefaultTargetType.Self;
+				return DefaultTargetType.Server;
 			}
 			Debug.trace(this.getClass().getName() + " => None");
 			return DefaultTargetType.None;
@@ -289,7 +290,8 @@ public abstract class Spell extends TCLCommand {
 				if ( sight.size() < 2 ) return null;
 				Block blk2 = sight.get(0);
 				return Parameter.from(blk2, blk2.getFace(sight.get(1)));
-				
+			case Server:
+				return Parameter.from(Bukkit.getServer());
 				
 				
 		}

@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.minecraft.server.NBTBase;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;

@@ -1,17 +1,14 @@
 package com.basicer.parchment;
 
-import java.util.Dictionary;
-import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.*;
 
 import com.basicer.parchment.base.*;
 import com.basicer.parchment.spells.*;
 import com.basicer.parchment.tcl.*;
 import com.basicer.parchment.tcl.Error;
-import com.basicer.parchment.tclutil.Hash;
-import com.basicer.parchment.tclutil.LShuffle;
-import com.basicer.parchment.tclutil.Static;
-import com.basicer.parchment.tclutil.With;
+import com.basicer.parchment.tcl.List;
+import com.basicer.parchment.tcl.Set;
+import com.basicer.parchment.tclutil.*;
 import com.basicer.parchment.test.Test;
 
 public class SpellFactory {
@@ -28,10 +25,13 @@ public class SpellFactory {
 		}
 		return count;
 	}
-	
-	Dictionary<String, TCLCommand> commands;
+
+	Hashtable<String, TCLCommand> commands;
+	ArrayList<ScriptedSpell> ss_cache;
+
 	public SpellFactory() {
 		commands = new Hashtable<String,TCLCommand>();
+		ss_cache = new ArrayList<ScriptedSpell>();
 	}
 	
 	public void loadTCLOnly() {
@@ -72,6 +72,9 @@ public class SpellFactory {
 		addBuiltinCommand(LAppend.class);
 		addBuiltinCommand(LLength.class);
 		addBuiltinCommand(LShuffle.class);
+		addBuiltinCommand(LSearch.class);
+
+		addBuiltinCommand(Clock.class);
 	}
 	
 	public void load() {
@@ -82,16 +85,18 @@ public class SpellFactory {
 		addBuiltinCommand(ET.class);
 		
 		addBuiltinCommand(After.class);
+		addBuiltinCommand(Dist.class);
 		addBuiltinCommand(Hash.class);
 		addBuiltinCommand(With.class);
+		addBuiltinCommand(Http.class);
 		
 		addBuiltinCommand(Expand.class);
 		addBuiltinCommand(SCommand.class);
 		addBuiltinCommand(PCommand.class);
 		addBuiltinCommand(Color.class);
 		addBuiltinCommand(Bind.class);
-		
 
+		addBuiltinCommand(WGRegion.class);
 		
 		addBuiltinSpell(Item.class);
 		addBuiltinSpell(Block.class);
@@ -105,17 +110,29 @@ public class SpellFactory {
 		addBuiltinSpell(World.class);
 
 		addBuiltinSpell(Disguise.class);
+
 	}
 	
 	public void addCustomSpell(String name, ScriptedSpell spell) {
-		commands.put(name, spell);
+		put(name, spell);
 	}
-	
+
+	private void put(String name, TCLCommand s) {
+		if ( s instanceof ScriptedSpell ) {
+			if ( commands.containsKey(name) ) {
+				ss_cache.remove(commands.get(name));
+			}
+			ss_cache.add((ScriptedSpell) s);
+		}
+		commands.put(name, s);
+
+	}
+
 	public <T extends Spell> void addBuiltinSpell(Class<T> spell) {
 		try {
 			TCLCommand s = spell.newInstance();
 			if ( !s.supportedByServer() ) return;
-			commands.put(s.getName(), s);
+			put(s.getName(), s);
 		} catch (InstantiationException e) {
 			return;
 		} catch (IllegalAccessException e) {
@@ -126,7 +143,8 @@ public class SpellFactory {
 	public <T extends TCLCommand> void addBuiltinCommand(Class<T> cmd) {
 		try {
 			TCLCommand s = cmd.newInstance();
-			commands.put(s.getName(), s);
+			if ( !s.supportedByServer() ) return;
+			put(s.getName(), s);
 		} catch (InstantiationException e) {
 			return;
 		} catch (IllegalAccessException e) {
@@ -134,7 +152,18 @@ public class SpellFactory {
 		}
 	}
 
-	public Dictionary<String, TCLCommand> getAll() {
+	public Hashtable<String, TCLCommand> getAll() {
 		return commands;
+	}
+
+	public Enumeration<ScriptedSpell> findAllWithBinding(String binding) {
+		ArrayList<ScriptedSpell> list = new ArrayList<ScriptedSpell>();
+
+		for ( ScriptedSpell s : ss_cache ) {
+			if ( !s.canExecuteBinding(binding) ) continue;
+			list.add(s);
+		}
+		Debug.trace("Found " + list.size() + " for  " + binding);
+		return Collections.enumeration(list);
 	}
 }

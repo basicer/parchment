@@ -4,7 +4,7 @@
 
 	<groupId>com.basicer</groupId>
 	<artifactId>parchment</artifactId>
-	<version>0.1.6-SNAPSHOT</version>
+	<version>0.1.7-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>parchment</name>
@@ -49,6 +49,11 @@
 					<artifactSet>
 						<includes>
 							<include>org.mcstats.bukkit:metrics</include>
+                            <include>org.apache.httpcomponents:httpasyncclient</include>
+                            <include>org.apache.httpcomponents:httpclient</include>
+                            <include>org.apache.httpcomponents:httpcore</include>
+                            <include>org.apache.httpcomponents:httpcore-nio</include>
+                            <include>commons-logging:commons-logging</include>
 						</includes>
 					</artifactSet>
 					<relocations>
@@ -56,6 +61,14 @@
 							<pattern>org.mcstats</pattern>
 							<shadedPattern>com.basicer.parchment.mcstats</shadedPattern>
 						</relocation>
+                        <relocation>
+                            <pattern>org.apache</pattern>
+                            <shadedPattern>com.basicer.parchment.org.apache</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>com.google.code.json-simple</pattern>
+                            <shadedPattern>com.basicer.parchment.com.google.code.json-simple</shadedPattern>
+                        </relocation>
 					</relocations>
 				</configuration>
 				<executions>
@@ -100,10 +113,12 @@
         </repository>
 
 		<!-- Citizens.org -->
+        <!--
 		<repository>
 			<id>Citizens2</id>
-			<url>http://repo.citizensnpcs.com/</url>
+			<url>http://repo.citizensnpcs.co/</url>
 		</repository>
+        -->
 
 		<!--  Disguise Craft and Some other Things -->
 		<repository>
@@ -117,16 +132,22 @@
 	        <url>http://ci.herocraftonline.com/plugin/repository/everything</url>
         </repository>
 
-
+        <!-- Maven -->
+        <repository>
+            <id>maven-repo</id>
+            <url>http://http://repo1.maven.org/maven2</url>
+        </repository>
 
 	</repositories>
 
 	<dependencies>
 
         <dependency>
-            <groupId>net.milkbowl.vault</groupId>
-            <artifactId>Vault</artifactId>
-            <version>1.2.26-SNAPSHOT</version>
+            <groupId>com.sk89q</groupId>
+            <artifactId>worldedit</artifactId>
+            <version>5.5.3</version>
+            <scope>compile</scope>
+            <type>jar</type>
         </dependency>
 
 		<dependency>
@@ -148,30 +169,70 @@
 		<dependency>
 			<groupId>org.bukkit</groupId>
 			<artifactId>craftbukkit</artifactId>
-			<version>1.6.1-R0.1-SNAPSHOT</version>
+			<version>1.6.2-R0.1-SNAPSHOT</version>
 		</dependency>
+        <!--
 		<dependency>
 			<groupId>org.bukkit</groupId>
 			<artifactId>minecraft-server</artifactId>
-			<version>1.6.1</version>
+			<version>1.6.2</version>
 		</dependency>
+		-->
 		<dependency>
 			<groupId>org.mcstats.bukkit</groupId>
 			<artifactId>metrics</artifactId>
 			<version>R6</version>
 			<scope>compile</scope>
 		</dependency>
+        <!--
 		<dependency>
 			<groupId>net.citizensnpcs</groupId>
 			<artifactId>citizensapi</artifactId>
 			<version>2.0.5</version>
             <scope>compile</scope>
 		</dependency>
+		-->
 		<dependency>
       		<groupId>pgDev</groupId>
       		<artifactId>disguisecraft</artifactId>
       		<version>4.0</version>
             <scope>compile</scope>
     	</dependency>
-	</dependencies>
+
+        <dependency>
+            <groupId>net.milkbowl.vault</groupId>
+            <artifactId>Vault</artifactId>
+            <version>1.2.26-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+
+
+        <dependency>
+            <groupId>com.sk89q</groupId>
+            <artifactId>worldguard</artifactId>
+            <version>5.5.5-SNAPSHOT</version>
+            <scope>compile</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.khelekore</groupId>
+                    <artifactId>prtree</artifactId>
+                </exclusion>
+                <exclusion><groupId>com.sk89q</groupId><artifactId>dummypermscompat</artifactId></exclusion>
+                <exclusion><groupId>com.nijikokun</groupId><artifactId>iconomy</artifactId></exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpasyncclient</artifactId>
+            <version>4.0-beta4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.googlecode.json-simple</groupId>
+            <artifactId>json-simple</artifactId>
+            <version>1.1</version>
+        </dependency>
+
+    </dependencies>
 </project>

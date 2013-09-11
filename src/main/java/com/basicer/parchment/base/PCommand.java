@@ -20,10 +20,11 @@ public class PCommand extends TCLCommand {
 	public EvaluationResult extendedExecute(Context ctx, TCLEngine engine) {
 
 		Parameter cmd = ctx.get("command");
-		CommandSender sender = ctx.getCaster().as(Player.class,ctx); 
+		Player p = ctx.getCaster().as(Player.class,ctx);
 		Server s = Bukkit.getServer();
 		
-		boolean okay = s.dispatchCommand(sender, cmd.asString());
+		//boolean okay = s.dispatchCommand(sender, cmd.asString());
+		boolean okay = p.performCommand(cmd.asString(ctx));
 		
 		return new EvaluationResult(Parameter.from(okay ? "true" : "false"));
 	}

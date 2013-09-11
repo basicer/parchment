@@ -73,7 +73,7 @@ public class Entity extends OperationalSpell<EntityParameter>  {
 
 		org.bukkit.entity.EntityType etype = type.asEnum(org.bukkit.entity.EntityType.class);
 		if ( etype == null ) fizzle("No such entity type: " + type.asString(ctx));
-		if ( etype.isSpawnable() ) fizzle("Entity type is not spawnable.");
+		if ( etype.isSpawnable() ) fizzle("Entity type is not spawnable: " + etype.toString());
 		try {
 			return world.spawnEntity(where.asLocation(ctx), etype);
 		} catch ( IllegalArgumentException ex ) {

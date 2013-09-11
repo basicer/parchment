@@ -215,15 +215,20 @@ public class Context {
 		}
 		return out;
 	}
-	
+
 	public void upvar(int level, String var) {
+		upvar(level, var, var);
+
+	}
+
+	public void upvar(int level, String var, String as) {
 		Context ctx = up(level);
 		ParameterPtr p = ctx.getRaw(var);
 		if ( p == null ) {
 			p = new ParameterPtr();
 			ctx.setRaw(var, p);
 		}
-		setRaw(var, p);
+		setRaw(as, p);
 	}
 	
 	public Parameter resolve(String var) {

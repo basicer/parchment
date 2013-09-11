@@ -1,5 +1,6 @@
 package com.basicer.parchment.parameters;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 
@@ -23,7 +24,10 @@ public class LocationParameter extends Parameter {
 	*/
 	
 	public Location asLocation(Context ctx) {
-		return new Location(self.getWorld(), self.getX(), self.getY(), self.getZ());
+		Location out = new Location(self.getWorld(), self.getX(), self.getY(), self.getZ());
+		out.setYaw(self.getYaw());
+		out.setPitch(self.getPitch());
+		return out;
 	}
 	
 	@Override
@@ -45,7 +49,7 @@ public class LocationParameter extends Parameter {
 		
 		if ( s.equalsIgnoreCase("pitch") ) return Parameter.from(self.getPitch());
 		if ( s.equalsIgnoreCase("yaw") ) return Parameter.from(self.getYaw());
-		
+		if ( s.equalsIgnoreCase("world") ) return Parameter.from(self.getWorld());
 		
 		return super.index(s);
 	}
@@ -60,7 +64,7 @@ public class LocationParameter extends Parameter {
 		
 		if ( s.equalsIgnoreCase("pitch") ) self.setPitch((float) val);
 		if ( s.equalsIgnoreCase("yaw") ) self.setYaw((float) val);
-		
+
 		
 		super.writeIndex(s, p);
 	}
@@ -77,16 +81,24 @@ public class LocationParameter extends Parameter {
 
 	public static LocationParameter castFrom(StringParameter from, Context ctx) {
 		String[] parts = from.asString(ctx).split(" ");
-		if ( parts.length != 3 ) return null;
-		double[] nums = new double[parts.length];
-		for ( int i = 0; i < nums.length; ++i ) {
+
+		World w = ctx.getWorld();
+
+		if ( parts.length != 3 && parts.length != 4 ) return null;
+
+		double[] nums = new double[3];
+		int ptr = 0;
+		if ( parts.length == 4) {
+			w = Bukkit.getWorld(parts[ptr++]);
+		}
+		for ( int i = 0; i < 3; ++i ) {
 			try {
-				nums[i] = Double.parseDouble(parts[i]);
+				nums[i] = Double.parseDouble(parts[ptr++]);
 			} catch ( NumberFormatException ex ) {
 				return null;
 			}
 		}
 
-		return new LocationParameter(new org.bukkit.Location(ctx.getWorld(), nums[0], nums[1], nums[2]));
+		return new LocationParameter(new org.bukkit.Location(w, nums[0], nums[1], nums[2]));
 	}
 }

@@ -147,7 +147,7 @@ public abstract class Parameter implements Iterable<Parameter> {
 		if ( registeredTypes == null ) return null;
 		String match = s + "Parameter";
 		for ( Class<? extends Parameter> c : registeredTypes ) {
-			if ( c.getSimpleName().equals(match) ) return c;
+			if ( c.getSimpleName().equalsIgnoreCase(match) ) return c;
 		}
 		return null;
 	}

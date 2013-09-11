@@ -125,7 +125,13 @@ public class LEntity extends OperationalSpell<EntityParameter>  {
 		if (set != null) le.setMaxHealth(set.asDouble(ctx));
 		return Parameter.from(le.getMaxHealth());
 	}
-	
+
+	@Operation()
+	public static Parameter killOperation(org.bukkit.entity.LivingEntity le, Context ctx) {
+		le.damage(le.getHealth());
+		return Parameter.from(le);
+	}
+
 	public static Parameter targetOperation(org.bukkit.entity.LivingEntity lent, Context ctx, EntityParameter target) {
 		if (!(lent instanceof Creature)) fizzle("Entity needs to be a Creature.");
 		Creature c = (Creature) lent;
