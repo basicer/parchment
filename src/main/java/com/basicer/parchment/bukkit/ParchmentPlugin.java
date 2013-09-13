@@ -426,7 +426,7 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 		if ( binding.equals("entityportalenter")) return;
 
 
-		Debug.trace("Got event: " + binding);
+
 		Enumeration<ScriptedSpell> enu = this.spellfactory.findAllWithBinding("bukkit:" + binding);
 		while ( enu.hasMoreElements() ) {
 			ScriptedSpell cmd = enu.nextElement();
@@ -459,7 +459,7 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 					//e1.printStackTrace();
 				}
 			}
-			evt.writeIndex("name", Parameter.from(binding));
+			evt.writeIndex("event", Parameter.from(binding));
 			
 			ArrayList<Parameter> args = new ArrayList<Parameter>();
 			args.add(evt);
@@ -483,7 +483,8 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 				if ( !evt.hasIndex(name) ) continue;
 				try {
 					Debug.trace("Write Cast -> %s [%s] %s", name, types[0].getName(), evt.index(name).asString());
-				
+
+
 					Object nv = evt.index(name).as(types[0]);
 					if ( nv == null ) continue;
 					Debug.trace("Write -> %s %s", name, nv.toString());

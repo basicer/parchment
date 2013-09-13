@@ -163,7 +163,6 @@ public class SpellFactory {
 			if ( !s.canExecuteBinding(binding) ) continue;
 			list.add(s);
 		}
-		Debug.trace("Found " + list.size() + " for  " + binding);
 		return Collections.enumeration(list);
 	}
 }
