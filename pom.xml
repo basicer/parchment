@@ -200,7 +200,7 @@
         <dependency>
             <groupId>net.milkbowl.vault</groupId>
             <artifactId>Vault</artifactId>
-            <version>1.2.26-SNAPSHOT</version>
+            <version>1.2.27</version>
             <scope>compile</scope>
         </dependency>
 
@@ -211,12 +211,10 @@
             <version>5.5.5-SNAPSHOT</version>
             <scope>compile</scope>
             <exclusions>
-                <exclusion>
-                    <groupId>org.khelekore</groupId>
-                    <artifactId>prtree</artifactId>
-                </exclusion>
+                <exclusion><groupId>org.khelekore</groupId><artifactId>prtree</artifactId></exclusion>
                 <exclusion><groupId>com.sk89q</groupId><artifactId>dummypermscompat</artifactId></exclusion>
                 <exclusion><groupId>com.nijikokun</groupId><artifactId>iconomy</artifactId></exclusion>
+                <exclusion><groupId>org.spout</groupId><artifactId>vanilla</artifactId></exclusion>
             </exclusions>
         </dependency>
 
