@@ -68,8 +68,7 @@ public class TCLUnitTestSuite extends TestCase {
 		TestSuite s = new TestSuite();
 
 		for (String filename : getListOfFiles()) {
-			File f = new File("C:\\Users\\basicer\\Workspaces\\Eclipse 4.2 Java\\parchment\\src\\test\\tcl\\"
-					+ filename);
+			File f = new File("src\\test\\tcl\\" + filename);
 			assertTrue(f.exists());
 
 			FileReader fr;
