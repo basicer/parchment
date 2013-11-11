@@ -20,7 +20,10 @@ public class Disguise extends Spell {
 
 	@Override
 	public boolean supportedByServer() {
-			return DisguiseCraft.getAPI() != null;
+			try { return DisguiseCraft.getAPI() != null; }
+			catch ( NoClassDefFoundError ex ) {
+				return false;
+			}
 	}
 
 	@Override
