@@ -15,7 +15,7 @@ import com.basicer.parchment.test.Test.TestResult;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-public class TCLUnitTests extends TestCase {
+public class TCLUnitTest extends TestCase {
 
 	TestResult	result;
 
@@ -23,7 +23,7 @@ public class TCLUnitTests extends TestCase {
 		return this.getClass().getName() + " : " + result.name + " - " + result.description;
 	}
 
-	public TCLUnitTests(TestResult tr) {
+	public TCLUnitTest(TestResult tr) {
 		super("testMethod");
 		this.result = tr;
 	}
@@ -104,7 +104,7 @@ public class TCLUnitTests extends TestCase {
 		}
 
 		for (TestResult r : Test.tests) {
-			s.addTest(new TCLUnitTests(r));
+			s.addTest(new TCLUnitTest(r));
 		}
 
 		return s;
