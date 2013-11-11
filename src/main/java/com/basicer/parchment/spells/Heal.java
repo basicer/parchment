@@ -20,11 +20,12 @@ public class Heal extends Spell {
 		LivingEntity ltarget = target.as(LivingEntity.class);
 		if ( ltarget == null ) fizzle();
 		 
-		double health = ltarget.getHealth() / 2.0;
-		double ammt = ctx.getWithTypeOr("amount", Parameter.from(10.0 - health)).asDouble();
-		int new_health = (int)((health + ammt) * 2);
+		double health = ltarget.getHealth();
+		double maxhealth = ltarget.getMaxHealth();
+		double ammt = ctx.getWithTypeOr("amount", Parameter.from(maxhealth  - health)).asDouble();
+		double new_health = (health + ammt);
 		
-		if ( new_health > 20 ) new_health = 20;
+		if ( new_health > ltarget.getMaximumAir() ) new_health = ltarget.getMaxHealth();
 		if ( new_health < 0 ) new_health = 0;
 
 		ltarget.setHealth(new_health);
