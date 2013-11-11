@@ -68,7 +68,8 @@ public class TCLUnitTestSuite extends TestCase {
 		TestSuite s = new TestSuite();
 
 		for (String filename : getListOfFiles()) {
-			File f = new File("src\\test\\tcl\\" + filename);
+			String sep = File.separator;
+			File f = new File("src" + sep + "test" + sep + "tcl" + sep + filename);
 			if (!f.exists()) continue;
 
 			FileReader fr;
