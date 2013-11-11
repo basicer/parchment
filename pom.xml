@@ -141,7 +141,7 @@
 	</repositories>
 
 	<dependencies>
-
+<!--
         <dependency>
             <groupId>com.sk89q</groupId>
             <artifactId>worldedit</artifactId>
@@ -149,7 +149,7 @@
             <scope>compile</scope>
             <type>jar</type>
         </dependency>
-
+-->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
