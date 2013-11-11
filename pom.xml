@@ -92,7 +92,7 @@
         <!-- Maven -->
         <repository>
             <id>maven-repo</id>
-            <url>http://http://repo1.maven.org/maven2</url>
+            <url>http://repo1.maven.org/maven2</url>
         </repository>
 
         <repository>
@@ -141,7 +141,6 @@
 	</repositories>
 
 	<dependencies>
-<!--
         <dependency>
             <groupId>com.sk89q</groupId>
             <artifactId>worldedit</artifactId>
@@ -149,7 +148,6 @@
             <scope>compile</scope>
             <type>jar</type>
         </dependency>
--->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
