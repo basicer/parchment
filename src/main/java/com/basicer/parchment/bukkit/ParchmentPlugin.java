@@ -51,32 +51,12 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 
 
-public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessageListener {
+public class ParchmentPlugin extends ParchmentPluginLite implements Listener, PluginMessageListener {
 
-	private ProtocolManager	manager;
-	private SpellFactory	spellfactory;
-	private BukkitRunnable  loader;
-	private Metrics			metrics;
-	private GlobalListener	listener;
-
-	private Permission		vault_permission;
-	private Economy 		vault_economy;
-	private Chat 			vault_chat;
+	protected GlobalListener	listener;
 
 	public static ParchmentPlugin getInstance() {
 		return (ParchmentPlugin)Bukkit.getPluginManager().getPlugin("Parchment");
-	}
-
-	public Permission getVaultPermission() {
-		return vault_permission;
-	}
-
-	public Economy getVaultEconomy() {
-		return vault_economy;
-	}
-
-	public Chat getVaultChat() {
-		return vault_chat;
 	}
 
 	public void onDisable() {
@@ -87,78 +67,17 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 
 
 	public void onEnable() {
-		this.saveDefaultConfig();
-		PluginManager pm = this.getServer().getPluginManager();
-		pm.registerEvents(this, this);
-		spellfactory = new SpellFactory();
+		super.onEnable();
 		listener = new GlobalListener(this);
 
+		PluginManager pm = this.getServer().getPluginManager();
+		pm.registerEvents(this, this);
 
-		try {
-			metrics = new Metrics(this);
-			metrics.createGraph("Scripts").addPlotter(new Plotter("Scripts") {
-				@Override
-				public int getValue() {
-					Debug.trace("You have %d Scripts", spellfactory.getScriptCommandCount());
-					return spellfactory.getScriptCommandCount();
-				}
-				
-			});
-			metrics.start();
-		} catch (IOException ex) {
-			ex.printStackTrace();
-		}
-
-		
-		Parameter.RegisterParamaterType(PlayerParameter.class);
-		Parameter.RegisterParamaterType(LivingEntityParameter.class);
-		Parameter.RegisterParamaterType(BlockParameter.class);
-		Parameter.RegisterParamaterType(EntityParameter.class);
-		
-		Parameter.RegisterParamaterType(LocationParameter.class);
-		Parameter.RegisterParamaterType(MaterialParameter.class);
-		Parameter.RegisterParamaterType(ServerParameter.class);
-		Parameter.RegisterParamaterType(WorldParameter.class);
-		Parameter.RegisterParamaterType(ItemParameter.class);
-		
-		
-		
-		if (pm.getPlugin("ProtocolLib") != null) {
-			manager = ProtocolLibrary.getProtocolManager();
-		}
-
-		if ( pm.getPlugin("Vault") != null ) {
-			RegisteredServiceProvider<Permission> perm = getServer().getServicesManager().getRegistration(Permission.class);
-			if ( perm != null ) {
-				vault_permission = perm.getProvider();
-			}
-			RegisteredServiceProvider<Economy> eco = getServer().getServicesManager().getRegistration(Economy.class);
-			if ( eco != null ) {
-				vault_economy = eco.getProvider();
-			}
-			RegisteredServiceProvider<Chat> chat = getServer().getServicesManager().getRegistration(Chat.class);
-			if ( chat != null ) {
-				vault_chat = chat.getProvider();
-			}
-
-		} else {
-			getLogger().info("No Vault");
-		}
-
-		CommandExecutor x = new ParchmentCommandExecutor(this);
-		getCommand("cast").setExecutor(x);
-		getCommand("tcl").setExecutor(x);
-		getCommand("parchment").setExecutor(x);
-		getCommand("scriptmode").setExecutor(x);
 
 		Bukkit.getMessenger().registerIncomingPluginChannel(this, "MC|BEdit", this);
 
 		final File base = this.getDataFolder();
 		
-		spellfactory.load();
-		
-		
-
 		writeWikiHelp();
 		
 		final Logger logger = this.getLogger();
@@ -206,24 +125,10 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 		
 		loader.run();
 		loader.runTaskTimer(this, 100, 100);
-
-		
-	
-		new TCLStepper().runTaskLater(this, 0);
-		
 		pm.registerEvents(listener, this);
 	}
 
-	//Lol Java.
-	private ParchmentPlugin getThis() { return this; }
-	
-	private class TCLStepper extends BukkitRunnable {
-		public void run() {
-			long next = ThreadManager.instance().doWork();
-			new TCLStepper().runTaskLater(getThis(), 1); //Check every tick, most of the time we dont do anything.
-		}
-	}
-	
+
 	private void writeWikiHelp() {
 		StringBuilder b = new StringBuilder();
 		List<TCLCommand> sx = new ArrayList<TCLCommand>();
@@ -268,9 +173,7 @@ public class ParchmentPlugin extends JavaPlugin implements Listener, PluginMessa
 		return ctx;
 	}
 	
-	public SpellFactory getSpellFactory() {
-		return spellfactory;
-	}
+
 
 	@EventHandler
 	public void onPlayerMove(PlayerMoveEvent e) {

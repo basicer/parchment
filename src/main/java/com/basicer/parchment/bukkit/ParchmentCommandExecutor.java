@@ -5,10 +5,13 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.io.PushbackReader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import com.basicer.parchment.*;
+import com.basicer.parchment.parameters.ListParameter;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.command.Command;
@@ -19,22 +22,16 @@ import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.Prompt;
 import org.bukkit.entity.Player;
 
-import com.basicer.parchment.Context;
-import com.basicer.parchment.Debug;
-import com.basicer.parchment.EvaluationResult;
 import com.basicer.parchment.EvaluationResult.BranchEvaluationResult;
-import com.basicer.parchment.TCLEngine;
-import com.basicer.parchment.TCLUtils;
-import com.basicer.parchment.ThreadManager;
 import com.basicer.parchment.EvaluationResult.Code;
 import com.basicer.parchment.parameters.Parameter;
 
 public class ParchmentCommandExecutor implements CommandExecutor {
 
-	private ParchmentPlugin plugin;
+	private ParchmentPluginLite plugin;
 	private Context	commandctx;  //TODO: Replace with per player ctx
 	
-	public ParchmentCommandExecutor(ParchmentPlugin plugin) {
+	public ParchmentCommandExecutor(ParchmentPluginLite plugin) {
 		this.plugin = plugin;
 		commandctx = new Context(); 
 	}
@@ -143,17 +140,51 @@ public class ParchmentCommandExecutor implements CommandExecutor {
 			PushbackReader reader;
 			try {
 				reader = new PushbackReader(new InputStreamReader(new FileInputStream(rfile)));
+				ArrayList<Parameter> argz = new ArrayList<Parameter>();
+				while ( qargs.size() > 0 ) argz.add(Parameter.from(qargs.poll()));
+				ctx.put("args", ListParameter.from(argz));
 				TCLUtils.evaluate(reader, ctx);
 			} catch (FileNotFoundException e) {
 				sender.sendMessage("Unknown file 2 " + file);
 			}
 
+		} else if ( action.equals("tclhelp") || action.equals("help") ) {
+			if ( qargs.size() < 1 ) {
+				sender.sendMessage("Please specify a command you would like help with:");
+				StringBuilder b = new StringBuilder();
+				for ( TCLCommand c : this.plugin.getSpellFactory().getAll().values() ) {
+					b.append(c.getName());
+					if ( b.length() > 100 ) {
+						sender.sendMessage(b.toString());
+						b.setLength(0);
+					}
+				}
+			}
+			String helpcmd = qargs.poll();
+			TCLCommand c = this.plugin.getSpellFactory().get(helpcmd);
+			if ( c == null ) {
+				sender.sendMessage("No command found by that name.");
+			}
+
+			sender.sendMessage(WikiToMinecraft(c.getHelpText()));
+
 		} else {
-			sender.sendMessage("Unknonw action " + action);
+			sender.sendMessage("Unknown action " + action);
 		}
 
 		return true;
 	}
 
+	private static String WikiToMinecraft(String str) {
+		str = str.replaceAll("=== (.*?) ===", "" + ChatColor.BOLD + ChatColor.LIGHT_PURPLE + "========== $1 ==========" + ChatColor.RESET);
+		str = str.replaceAll("\\[\\[(.*?)\\]\\]", "");
+		str = str.replaceAll("\\*\\*(.*?)\\*\\*", ChatColor.BOLD + "$1" + ChatColor.RESET);
+		str = str.replaceAll("//(.*?)//", ChatColor.ITALIC + "$1" + ChatColor.RESET );
+		str = str.replaceAll("\n(\\s+)\\\\\\\\(.*?)","\n  $2");
+		str = str.replaceAll("\n+","\n");
+
+		return str;
+
+	}
 
 }
