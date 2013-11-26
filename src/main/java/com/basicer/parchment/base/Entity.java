@@ -125,43 +125,50 @@ public class Entity extends OperationalSpell<EntityParameter>  {
 		return Parameter.from(ent);
 	}
 	
-	@Operation(aliases = {"tp"}, desc = "Teleport target entity's to given location.  Return the new loaction.")
+	@Operation(aliases = {"tp"}, desc = "Teleport target entity to a given location.  Return the new loaction.")
 	public static Parameter teleportOperation(org.bukkit.entity.Entity ent, Context ctx, Parameter location) {
 		LivingEntity lent = null;
 		if ( ent instanceof LivingEntity ) lent = (LivingEntity) ent;
-		
 		if ( location != null ) {
 			if ( location.as(Entity.class) != null ) {
 				ent.teleport(location.as(org.bukkit.entity.Entity.class), TeleportCause.COMMAND);
-			} else if ( location.as(Block.class) != null ) {
+			} else if ( location.getClass() != BlockParameter.class && location.as(Location.class) != null ) {
+				Location loc = location.as(Location.class);
+				loc.setPitch(ent.getLocation().getPitch());
+				loc.setYaw(ent.getLocation().getYaw());
+				ent.teleport(loc, TeleportCause.COMMAND);
+			} else if ( location.getClass() != BlockParameter.class && location.cast(LocationParameter.class, ctx) != null ) {
+				LocationParameter locp = location.cast(LocationParameter.class, ctx);
+				Location loc = locp.asLocation(ctx);
+				loc.setPitch(ent.getLocation().getPitch());
+				loc.setYaw(ent.getLocation().getYaw());
+				ent.teleport(loc, TeleportCause.COMMAND);
+			} else if ( location.as(org.bukkit.block.Block.class) != null ) {
+				ctx.sendDebugMessage("4");
 				org.bukkit.block.Block bloc = location.as(org.bukkit.block.Block.class);
 				Location loc = bloc.getRelative(BlockFace.UP).getLocation();
 				loc.setPitch(ent.getLocation().getPitch());
 				loc.setYaw(ent.getLocation().getYaw());
 				ent.teleport(loc, TeleportCause.COMMAND);
-			} else if ( location.as(Location.class) != null ) {
-				Location loc = location.as(Location.class);
-				loc.setPitch(ent.getLocation().getPitch());
-				loc.setYaw(ent.getLocation().getYaw());
-				ent.teleport(location.as(Location.class), TeleportCause.COMMAND);
 			} else if ( location.asDouble() != null ) {
+				ctx.sendDebugMessage("6");
 				if ( lent == null ) fizzle("Can only use distance based teleports on living entities");
-				
+
 				double distance = location.asDouble();
 				List<org.bukkit.block.Block> blocks = lent.getLastTwoTargetBlocks(null, (int)distance + 1);
 				org.bukkit.block.Block bloc = blocks.size() > 1 ? blocks.get(1) : blocks.get(0);
-				
-				//TODO: Backtrace this from the end point so we can go though things?
-				
+
+				//TODO: Backtrace this from the end point so we can go thoutypegh things?
+
 				bloc = bloc.getRelative(BlockFace.UP);
 				if ( !bloc.isEmpty() ) bloc = blocks.get(0);
-				
+
 				Location loc = bloc.getLocation();
 				loc.setPitch(ent.getLocation().getPitch());
 				loc.setYaw(ent.getLocation().getYaw());
 				ent.teleport(loc, TeleportCause.COMMAND);
-				
 			} else if ( location.asString() != null ) {
+				ctx.sendDebugMessage("7");
 				String l = location.asString();
 				if ( l.equals("spawn") ) {
 					ent.teleport(ent.getWorld().getSpawnLocation(), TeleportCause.COMMAND);
@@ -170,13 +177,19 @@ public class Entity extends OperationalSpell<EntityParameter>  {
 					if (!(ent instanceof Player)) fizzle("Only players have homes.");
 					ent.teleport(((Player) ent).getBedSpawnLocation(), TeleportCause.COMMAND);
 				}
-						
+				fizzle("Couldn't figure out what to do with " + location.asString());
 			}
 		}
+
 		
 		return Parameter.from(ent.getLocation());
 	}
-	
+
+	@Operation(aliases = {"pos"}, desc = "Returns the entities position as a Location.")
+	public static Parameter locationOperation(org.bukkit.entity.Entity ent, Context ctx) {
+		return Parameter.from(ent.getLocation());
+	}
+
 	public static Parameter targetOperation(org.bukkit.entity.Entity ent, Context ctx, EntityParameter target) {
 		if (!(ent instanceof Creature)) fizzle("Entity needs to be a Creature.");
 		Creature c = (Creature) ent;
