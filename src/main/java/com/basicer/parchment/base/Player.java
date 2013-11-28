@@ -187,6 +187,7 @@ public class Player extends OperationalSpell<PlayerParameter> {
 		return ListParameter.from(list);
 	}
 
+	@Operation(aliases={"gm"})
 	public static Parameter gameModeOperation(org.bukkit.entity.Player pent, Context ctx, Parameter set) {
 		if ( set != null ) {
 			GameMode m = set.asEnum(GameMode.class);

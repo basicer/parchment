@@ -31,7 +31,6 @@ public class Join extends TCLCommand {
 		int i = 0;
 		for ( ParameterAccumulator p : tkns ) {
 			String r = p.cheatyResolveOrFizzle().asString();
-			ctx.sendDebugMessage(") " + r);
 			if ( i != 0 ) b.append(sep);
 			b.append(r);
 			++i;

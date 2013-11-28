@@ -167,6 +167,9 @@ public class Entity extends OperationalSpell<EntityParameter>  {
 				loc.setPitch(ent.getLocation().getPitch());
 				loc.setYaw(ent.getLocation().getYaw());
 				ent.teleport(loc, TeleportCause.COMMAND);
+			} else if ( location.as(Player.class) != null ) {
+				Player p = location.as(Player.class);
+				ent.teleport(p, TeleportCause.COMMAND);
 			} else if ( location.asString() != null ) {
 				ctx.sendDebugMessage("7");
 				String l = location.asString();
