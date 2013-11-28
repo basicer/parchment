@@ -75,6 +75,8 @@ public class SpellFactory {
 		addBuiltinCommand(LSearch.class);
 
 		addBuiltinCommand(Clock.class);
+
+
 	}
 	
 	public void load() {
@@ -97,6 +99,8 @@ public class SpellFactory {
 		addBuiltinCommand(Bind.class);
 
 		addBuiltinCommand(WGRegion.class);
+		addBuiltinCommand(Command.class);
+		addBuiltinCommand(Repeat.class);
 		
 		addBuiltinSpell(Item.class);
 		addBuiltinSpell(Block.class);
@@ -133,6 +137,7 @@ public class SpellFactory {
 			TCLCommand s = spell.newInstance();
 			if ( !s.supportedByServer() ) return;
 			put(s.getName(), s);
+			for ( String a : s.getAliases() ) put(a,s);
 		} catch (InstantiationException e) {
 			return;
 		} catch (IllegalAccessException e) {
@@ -145,6 +150,7 @@ public class SpellFactory {
 			TCLCommand s = cmd.newInstance();
 			if ( !s.supportedByServer() ) return;
 			put(s.getName(), s);
+			for ( String a : s.getAliases() ) put(a,s);
 		} catch (InstantiationException e) {
 			return;
 		} catch (IllegalAccessException e) {

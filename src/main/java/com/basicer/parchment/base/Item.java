@@ -43,9 +43,8 @@ import com.basicer.parchment.unsafe.ProxyFactory;
 public class Item extends OperationalSpell<ItemParameter>  {
 
 
-	
-
-	
+	@Override
+	public String[] getAliases() { return new String[] {"i"}; }
 	
 	public Parameter affect(ItemParameter target, Context ctx) {
 		return super.doaffect(target, ctx);

@@ -16,6 +16,8 @@ import com.basicer.parchment.parameters.*;
 
 public class Block extends OperationalSpell<BlockParameter> {
 
+	@Override
+	public String[] getAliases() { return new String[] {"b"}; }
 
 	public Parameter affect(BlockParameter target, Context ctx) {
 		org.bukkit.block.Block block = target.as(org.bukkit.block.Block.class);

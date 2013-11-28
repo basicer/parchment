@@ -12,6 +12,8 @@ public abstract class TCLCommand {
 	public String getName() { return this.getClass().getSimpleName().toLowerCase(); }
 	protected TCLCommand getThis() { return null; }
 	public String[] getArguments() { return new String[] {"args"}; }
+	public String[] getAliases() { return new String[] {}; }
+
 	//public abstract String[] getArguments();
 
 

@@ -25,8 +25,9 @@ import org.bukkit.scoreboard.*;
 public class Player extends OperationalSpell<PlayerParameter> {
 	
 	public static Class<? extends OperationalSpell<?>> getBaseClass() { return LEntity.class; }
-	
-	
+
+	@Override
+	public String[] getAliases() { return new String[] {"p"}; }
 	
 	@Override
 	public FirstParameterTargetType getFirstParameterTargetType(Context ctx) {

@@ -125,7 +125,7 @@ public class Entity extends OperationalSpell<EntityParameter>  {
 		return Parameter.from(ent);
 	}
 	
-	@Operation(aliases = {"tp"}, desc = "Teleport target entity to a given location.  Return the new loaction.")
+	@Operation(aliases = {"tp"}, desc = "Teleport target entity to given location.  Return the new loaction.")
 	public static Parameter teleportOperation(org.bukkit.entity.Entity ent, Context ctx, Parameter location) {
 		LivingEntity lent = null;
 		if ( ent instanceof LivingEntity ) lent = (LivingEntity) ent;
