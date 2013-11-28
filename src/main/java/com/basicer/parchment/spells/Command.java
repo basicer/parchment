@@ -2,7 +2,9 @@ package com.basicer.parchment.spells;
 
 import com.basicer.parchment.*;
 import com.basicer.parchment.annotations.Operation;
+import com.basicer.parchment.bukkit.ParchmentCommandExecutor;
 import com.basicer.parchment.bukkit.ParchmentPluginLite;
+import com.basicer.parchment.parameters.ListParameter;
 import com.basicer.parchment.parameters.Parameter;
 import com.basicer.parchment.parameters.StringParameter;
 import com.basicer.parchment.tcl.OperationalTCLCommand;
@@ -17,6 +19,7 @@ import org.bukkit.command.SimpleCommandMap;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Map;
 
 /**
@@ -69,7 +72,7 @@ public class Command extends OperationalTCLCommand {
 		return (org.bukkit.command.Command)getServerCommandMap(Bukkit.getServer()).getCommand(cmd);
 	}
 
-	@Operation()
+	@Operation(aliases = {"del"})
 	public Parameter removeOperation(Parameter dummy, Context ctx, StringParameter command) {
 		String cmd = command.asString(ctx);
 		org.bukkit.command.Command bcmd = getCommandFromServer(Bukkit.getServer(), cmd);
@@ -79,6 +82,19 @@ public class Command extends OperationalTCLCommand {
 		boolean result = removeCommandFromServer(Bukkit.getServer(), cmd);
 		Debug.info("Remove %s from map = %s", cmd, result ? "true" : "false");
 		return Parameter.from(result);
+	}
+
+	@Operation()
+	public Parameter listOperation(Parameter dummy, Context ctx) {
+		ArrayList<Parameter> result = new ArrayList<Parameter>();
+		for ( org.bukkit.command.Command bcmd : getServerCommandMap(Bukkit.getServer()).getCommands() ) {
+			if ( ! ( bcmd instanceof PluginCommand ) ) continue;
+			PluginCommand pcmd = (PluginCommand) bcmd;
+			if ( pcmd.getPlugin() != Bukkit.getServer().getPluginManager().getPlugin("Parchment") ) continue;
+			if ( pcmd.getExecutor() instanceof ParchmentCommandExecutor ) continue;
+			result.add(Parameter.from(pcmd.getName()));
+		}
+		return ListParameter.from(result);
 	}
 
 	@Operation()
@@ -95,7 +111,11 @@ public class Command extends OperationalTCLCommand {
 				final Context ctxx = new Context();
 				ctxx.setCaster(Parameter.from(sender));
 				ctxx.setSpellFactory(ctx.getSpellFactory());
-
+				ArrayList<Parameter> args = new ArrayList<Parameter>();
+				for ( String arg : strings ) {
+					args.add(Parameter.from(arg));
+				}
+				ctxx.put("args", ListParameter.from(args));
 				ThreadManager.instance().submitWork(new EvaluationResult.BranchEvaluationResult(tcl_code, ctxx, new EvaluationResult.EvalCallback() {
 
 					public EvaluationResult result(EvaluationResult e) {

@@ -24,7 +24,11 @@ public class LIndex extends TCLCommand {
 			Parameter list2 = list.cast(ListParameter.class);
 			if ( list2 != null ) list = list2;
 			int index = ctx.getArgs().get(i).asInteger();
-			list = list.index(index);
+			try {
+				list = list.index(index);
+			} catch ( IndexOutOfBoundsException ex ) {
+				return new EvaluationResult(Parameter.from(""), EvaluationResult.Code.OK);
+			}
 		}
 		
 		return new EvaluationResult(list);
