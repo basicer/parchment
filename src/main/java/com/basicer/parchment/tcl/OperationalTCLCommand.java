@@ -33,8 +33,8 @@ public abstract class OperationalTCLCommand extends TCLCommand {
 			if ( op == null ) throw new FizzleException("Operation not a string.");
 			if ( op.startsWith("-") ) op = op.substring(1, op.length());
 
-			Parameter out = invokeMapped(this, op, args, ctx, null);
-			return new EvaluationResult(out);
+			EvaluationResult out = invokeMapped(this, op, args, ctx, null);
+			return out;
 
 		} catch ( FizzleException ex ) {
 			return EvaluationResult.makeError(ex.getMessage());
@@ -93,7 +93,7 @@ public abstract class OperationalTCLCommand extends TCLCommand {
 			}
 
 
-			out = invokeMapped(command, op, args, ctx, target);
+			out = invokeMapped(command, op, args, ctx, target).getValue();
 			if ( out != null ) {
 				Object ov = out.getUnderlyingValue();
 				if ( type.isInstance(ov) ) {
@@ -109,7 +109,7 @@ public abstract class OperationalTCLCommand extends TCLCommand {
 		
 	}
 
-	public static Parameter invokeMapped(TCLCommand command, String op, Queue<Parameter> args, Context ctx, Parameter obj  ) {
+	public static EvaluationResult invokeMapped(TCLCommand command, String op, Queue<Parameter> args, Context ctx, Parameter obj  ) {
 		Class<?> c = command.getClass();
 		//Method m = locateOperation(c, op);
 		//TODO: This only goes one level deep
@@ -150,7 +150,11 @@ public abstract class OperationalTCLCommand extends TCLCommand {
 		
 		Object[] method_args = prepareMethodCall(op, args, ctx, obj, m, true);
 		try {
-			return (Parameter)m.invoke(command, method_args);
+			Object o = m.invoke(command, method_args);
+			if ( o == null ) return EvaluationResult.OK;
+			else if ( o instanceof Parameter ) return new EvaluationResult((Parameter) o, EvaluationResult.Code.OK);
+			else if ( o instanceof EvaluationResult ) return (EvaluationResult) o;
+			else return null;
 			
 
 		} catch (IllegalAccessException e) {

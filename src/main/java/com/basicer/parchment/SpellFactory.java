@@ -100,6 +100,8 @@ public class SpellFactory {
 
 		addBuiltinCommand(WGRegion.class);
 		addBuiltinCommand(Command.class);
+		addBuiltinCommand(Bungee.class);
+
 		addBuiltinCommand(Repeat.class);
 		
 		addBuiltinSpell(Item.class);

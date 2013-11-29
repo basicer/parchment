@@ -78,7 +78,7 @@ public class Command extends OperationalTCLCommand {
 		org.bukkit.command.Command bcmd = getCommandFromServer(Bukkit.getServer(), cmd);
 		if ( ! ( bcmd instanceof PluginCommand ) ) return Parameter.from(false);
 		PluginCommand pcmd = (PluginCommand) bcmd;
-		if ( pcmd.getPlugin() != Bukkit.getServer().getPluginManager().getPlugin("Parchment") ) Parameter.from(false);
+		if ( pcmd.getPlugin() != ParchmentPluginLite.instance() ) Parameter.from(false);
 		boolean result = removeCommandFromServer(Bukkit.getServer(), cmd);
 		Debug.info("Remove %s from map = %s", cmd, result ? "true" : "false");
 		return Parameter.from(result);
@@ -90,7 +90,7 @@ public class Command extends OperationalTCLCommand {
 		for ( org.bukkit.command.Command bcmd : getServerCommandMap(Bukkit.getServer()).getCommands() ) {
 			if ( ! ( bcmd instanceof PluginCommand ) ) continue;
 			PluginCommand pcmd = (PluginCommand) bcmd;
-			if ( pcmd.getPlugin() != Bukkit.getServer().getPluginManager().getPlugin("Parchment") ) continue;
+			if ( pcmd.getPlugin() != ParchmentPluginLite.instance() ) continue;
 			if ( pcmd.getExecutor() instanceof ParchmentCommandExecutor ) continue;
 			result.add(Parameter.from(pcmd.getName()));
 		}
@@ -135,7 +135,7 @@ public class Command extends OperationalTCLCommand {
 		try {
 			Constructor<?> constructor = PluginCommand.class.getDeclaredConstructor(String.class, org.bukkit.plugin.Plugin.class);
 			constructor.setAccessible(true);
-			PluginCommand myCommand = (PluginCommand) constructor.newInstance(cmd, Bukkit.getPluginManager().getPlugin("Parchment"));
+			PluginCommand myCommand = (PluginCommand) constructor.newInstance(cmd, ParchmentPluginLite.instance());
 			myCommand.setExecutor(ex);
 			map.register(cmd, myCommand);
 		} catch ( Exception ex2 ) {

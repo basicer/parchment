@@ -9,6 +9,7 @@ import com.comphenix.protocol.ProtocolManager;
 import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -46,6 +47,7 @@ public class ParchmentPluginLite extends JavaPlugin {
 	//Lol Java.
 	private ParchmentPluginLite getThis() { return this; }
 
+	public static ParchmentPluginLite instance() { return (ParchmentPluginLite)Bukkit.getServer().getPluginManager().getPlugin("Parchment"); }
 
 	public void onEnable() {
 		this.saveDefaultConfig();

@@ -28,6 +28,15 @@ public class WorldParameter extends Parameter {
 		return Bukkit.getWorld(str.asString(ctx));		
 	}
 
+	public World asWorld() {
+		return self;
+	}
+
+
+	public static WorldParameter from(World world) {
+		return new WorldParameter(world);
+	}
+
 	public static WorldParameter castFrom(StringParameter from, Context ctx) {
 		World w = Bukkit.getServer().getWorld(from.asString(ctx));
 		if ( w == null ) return null;

@@ -81,14 +81,15 @@ public class WGRegion extends OperationalTCLCommand {
 		public World world;
 	}
 	private RegionParseResult regionFromParamater(ListParameter idx, Context ctx) {
-		WorldParameter world = idx.length() > 1 ? idx.index(1).cast(WorldParameter.class) : null;
+		WorldParameter world = idx.length() > 1 ? idx.index(1).cast(WorldParameter.class) : WorldParameter.from(ctx.getWorld());
+		if ( world == null ) throw new FizzleException("Couldn't find world in arg 2 of in region");
 		Parameter where = idx.index(0);
-		World bworld = world == null ? ctx.getWorld() : world.asWorld(ctx);
-		ProtectedRegion region = getWorldGuard().getRegionManager(bworld).getRegion(where.asString());
+
+		ProtectedRegion region = getWorldGuard().getRegionManager(world.as(World.class)).getRegion(where.asString());
 		if ( region == null ) return null;
 		RegionParseResult out = new RegionParseResult();
 		out.region = region;
-		out.world = bworld;
+		out.world = world.asWorld();
 		return out;
 	}
 

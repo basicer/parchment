@@ -60,9 +60,19 @@ public abstract class Spell extends TCLCommand {
 	
 	@Override
 	public Context bindContext(Parameter[] params, Context ctxi) {
+		FirstParameterTargetType fpt = getFirstParameterTargetType(ctxi);
 		Parameter targetOveride = null;
+		boolean force = false;
+		int off = 1;
 		if ( params.length > 1 ) {
 			Parameter test = params[1];
+			if ( test instanceof StringParameter && ( test.asString(ctxi).equals("-target") || test.asString(ctxi).equals("-@") )) {
+				off = 2;
+				if ( params.length < 3 ) throw new FizzleException("Specify a target when using -@");
+				test = params[2];
+				force = true;
+				fpt = FirstParameterTargetType.Always;
+			}
 			Parameter target = test;
 			if ( test instanceof ListParameter) {
 				if ( test.getHomogeniousType() != null ) {
@@ -73,7 +83,7 @@ public abstract class Spell extends TCLCommand {
 				}
 			}
 			if ( test != null ) {
-				switch ( getFirstParameterTargetType(ctxi) ) {
+				switch ( fpt ) {
 					case Never:
 						test = null;
 						break;
@@ -102,24 +112,25 @@ public abstract class Spell extends TCLCommand {
 						
 				}
 				
-				if ( test != null ) {
+				if ( test != null || force ) {
 					
 					Debug.trace("Casting first param to target for " + this.getClass().getSimpleName());
 					Debug.trace("Target now: " + target.toString());
-					Parameter[] nparams = new Parameter[params.length - 1];
+					Parameter[] nparams = new Parameter[params.length - off];
 					Debug.trace("C " + params.length);
 					Debug.trace("X " + nparams.length);
 					nparams[0] = params[0];
-					System.arraycopy(params, 2, nparams, 1, nparams.length - 1);
+					System.arraycopy(params, off + 1, nparams, 1, params.length - off - 1);
 					targetOveride = target;
 					params = nparams;
 					
 				}
 			}
 		}
-		// 
+
+		//
 		Context out = super.bindContext(params, ctxi);
-		if ( targetOveride != null ) out.setTarget(targetOveride);
+		if ( targetOveride != null || force ) out.setTarget(targetOveride);
 		out.put("this", Parameter.from(this));
 		return out;
 	}
