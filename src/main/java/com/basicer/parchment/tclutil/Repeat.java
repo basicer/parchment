@@ -17,7 +17,7 @@ public class Repeat extends TCLCommand {
 	}
 
 	@Override
-	public String[] getArguments() { return new String[] { "times", "body"  }; }
+	public String[] getArguments() { return new String[] { "-targeting", "times", "body"  }; }
 
 	@Override
 	public EvaluationResult extendedExecute(final Context ctx, final TCLEngine e) {
@@ -26,9 +26,11 @@ public class Repeat extends TCLCommand {
 		final int times = ctx.get("times").asInteger(ctx);
 		final String body =  ctx.get("body").asString();
 		final IntHolder ctl = new IntHolder();
+		final boolean target = ctx.has("targeting");
 		ctl.value = times;
 		return new EvaluationResult.BranchEvaluationResult(body, evalctx, new EvaluationResult.EvalCallback(){
 			public EvaluationResult result(EvaluationResult er) {
+				if ( target && ctl.value != times ) evalctx.setTarget(er.getValue());
 				if ( --ctl.value <= 0 ) return er;
 				if ( er.getCode() == Code.BREAK ) return new EvaluationResult(Parameter.EmptyString);
 				if ( er.getCode() == Code.RETURN ) return er;

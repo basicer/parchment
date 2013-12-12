@@ -48,8 +48,6 @@ public class Proc extends TCLCommand {
 
 			@Override
 			public EvaluationResult extendedExecute(Context ctx, TCLEngine engine) {
-				if (engine == null)
-					engine = new TCLEngine("", null);
 				return new EvaluationResult.BranchEvaluationResult(bodystr, ctx, new EvaluationResult.EvalCallback() {
 					public EvaluationResult result(EvaluationResult r) {
 						if (r == null)

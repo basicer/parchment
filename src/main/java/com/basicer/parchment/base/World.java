@@ -78,6 +78,19 @@ public class World extends OperationalSpell<WorldParameter> {
 		return Parameter.from(world.getSpawnLocation());
 	}
 
+	public static Parameter saveOperation(org.bukkit.World world, Context ctx) {
+		world.save();
+		return WorldParameter.from(world);
+	}
+
+	public static Parameter autosaveOperation(org.bukkit.World world, Context ctx, BooleanParameter set) {
+		if ( set != null ) world.setAutoSave(set.asBoolean(ctx));
+		return BooleanParameter.from(world.isAutoSave());
+	}
+
+
+
+
 	@Override
 	public DefaultTargetType getDefaultTargetType(Context ctx, String source) {
 		return DefaultTargetType.World;

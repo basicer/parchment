@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.basicer.parchment.bukkit.ParchmentPlugin;
+import com.basicer.parchment.bukkit.ParchmentPluginLite;
 import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.*;
@@ -13,6 +14,7 @@ import org.bukkit.entity.*;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
+import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 
 import com.basicer.parchment.Context;
@@ -173,12 +175,44 @@ public class Player extends OperationalSpell<PlayerParameter> {
 		if ( v != null ) pent.setOp(v.asBoolean(ctx));
 		return Parameter.from(pent.isOp() ? 1 : 0);
 	}
-	
+
+	@Operation(aliases = {"hasPerm"})
 	public static Parameter hasPermissionOperation(org.bukkit.entity.Player pent, Context ctx, StringParameter v) {
 		if ( v == null ) fizzle("What permission where you lookin for ?");
 		return Parameter.from(pent.hasPermission(v.asString(ctx)));
 	}
-	
+
+	@Operation(aliases = {"giveperm"})
+	public static Parameter givePermissionOperation(org.bukkit.entity.Player pent, Context ctx, StringParameter v) {
+		if ( v == null ) fizzle("What permission where you lookin for ?");
+		PermissionAttachment target = null;
+		for ( PermissionAttachmentInfo pi : pent.getEffectivePermissions() ) {
+			if ( pi.getPermissible() == pent && pi.getAttachment() != null && pi.getAttachment().getPlugin() == ParchmentPluginLite.instance() ) {
+				target = pi.getAttachment();
+				break;
+			}
+		}
+		if ( target == null ) target = new PermissionAttachment(ParchmentPluginLite.instance(), pent);
+		target.setPermission(v.asString(ctx), true);
+		return Parameter.from(pent.hasPermission(v.asString(ctx)));
+	}
+
+	@Operation(aliases = {"takeperm", "delperm"})
+	public static Parameter removePermissionOperation(org.bukkit.entity.Player pent, Context ctx, StringParameter v) {
+		if ( v == null ) fizzle("What permission where you lookin for ?");
+		PermissionAttachment target = null;
+		for ( PermissionAttachmentInfo pi : pent.getEffectivePermissions() ) {
+			if ( pi.getPermissible() == pent.getPlayer() && pi.getAttachment().getPlugin() == ParchmentPluginLite.instance() ) {
+				target = pi.getAttachment();
+				break;
+			}
+		}
+		if ( target == null ) target = new PermissionAttachment(ParchmentPluginLite.instance(), pent);
+		target.setPermission(v.asString(ctx), false);
+		return Parameter.from(pent.hasPermission(v.asString(ctx)));
+	}
+
+	@Operation(aliases = {"perms"})
 	public static Parameter permissionsOperation(org.bukkit.entity.Player pent, Context ctx) {
 		ArrayList<Parameter> list = new ArrayList<Parameter>();
 		for ( PermissionAttachmentInfo i : pent.getEffectivePermissions() ) {
