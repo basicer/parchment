@@ -1,15 +1,12 @@
 package com.basicer.parchment.tcl;
 
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.LinkedList;
 import java.util.Queue;
-
-import com.basicer.parchment.Context;
-import com.basicer.parchment.EvaluationResult;
-import com.basicer.parchment.FizzleException;
-import com.basicer.parchment.TCLEngine;
-import com.basicer.parchment.parameters.IntegerParameter;
+import com.basicer.parchment.*;
+import com.basicer.parchment.bukkit.ParchmentPluginLite;
 import com.basicer.parchment.parameters.Parameter;
 import com.basicer.parchment.parameters.StringParameter;
 
@@ -27,9 +24,9 @@ public class Info extends OperationalTCLCommand {
 			
 			if ( op == null ) throw new FizzleException("Operation not a string.");
 			if ( op.startsWith("-") ) op = op.substring(1, op.length());
-			
-			Parameter out = invokeMapped(this, op, args, ctx, null);
-			return new EvaluationResult(out);
+
+			return invokeMapped(this, op, args, ctx, null);
+
 			
 		} catch ( FizzleException ex ) {
 			return EvaluationResult.makeError(ex.getMessage());
@@ -44,6 +41,10 @@ public class Info extends OperationalTCLCommand {
 			return Parameter.from(false);
 		}
 		
+	}
+
+	public Parameter versionOperation(Parameter dummy, Context ctx) {
+		return StringParameter.from(ParchmentPluginLite.instance().getDescription().getVersion());
 	}
 
 	public Parameter hostnameOperation(Parameter dummy, Context ctx) {
