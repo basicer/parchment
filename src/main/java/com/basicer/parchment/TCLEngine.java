@@ -5,21 +5,28 @@ import java.io.PushbackReader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import com.basicer.parchment.EvaluationResult.BranchEvaluationResult;
 import com.basicer.parchment.EvaluationResult.Code;
 import com.basicer.parchment.parameters.ParameterAccumulator;
 import com.basicer.parchment.parameters.Parameter;
+import com.basicer.parchment.parameters.StringParameter;
 import com.basicer.parchment.tclstrings.ErrorStrings;
+import com.google.common.base.Function;
+
+import javax.security.auth.callback.Callback;
 
 public class TCLEngine {
 
+	String last_ran_code;
 	PushbackReader sourcecode;
 	Context ctx;
 	private EvaluationResult result = EvaluationResult.OK;
 	private TCLEngine sub;
 	private BranchEvaluationResult subbr;
 	public boolean resilient = false;
+	public static Function<Callable<EvaluationResult>, EvaluationResult> commandGuard = null;
 
 	public TCLEngine(String src, Context ctx) {
 		sourcecode = new PushbackReader(new StringReader(src));
@@ -54,13 +61,15 @@ public class TCLEngine {
 			sub = null;
 
 			if ( !(result instanceof EvaluationResult.BranchEvaluationResult) && result.getCode() == Code.ERROR ) {
-				ctx.top().put("errorInfo", result.getValue());
+				String s = result.getValue().asString() + "\n\twhile executing\n" + last_ran_code;
+				ctx.top().put("errorInfo", StringParameter.from(s));
 			}
 
 			return true;
 		}
 
 		if ( subbr != null ) {
+			last_ran_code = subbr.getToRun();
 			try {
 				//To user land.
 				result = subbr.invokeCallback(result);
@@ -77,13 +86,14 @@ public class TCLEngine {
 			Long when = br.getScheduleAfter();
 			if ( when != null && when > System.currentTimeMillis() && allow_sleeping ) return true;
 			if ( br.getToRun() != null ) sub = new TCLEngine(br.getToRun(), br.getContext());
+			last_ran_code = br.getToRun();
 			subbr = br;
 			return true;
 		} else if ( result.getCode() != Code.OK ) {
 			if ( result.getCode() == Code.ERROR ) {
 				ctx.top().put("errorInfo", result.getValue());
 			}
-			if ( !resilient) return false;
+			if ( !resilient ) return false;
 		}
 
 		if ( pargs != null ) {
@@ -113,7 +123,8 @@ public class TCLEngine {
 			//To User Land
 			String name = rpargs[0].asString();
 
-			TCLCommand s = ctx.getCommand(name);
+			final TCLCommand s = ctx.getCommand(name);
+			final TCLEngine that = this;
 			if ( s == null ) {
 				pargs = null;
 				result = EvaluationResult.makeError(String.format(ErrorStrings.NoCommand, name));
@@ -121,9 +132,19 @@ public class TCLEngine {
 			}
 			try {
 				//To User Land (Calls asString())
-				Context c2 = s.bindContext(rpargs, ctx);
+				final Context c2 = s.bindContext(rpargs, ctx);
+
 				//To User Land
-				result = s.extendedExecute(c2, this);
+				if ( commandGuard == null ) {
+					result = s.extendedExecute(c2, this);
+				} else {
+					result = commandGuard.apply(new Callable<EvaluationResult>() {
+						@Override
+						public EvaluationResult call() throws Exception {
+							return s.extendedExecute(c2, that);
+						}
+					});
+				}
 				pargs = null;
 				return true;
 			} catch (FizzleException ex) {
@@ -136,7 +157,6 @@ public class TCLEngine {
 		if ( sourcecode == null ) return false; //We where evaluating with result given.
 		
 		try {
-			//TODO: This is userland because ReadVariableName cheaty evalautes.
 			pargs = parseLine(sourcecode, ctx);
 		} catch (FizzleException ex) {
 			result = EvaluationResult.makeError(ex.getMessage());
@@ -177,12 +197,14 @@ public class TCLEngine {
 	 * ctx.sendDebugMessage("[R] " + result.toString()); } return result; }
 	 */
 
+	/*
 	public static EvaluationResult cheatyEvaluate(String toRun, Context context) {
 		TCLEngine e = new TCLEngine(toRun, context);
 		while ( e.step() ) {
 		}
 		return new EvaluationResult(e.getResult(), e.getCode());
 	}
+	*/
 
 	/*
 	 * private EvaluationResult evaluate(Parameter[] pargs, Context ctx) {

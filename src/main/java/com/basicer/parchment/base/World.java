@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 import org.bukkit.Effect;
+import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.TreeType;
 import org.bukkit.entity.EntityType;
@@ -74,7 +75,11 @@ public class World extends OperationalSpell<WorldParameter> {
 		return ListParameter.from(players);
 	}
 
-	public static Parameter spawnpointOperation(org.bukkit.World world, Context ctx) {
+	public static Parameter spawnpointOperation(org.bukkit.World world, Context ctx, LocationParameter where) {
+		if ( where != null ) {
+			Location l = where.asLocation(ctx);
+			world.setSpawnLocation(l.getBlockX(), l.getBlockY(), l.getBlockZ());
+		}
 		return Parameter.from(world.getSpawnLocation());
 	}
 

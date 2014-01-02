@@ -1,10 +1,13 @@
 package com.basicer.parchment.base;
 
+import com.basicer.parchment.Debug;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.TreeType;
 import org.bukkit.World;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.Sign;
 import org.bukkit.entity.FallingBlock;
 
 
@@ -42,7 +45,7 @@ public class Block extends OperationalSpell<BlockParameter> {
 		return Parameter.from(block.getType());
 	}
 	
-	@Operation(aliases = {"type"}, desc = "Change the type of target block to a new type.")
+	@Operation(aliases = {"type", "id"}, desc = "Change the type of target block to a new type.")
 	public static Parameter materialOperation(org.bukkit.block.Block block, Context ctx, MaterialParameter type) {
 		if ( type != null ) {
 			Material m = type.asMaterial(ctx);
@@ -125,10 +128,51 @@ public class Block extends OperationalSpell<BlockParameter> {
 		return Parameter.from(block.getRelative(face, amount.asInteger(ctx)));
 	}
 
+	public static Parameter textOperation(org.bukkit.block.Block block, Context ctx, StringParameter text) {
+		String current;
+		BlockState blockState = block.getState();
+		if ( blockState instanceof Sign ) {
+			Sign sign = (Sign) blockState;
+			String[] lines = sign.getLines();
+			StringBuilder b = new StringBuilder();
+			for ( int i = 0; i < lines.length; ++ i ) {
+				if ( i != 0 ) b.append("\n");
+				b.append(lines[i]);
+			}
+			current = b.toString();
+		} else {
+			current = "";
+		}
+
+		if ( text == null ) return Parameter.from(current);
+		String nue = text.asString(ctx);
+
+		if ( blockState instanceof Sign ) {
+			Sign sign = (Sign) blockState;
+			String[] lines = nue.split("\n");
+			for ( int i = 0; i < 4; ++i ) {
+				if ( lines.length > i ) sign.setLine(i, lines[i]);
+				else sign.setLine(i, "");
+			}
+			blockState.update();
+		} else {
+			fizzle("Block is not a sign?! " + block.getClass().getName());
+		}
+
+		return Parameter.from(nue);
+	}
+
+	@Operation(desc = "Cause a block update.  Warning: Tile Entities NBT may be /reset!")
+	public static Parameter updateOperation(org.bukkit.block.Block block, Context ctx) {
+		BlockState state = block.getState();
+		block.setTypeIdAndData(0, block.getData(), false);
+		state.update(true, true);
+		return Parameter.from(block);
+	}
+
 	@Override
 	public FirstParameterTargetType getFirstParameterTargetType(Context ctx) {
 		return FirstParameterTargetType.FuzzyMatch;
 	}
-	
-	
+
 }

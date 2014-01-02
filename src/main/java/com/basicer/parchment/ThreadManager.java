@@ -3,9 +3,18 @@ package com.basicer.parchment;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Queue;
+import java.util.concurrent.Callable;
 
 import com.basicer.parchment.EvaluationResult.BranchEvaluationResult;
 import com.basicer.parchment.EvaluationResult.EvalCallback;
+import com.basicer.parchment.bukkit.ParchmentPluginLite;
+import com.basicer.parchment.tcl.Eval;
+import com.google.common.base.Function;
+import org.bukkit.Bukkit;
+import org.bukkit.scheduler.BukkitScheduler;
+import org.bukkit.scheduler.BukkitWorker;
+
+import javax.annotation.Nullable;
 
 public class ThreadManager {
 	
@@ -15,6 +24,10 @@ public class ThreadManager {
 	public static ThreadManager instance() {
 		if ( _instance == null ) _instance = new ThreadManager();
 		return _instance;
+	}
+
+	public static boolean amInSyncThread() {
+		return Thread.currentThread().getName().equals("Server thread");
 	}
 	
 	private static class WorkItem implements Comparable<WorkItem> {
@@ -61,10 +74,29 @@ public class ThreadManager {
 	
 	public ThreadManager() {
 		work = new PriorityQueue<WorkItem>();
+		TCLEngine.commandGuard = new Function<Callable<EvaluationResult>, EvaluationResult>() {
+
+			@Override
+			public EvaluationResult apply(@Nullable Callable<EvaluationResult> evaluationResultCallable) {
+				try {
+					if ( amInSyncThread() ) {
+						//System.out.println("Am in Thread " + Thread.currentThread().getName());
+						return evaluationResultCallable.call();
+					}
+					else {
+						//System.out.println("Deferring to main thread..."  + Thread.currentThread().getName());
+						return Bukkit.getScheduler().callSyncMethod(ParchmentPluginLite.instance(), evaluationResultCallable).get();
+					}
+				} catch ( Exception ex ) {
+					throw new RuntimeException(ex);
+				}
+			}
+		};
 	}
 
 
 	public void submitWork(BranchEvaluationResult br) {
+		TCLEngine engine = new TCLEngine(br);
 		work.add(new WorkItem(new TCLEngine(br)));
 	}
 	

@@ -12,7 +12,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.Messenger;
 import org.bukkit.plugin.messaging.PluginMessageListener;
-
+import org.bukkit.scheduler.BukkitWorker;
 
 
 import java.io.*;
@@ -57,16 +57,23 @@ public class Bungee extends OperationalTCLCommand implements PluginMessageListen
 		return b.toByteArray();
 	}
 
-	public Player getTransportPlayer() {
+	public Player getTransportPlayer(String hint) {
+		if ( hint != null ) {
+			Player pp = Bukkit.getServer().getPlayerExact(hint);
+			if ( pp != null ) return pp;
+		}
 		return Bukkit.getServer().getOnlinePlayers()[0];
 	}
 
+	public Player getTransportPlayer() {
+		return getTransportPlayer(null);
+	}
 
 	@Operation(aliases={"server","send"}, desc="Sent named player to a given server.")
 	public Parameter connectOperation(Parameter dummy, Context ctx, StringParameter who, StringParameter server) {
 		init();
 		if ( server == null ) { who = ctx.getTarget().cast(StringParameter.class); server = who; }
-		getTransportPlayer().sendPluginMessage(ParchmentPluginLite.instance(), channel, craftBungeeMessage(new String[]{"ConnectOther", who.asString(ctx), server.asString(ctx)}));
+		getTransportPlayer(who.asString(ctx)).sendPluginMessage(ParchmentPluginLite.instance(), channel, craftBungeeMessage(new String[]{"ConnectOther", who.asString(ctx), server.asString(ctx)}));
 		return Parameter.EmptyString;
 	}
 

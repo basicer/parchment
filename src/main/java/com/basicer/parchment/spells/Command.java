@@ -35,6 +35,9 @@ public class Command extends OperationalTCLCommand {
 		return basicExtendedExecute(ctx, e);
 	}
 
+	@Override
+	public String[] getAliases() { return new String[] { "cmd" }; }
+
 	private SimpleCommandMap getServerCommandMap(Server server) {
 		try {
 			return (SimpleCommandMap)server.getClass().getDeclaredMethod("getCommandMap").invoke(server);

@@ -57,7 +57,7 @@ public class LEntity extends OperationalSpell<EntityParameter>  {
 			}
 		}
 		
-		fizzle("No entities fond there");
+		fizzle("No entities found there");
 		return null;
 	}
 	
@@ -157,8 +157,19 @@ public class LEntity extends OperationalSpell<EntityParameter>  {
 		return Parameter.from(lent);
 
 	}
-	
 
+	@Operation(argnames = {"amount", "fromEntity"}, desc = "Deals `amount` damage to this entity.", aliases = {"hurt"})
+	public static Parameter damageOperation(org.bukkit.entity.LivingEntity lent, Context ctx, DoubleParameter amount, LivingEntityParameter oent) {
+		double amountd = amount.asDouble();
+		if ( oent != null ) {
+			lent.damage(amountd, oent.asLivingEntity(ctx));
+		} else {
+			lent.damage(amountd);
+		}
+
+		return LivingEntityParameter.from(lent);
+
+	}
 
 	
 }
