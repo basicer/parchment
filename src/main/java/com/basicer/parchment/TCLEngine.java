@@ -240,8 +240,12 @@ public class TCLEngine {
 	 * ctx).getValue(); }
 	 */
 
-	// Doesnt evaluate if there is no engine
 	public static ParameterAccumulator[] parseLine(PushbackReader s, Context ctx) {
+		return  parseLine(s, ctx, false);
+	}
+
+	public static ParameterAccumulator[] parseLine(PushbackReader s, Context ctx, boolean expr) {
+		final String exprSymbols = "+*-/%=<>^&|";
 		List<ParameterAccumulator> out = new ArrayList<ParameterAccumulator>();
 
 		char in = '\0';
@@ -267,7 +271,8 @@ public class TCLEngine {
 								System.err.println("SoFar ");
 								for ( ParameterAccumulator p : out )
 									System.err.println(p.toString());
-								throw new FizzleException("extra characters after close-quote");
+
+								if ( !expr || exprSymbols.indexOf(xcn) == -1 ) throw new FizzleException("extra characters after close-quote");
 							}
 
 						}
@@ -334,6 +339,19 @@ public class TCLEngine {
 							c = (char) r;
 						}
 						return new ParameterAccumulator[0];
+					} else if ( expr && exprSymbols.indexOf(c) != -1 ) {
+						if ( !current.empty() ) {
+							out.add(current);
+						}
+
+						ParameterAccumulator op = new ParameterAccumulator();
+						op.append("" + c);
+						int i;
+						for ( i = s.read(); i != -1 && exprSymbols.indexOf(i) != -1; i = s.read() ) op.append("" + (char)i);
+						if ( i > 0 ) s.unread(i);
+
+						out.add(op);
+						current = new ParameterAccumulator();
 					} else {
 						append = true;
 					}

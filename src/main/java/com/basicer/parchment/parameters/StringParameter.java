@@ -1,5 +1,6 @@
 package com.basicer.parchment.parameters;
 
+import com.basicer.parchment.FizzleException;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 
@@ -50,15 +51,23 @@ public class StringParameter extends Parameter {
 
 	@Override
 	public boolean asBoolean(Context ctx) {
+		try {
+			return asBooleanStrict(ctx);
+		} catch ( FizzleException ex ) {
+			return false;
+		}
+	}
+
+	@Override
+	public boolean asBooleanStrict(Context ctx) {
 		if ( self.equalsIgnoreCase("true") ) return true;
 		if ( self.equalsIgnoreCase("on") ) return true;
 		if ( self.equalsIgnoreCase("off") ) return false;
 		if ( self.equalsIgnoreCase("false") ) return false;
 		if ( self.length() == 0 ) return false;
 		Integer i = asInteger(ctx);
-		if ( i == null ) return false;
+		if ( i == null ) throw new FizzleException("expected boolean value but got \"" + self + "\"");
 		return ( i != 0 );
-		
 	}
 	
 }

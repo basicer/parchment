@@ -32,7 +32,10 @@ public class BooleanParameter extends Parameter {
 	public boolean asBoolean(Context ctx) {
 		return self;
 	}
-	
+
+	public boolean asBooleanStrict(Context ctx) {
+		return self;
+	}
 
 	
 

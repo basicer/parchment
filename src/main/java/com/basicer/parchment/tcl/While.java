@@ -13,7 +13,7 @@ public class While extends TCLCommand {
 
 	@Override
 	public String[] getArguments() {
-		return new String[] { "test", "body" };
+		return new String[] { "test", "command" };
 	}
 
 	@Override
@@ -36,10 +36,10 @@ public class While extends TCLCommand {
 				Parameter ok = Expr.eval(expr.asString(), evalctx, engine);
 				if (ok == null)
 					throw new RuntimeException("Invalid expression: " + expr.asString());
-				if (ok.asBoolean()) {
+				if (ok.asBooleanStrict(ctx)) {
 					// result = engine.evaluate(ctx.get("body").asString(),
 					// evalctx);
-					return new EvaluationResult.BranchEvaluationResult(ctx.get("body").asString(), evalctx, again);
+					return new EvaluationResult.BranchEvaluationResult(ctx.get("command").asString(), evalctx, again);
 				} else {
 					return EvaluationResult.OK;
 				}

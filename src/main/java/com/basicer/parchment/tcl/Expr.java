@@ -88,7 +88,7 @@ public class Expr extends TCLCommand {
 		PushbackReader s = new PushbackReader(new StringReader(expr));
 		Queue<Parameter> tokens = new LinkedList<Parameter>();
 
-		for ( ParameterAccumulator p : e.parseLine(s, ctx) ) {
+		for ( ParameterAccumulator p : e.parseLine(s, ctx, true) ) {
 			//Debug.trace("TKN " + p.asString());
 			tokens.add(p.cheatyResolveOrFizzle());
 		}
@@ -98,6 +98,7 @@ public class Expr extends TCLCommand {
 	
 	//TODO: Doesn't handle ()'s
 	public static Parameter parse(Queue<Parameter> tokens, Parameter lhs, int min) {
+
 		while ( true ) {
 			if ( tokens.size() < 1 ) {
 				if ( lhs instanceof IntegerParameter ) {
@@ -160,7 +161,7 @@ public class Expr extends TCLCommand {
 			if ( op.equals("==") ) return Parameter.from(testEquality(lhs,rhs));
 			if ( op.equals("!=") ) return Parameter.from(!testEquality(lhs,rhs));
 		} catch ( NullPointerException ex ) {
-			throw new FizzleException("Some argument couldnt be converted to double.");
+			throw new FizzleException("can't use non-numeric string as operand of \"" + op + "\"");
 		}
 		
 		throw new FizzleException("No support for " + op);

@@ -11,16 +11,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import com.basicer.parchment.*;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
-
-import com.basicer.parchment.Context;
-import com.basicer.parchment.Debug;
-import com.basicer.parchment.Spell;
-import com.basicer.parchment.TCLCommand;
 
 
 public abstract class Parameter implements Iterable<Parameter> {
@@ -80,6 +76,8 @@ public abstract class Parameter implements Iterable<Parameter> {
 
 	public final boolean asBoolean()		{ return asBoolean(null); }
 	public boolean asBoolean(Context ctx) 		{ return false; }	
+
+	public boolean asBooleanStrict(Context ctx) { throw new FizzleException("expected boolean value but got \"" + asString(ctx) + "\""); }
 
 	private static List<Class<? extends Parameter>> registeredTypes;
 

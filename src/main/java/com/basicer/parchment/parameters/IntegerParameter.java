@@ -39,8 +39,10 @@ public class IntegerParameter extends Parameter {
 	public boolean asBoolean(Context ctx) {
 		return ( self != 0 );
 	}
-	
 
+	public boolean asBooleanStrict(Context ctx) {
+		return ( self != 0 );
+	}
 	
 
 }
