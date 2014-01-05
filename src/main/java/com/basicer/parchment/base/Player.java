@@ -73,6 +73,12 @@ public class Player extends OperationalSpell<PlayerParameter> {
 		return ListParameter.from(out);
 		
 	}
+
+	@Operation(desc ="Returns the palyers IP address.")
+	public static Parameter ipOperation(org.bukkit.entity.Player pent, Context ctx) {
+
+		return StringParameter.from(pent.getAddress().getAddress().getHostAddress());
+	}
 	
 	public static Parameter offerOperation(org.bukkit.entity.Player pent, Context ctx, List<Parameter> args) {
 		if ( args == null ) fizzle("You must specify some things to offer.");

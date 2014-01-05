@@ -2,12 +2,9 @@ package com.basicer.parchment.tclutil;
 
 
 
-import com.basicer.parchment.Context;
-import com.basicer.parchment.EvaluationResult;
+import com.basicer.parchment.*;
 import com.basicer.parchment.EvaluationResult.Code;
-import com.basicer.parchment.TCLCommand;
-import com.basicer.parchment.TCLEngine;
-import com.basicer.parchment.TCLUtils;
+import com.basicer.parchment.parameters.IntegerParameter;
 import com.basicer.parchment.parameters.Parameter;
 
 public class Repeat extends TCLCommand {
@@ -17,7 +14,7 @@ public class Repeat extends TCLCommand {
 	}
 
 	@Override
-	public String[] getArguments() { return new String[] { "-targeting", "times", "body"  }; }
+	public String[] getArguments() { return new String[] { "-targeting", "-i", "times", "body"  }; }
 
 	@Override
 	public EvaluationResult extendedExecute(final Context ctx, final TCLEngine e) {
@@ -27,13 +24,24 @@ public class Repeat extends TCLCommand {
 		final String body =  ctx.get("body").asString();
 		final IntHolder ctl = new IntHolder();
 		final boolean target = ctx.has("targeting");
+		final boolean seti = ctx.has("i");
+		if ( seti ) {
+			evalctx.put("i", IntegerParameter.from(1));
+		}
 		ctl.value = times;
 		return new EvaluationResult.BranchEvaluationResult(body, evalctx, new EvaluationResult.EvalCallback(){
 			public EvaluationResult result(EvaluationResult er) {
-				if ( target && ctl.value != times ) evalctx.setTarget(er.getValue());
+				if ( target ) {
+					Parameter newtarget = er.getValue();
+					evalctx.setTarget(newtarget);
+					Debug.info("Target now: %s", newtarget == null ? "null" : newtarget.toString());
+				}
+				if ( seti ) evalctx.put("i", IntegerParameter.from(times - ctl.value + 2));
 				if ( --ctl.value <= 0 ) return er;
-				if ( er.getCode() == Code.BREAK ) return new EvaluationResult(Parameter.EmptyString);
-				if ( er.getCode() == Code.RETURN ) return er;
+
+				if ( er.getCode() == Code.ERROR ) return er;
+				else if ( er.getCode() == Code.BREAK ) return new EvaluationResult(Parameter.EmptyString);
+				else if ( er.getCode() == Code.RETURN ) return er;
 
 				return new EvaluationResult.BranchEvaluationResult(body, evalctx, this);
 			}
