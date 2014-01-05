@@ -100,7 +100,9 @@ public class Test extends TCLCommand {
 			//Context ctxx = ctx.up(1).mergeAndCopyAsGlobal();
 			Context ctxx = ctx.up(1);
 			TCLEngine ngn = new TCLEngine(test.body, ctxx);
+			long time = System.currentTimeMillis();
 			while (ngn.step()) {
+				if ( System.currentTimeMillis() - time > 1000 ) return EvaluationResult.makeError("Test time limit reached....");
 			}
 			;
 

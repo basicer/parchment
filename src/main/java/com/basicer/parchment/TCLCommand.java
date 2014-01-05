@@ -74,8 +74,8 @@ public abstract class TCLCommand {
 		
 		
 		int ptr = 1;
-		for ( int i = 0; i < xargs.size(); ++i ) {
-			ParamInfo nfo = xargs.get(i);
+		for ( int i = 0; i < xargs.size() + 1; ++i ) {
+
 			if ( ptr >= params.length ) break;
 			if ( (params[ptr] instanceof StringParameter) ) {
 				String str  = params[ptr].asString(ctx);
@@ -91,6 +91,10 @@ public abstract class TCLCommand {
 					}
 				}
 			}
+
+			if ( i >= xargs.size() ) break;
+
+			ParamInfo nfo = xargs.get(i);
 			if ( nfo.required || ( given > required ) ) {
 				if ( nfo.noise && !params[ptr].asString(ctx).equals(nfo.name) ) {
 					continue;

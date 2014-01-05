@@ -24,19 +24,25 @@ public class StringParameter extends Parameter {
 	}
 	
 	
-	public Integer asInteger(Context ctx) {
+	public Long asLong(Context ctx) {
 		
 		if ( self.startsWith("0o") ) {
-			return Integer.valueOf(self.substring(2), 8);
+			return Long.valueOf(self.substring(2), 8);
 		}
 		if ( self.startsWith("0x") ) {
-			return Integer.valueOf(self.substring(2), 16);
+			return Long.valueOf(self.substring(2), 16);
 		}
 		try {
-			return (int)(Double.parseDouble(self));
+			return (long)(Double.parseDouble(self));
 		} catch (NumberFormatException ex) {
 			return null;
 		}
+	}
+
+	public Integer asInteger(Context ctx) {
+		Long l = this.asLong(ctx);
+		if ( l == null ) return null;
+		return l.intValue();
 	}
 	
 	@Override

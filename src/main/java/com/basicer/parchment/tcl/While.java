@@ -33,7 +33,6 @@ public class While extends TCLCommand {
 				} else {
 					if (er.getCode() == Code.BREAK) return EvaluationResult.OK;
 				}
-				if (++rounds > 20) return EvaluationResult.makeError("Too many loops >.<");
 				Parameter ok = Expr.eval(expr.asString(), evalctx, engine);
 				if (ok == null)
 					throw new RuntimeException("Invalid expression: " + expr.asString());

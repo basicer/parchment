@@ -16,11 +16,11 @@ public class Incr extends TCLCommand {
 	public EvaluationResult extendedExecute(Context ctx, TCLEngine e) {
 		String varName = ctx.get("varName").asString();
 		Parameter incr = ctx.get("increment");
-		int ammount = 1;
+		long amount = 1;
 		
 		if ( incr != null ) {
-			if ( incr.asInteger() == null ) return EvaluationResult.makeError("expected integer but got \"" + incr.asString() + "\"");
-			ammount = incr.asInteger();
+			if ( incr.asLong() == null ) return EvaluationResult.makeError("expected integer but got \"" + incr.asString() + "\"");
+			amount = incr.asLong();
 		}
 		
 		Context ctxu = ctx.up(1);
@@ -32,7 +32,7 @@ public class Incr extends TCLCommand {
 			return new EvaluationResult(Set.access(varName, true, Parameter.from(1), ctxu));
 		}
 		if ( current.asInteger() == null ) return EvaluationResult.makeError("expected integer but got \"" + current.asString() + "\""); 
-		return new EvaluationResult(Set.access(varName, true, Parameter.from(current.asInteger() + ammount), ctxu));
+		return new EvaluationResult(Set.access(varName, true, Parameter.from(current.asLong() + amount), ctxu));
 		
 		
 	}

@@ -21,7 +21,10 @@ public class DoubleParameter extends Parameter {
 	public Integer asInteger(Context ctx) {
 		return Integer.valueOf(self.intValue());
 	}
-	
+
+	public Long asLong(Context ctx) {
+		return Long.valueOf(self.longValue());
+	}
 	
 	
 	public String asString(Context ctx) {
@@ -29,8 +32,8 @@ public class DoubleParameter extends Parameter {
 	}
 
 	public Parameter downCastIfPossible() {
-		if ( self.intValue() == self.doubleValue() ) {
-			return Parameter.from(self.intValue());
+		if ( self.longValue() == self.doubleValue() ) {
+			return Parameter.from(self.longValue());
 		}
 		return this;
 	}

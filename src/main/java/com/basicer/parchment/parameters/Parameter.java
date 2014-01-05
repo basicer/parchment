@@ -73,7 +73,11 @@ public abstract class Parameter implements Iterable<Parameter> {
 	
 	public final Integer asInteger() 		{ return asInteger(null); }
 	public Integer asInteger(Context ctx) 		{ return null; }
-	
+
+	public final Long asLong() 			{ return asLong(null); }
+	public Long asLong(Context ctx) 		{ return asInteger(ctx).longValue(); }
+
+
 	public final boolean asBoolean()		{ return asBoolean(null); }
 	public boolean asBoolean(Context ctx) 		{ return false; }	
 
@@ -250,7 +254,9 @@ public abstract class Parameter implements Iterable<Parameter> {
 	public static DoubleParameter 	from(double d) 		{ return new DoubleParameter(d); }
 	public static DoubleParameter 	from(Double d)		{ return d == null ? null : new DoubleParameter(d); }
 	public static IntegerParameter 	from(int i) 		{ return new IntegerParameter(i); }
+	public static IntegerParameter 	from(long i) 		{ return new IntegerParameter(i); }
 	public static IntegerParameter 	from(Integer i)		{ return i == null ? null : new IntegerParameter(i); }
+	public static IntegerParameter 	from(Long i)		{ return i == null ? null : new IntegerParameter(i); }
 	public static BooleanParameter 	from(boolean b)		{ return new BooleanParameter(b); }
 	
 	

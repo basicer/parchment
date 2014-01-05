@@ -3,9 +3,13 @@ package com.basicer.parchment.parameters;
 import com.basicer.parchment.Context;
 
 public class IntegerParameter extends Parameter {
-	private Integer self;
+	private Long self;
 	
 	public IntegerParameter(Integer self) {
+		this.self = self.longValue();
+	}
+
+	public IntegerParameter(Long self) {
 		this.self = self;
 	}
 
@@ -19,9 +23,12 @@ public class IntegerParameter extends Parameter {
 	
 	
 	public Integer asInteger(Context ctx) {
+		return self.intValue();
+	}
+
+	public Long asLong(Context ctx) {
 		return self;
 	}
-	
 	
 	
 	public String asString(Context ctx) {
