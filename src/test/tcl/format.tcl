@@ -22,6 +22,8 @@
 #	[expr {(wide(0x80000000) > 0) && (wide(0x8000000000000000) < 0)}]
 #testConstraint wideBiggerThanInt [expr {wide(0x80000000) != int(0x80000000)}]
 
+testConstraint longIs32bit 1
+
 test format-1.1 {integer formatting} {
     format "%*d %d %d %d" 6 34 16923 -12 -1
 } {    34 16923 -12 -1}

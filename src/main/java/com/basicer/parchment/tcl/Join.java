@@ -27,7 +27,7 @@ public class Join extends TCLCommand {
 		}
 		StringBuilder b = new StringBuilder();
 		
-		ParameterAccumulator[] tkns = TCLEngine.parseLine(new PushbackReader(new StringReader(what)), null, null);
+		ParameterAccumulator[] tkns = TCLEngine.parseLine(new PushbackReader(new StringReader(what)), null);
 		int i = 0;
 		for ( ParameterAccumulator p : tkns ) {
 			String r = p.cheatyResolveOrFizzle().asString();

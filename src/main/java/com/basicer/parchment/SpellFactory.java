@@ -10,6 +10,7 @@ import com.basicer.parchment.tcl.List;
 import com.basicer.parchment.tcl.Set;
 import com.basicer.parchment.tclutil.*;
 import com.basicer.parchment.test.Test;
+import com.basicer.parchment.test.TestConstraint;
 
 public class SpellFactory {
 	
@@ -64,6 +65,8 @@ public class SpellFactory {
 		addBuiltinCommand(Join.class);
 		
 		addBuiltinCommand(Test.class);
+		addBuiltinCommand(TestConstraint.class);
+
 		addBuiltinCommand(List.class);
 		
 		addBuiltinCommand(StringCmd.class);

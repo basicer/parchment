@@ -266,7 +266,7 @@ public class TCLUtils {
 		try {
 			readBracketExpression(s, b);
 		} catch (IOException e) {
-			return null;
+			throw new FizzleException(e.getMessage());
 		}
 		return b.toString();
 

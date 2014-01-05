@@ -240,12 +240,8 @@ public class TCLEngine {
 	 * ctx).getValue(); }
 	 */
 
-	public ParameterAccumulator[] parseLine(PushbackReader s, Context ctx) {
-		return parseLine(s, ctx, this);
-	}
-
 	// Doesnt evaluate if there is no engine
-	public static ParameterAccumulator[] parseLine(PushbackReader s, Context ctx, TCLEngine engine) {
+	public static ParameterAccumulator[] parseLine(PushbackReader s, Context ctx) {
 		List<ParameterAccumulator> out = new ArrayList<ParameterAccumulator>();
 
 		char in = '\0';
@@ -275,9 +271,6 @@ public class TCLEngine {
 							}
 
 						}
-					} else if ( c == '{' && false ) {
-						s.unread(r);
-						current.append(TCLUtils.readCurlyBraceStringToString(s));
 					} else if ( c == '[' ) {
 						s.unread(r);
 						current.append(ParameterAccumulator.Type.CODE, TCLUtils.readBracketExpressionToString(s), ctx);
@@ -308,6 +301,13 @@ public class TCLEngine {
 					} else if ( c == '{' && current.empty() ) {
 						s.unread(r);
 						current.append(TCLUtils.readCurlyBraceStringToString(s));
+						int xcn = s.read();
+						if ( xcn > 0 ) {
+							s.unread(xcn);
+							if ( !Character.isWhitespace(xcn) && (char) xcn != ';' ) {
+								throw new FizzleException("extra characters after close-brace");
+							}
+						}
 					} else if ( c == '[' ) {
 						s.unread(r);
 						current.append(ParameterAccumulator.Type.CODE, TCLUtils.readBracketExpressionToString(s), ctx);
@@ -348,10 +348,11 @@ public class TCLEngine {
 			if ( !current.empty() ) out.add(current);
 
 		} catch (IOException e) {
-			throw new Error(e);
+			throw new FizzleException(e.getMessage());
 		}
 
 		if ( at_end && out.size() < 1 ) return null;
+		if ( in != '\0' ) throw new FizzleException("missing " + in);
 		return out.toArray(new ParameterAccumulator[0]);
 	}
 

@@ -19,7 +19,7 @@
 #::tcltest::loadTestedCommands
 #catch [list package require -exact Tcltest [info patchlevel]]
 
-#testConstraint testwordend [llength [info commands testwordend]]
+testConstraint testwordend [llength [info commands testwordend]]
 
 # Save the argv value for restoration later
 #set savedArgv $argv

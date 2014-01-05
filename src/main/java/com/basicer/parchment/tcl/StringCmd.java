@@ -19,6 +19,9 @@ public class StringCmd extends OperationalTCLCommand {
 	}
 
 
+	public static boolean TCLStyleMatch(String target, String pattern) {
+		return target.equals(pattern);
+	}
 
 	public Parameter lengthOperation(Parameter dummy, Context ctx, StringParameter str) {
 		return Parameter.from(str.asString().length());

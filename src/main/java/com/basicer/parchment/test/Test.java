@@ -41,6 +41,7 @@ public class Test extends TCLCommand {
 	public EvaluationResult extendedExecute(Context ctx, TCLEngine e) {
 
 		TestResult test = new TestResult();
+		Parameter constraint = null;
 
 		test.name = ctx.get("name").asString();
 		test.description = ctx.get("description").asString();
@@ -60,7 +61,7 @@ public class Test extends TCLCommand {
 				else if (i == 1)
 					test.body = args.get(backward).asString();
 				else {
-					Parameter constraint = args.get(i - 2);
+					constraint = args.get(i - 2);
 				}
 			}
 		} else {
@@ -86,9 +87,18 @@ public class Test extends TCLCommand {
 		else if (test.body == null) test.why = "All tests need a result.";
 		else if (test.expected.asString() == null) test.why = "Result wasent a string.";
 
+		if ( constraint != null ) {
+				String cs = constraint.asString();
+			test.name += "(" + cs + ")";
+				if ( !TestConstraint.getConstraint(cs) ) {
+					return EvaluationResult.OK;
+				}
+		}
+
 		EvaluationResult testResult = null;
 		try {
-			Context ctxx = ctx.up(1).mergeAndCopyAsGlobal();
+			//Context ctxx = ctx.up(1).mergeAndCopyAsGlobal();
+			Context ctxx = ctx.up(1);
 			TCLEngine ngn = new TCLEngine(test.body, ctxx);
 			while (ngn.step()) {
 			}
