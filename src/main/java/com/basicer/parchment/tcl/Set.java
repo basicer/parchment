@@ -43,7 +43,7 @@ public class Set extends TCLCommand {
 				index = index.substring(0,index.length() - 1); //Remove trailing )
 			}
 		} catch ( IOException ex ) {
-			
+			throw new FizzleException(ex.getMessage());
 		}
 		
 		Debug.trace("|%s| %s to %s (%s) = %s", varName, write ? "Write" : "read",  name, index, value); 

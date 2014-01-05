@@ -37,8 +37,11 @@ public class List extends TCLCommand {
 
 		for ( int i = 0; i < src.length(); ++i ) {
 			char c = src.charAt(i);
-		
-			if ( c == '{' ) {
+
+			if ( c == '\\' ) {
+				if ( i == src.length() - 1 ) bad_braces = true;
+				else ++i;
+			} else if ( c == '{' ) {
 				if ( i == 0 ) looks_bracy = true;
 				++openb;
 			}
@@ -82,7 +85,7 @@ public class List extends TCLCommand {
 			} else {
 				if ( c == '$' ) b.append('\\');
 				else if ( (c == '{' || c == '}') && bad_braces ) { b.append('\\'); }
-				else if ( c == '\\' || c == '[' || c == ']' ) b.append('\\');
+				else if ( c == '\\' || c == '[' || c == ']' || c == ';' ) b.append('\\');
 				b.append(c);
 			}
 		}
