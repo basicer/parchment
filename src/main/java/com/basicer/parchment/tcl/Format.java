@@ -12,6 +12,7 @@ import com.basicer.parchment.TCLEngine;
 import com.basicer.parchment.parameters.Parameter;
 import com.basicer.parchment.tclstrings.ErrorStrings;
 
+
 public class Format extends TCLCommand {
 
 	@Override
@@ -24,13 +25,15 @@ public class Format extends TCLCommand {
 		String format = ctx.get("formatString").asString();
 
 		StringBuffer result = new StringBuffer();
-		Matcher m = Pattern.compile("%(?:([0-9]+)[$])?([ +#0-]*)([1-9][0-9]*|[*])?(?:[.]([0-9]*|[*]))?(l|h|ll)?([a-zA-Z%])").matcher(format);
+		Matcher m = Pattern.compile("%(?:([0-9]+)[$])?([ +#0-]*)([1-9][0-9]*|[*])?(?:[.]([0-9]*|[*]))?(l|h|ll)?([^ *]|)").matcher(format);
 		ArrayList<Parameter> args = ctx.getArgs();
 		int i = 0;
 		boolean manual = false;
-		
+		boolean not_manual = false;
+
 		while (m.find()) {
 			// You can vary the replacement text for each match on-the-fly
+			if ( m.group(6).length() == 0 ) throw new FizzleException("format string ended in middle of field specifier");
 			char formatc = m.group(6).charAt(0);
 			if ( formatc == '%' ) {
 				m.appendReplacement(result, "%");
@@ -38,6 +41,7 @@ public class Format extends TCLCommand {
 			}
 			
 			if ( m.group(1) != null ) {
+				if ( not_manual ) throw new FizzleException(ErrorStrings.FormatMixPositional);
 				int want = Integer.parseInt(m.group(1));
 				if ( want < 1 )  throw new FizzleException(ErrorStrings.FormatPositionOutOfRange);
 				if ( want > args.size() )  throw new FizzleException(ErrorStrings.FormatPositionOutOfRange);
@@ -45,11 +49,15 @@ public class Format extends TCLCommand {
 				manual = true;
 			} else if ( manual ) {
 				throw new FizzleException(ErrorStrings.FormatMixPositional);
+			} else {
+				not_manual = true;
 			}
 			
 			String padding = " ";
 			boolean pad_left = true;
 			boolean alternate = false;
+			boolean plus_pos = false;
+			boolean pos_space = false;
 			
 			String flags = m.group(2);
 			for ( int f = 0; f < flags.length(); ++f ) {
@@ -63,6 +71,12 @@ public class Format extends TCLCommand {
 					break;
 				case '-':
 					pad_left = false;
+					break;
+				case '+':
+					plus_pos = true;
+					break;
+				case ' ':
+					//pos_space = true;
 					break;
 				}
 			}
@@ -100,7 +114,9 @@ public class Format extends TCLCommand {
 			}
 			
 
-			String sf = "%" + (pad_left ? "" : "-") + (alternate ? "#" : "") + (padding != " " ? "0" : "") + (width != null ? width : "" ) + (precision != null ? "." + precision : "");
+			if ( padding.equals("0") && width == null ) width = 1;
+
+			String sf = "%" + (pad_left ? "" : "-") + (pos_space ? " " : "") + (plus_pos ? "+" : "") + (alternate ? "#" : "") + (padding != " " ? "0" : "") + (width != null ? width : "" ) + (precision != null ? "." + precision : "");
 			boolean upper = false;
 			
 			String val = null;
@@ -149,6 +165,19 @@ public class Format extends TCLCommand {
 			case 'c':
 				if ( formatc == 'i' ) formatc = 'd';
 				Integer x = valp.asInteger();
+
+				if ( m.group(5) != null )
+				switch ( m.group(5).charAt(0) ) {
+					case 'h':
+						//Convert to 16bit signed integer.
+						int xx = x & 0xFFFF;
+						if ( (xx & 0x8000) != 0) {
+							xx = (xx & 0x7FFF) - 0x8000;
+						}
+						x = xx;
+						break;
+				}
+
 				if ( x == null ) return EvaluationResult.makeError("expected integer but got \"" + valp.asString() + "\"");
 				val = String.format(sf + formatc, x);
 				break;
@@ -159,7 +188,16 @@ public class Format extends TCLCommand {
 			case 'E':
 				Double d = valp.asDouble();
 				if ( d == null ) return EvaluationResult.makeError("expected floating-point number but got \"" + valp.asString() + "\"");
-				val = String.format(sf + formatc, d);
+				try {
+					val = String.format(sf + formatc, d);
+				} catch ( Exception ex ) {
+					throw new RuntimeException("Coudlnt hack it " + width + " '" + sf + formatc + "' " + d + ": " + ex.toString());
+				}
+				if ( formatc == 'g' ) {
+
+					while ( val.endsWith("0") && val.contains(".") ) val = val.substring(0, val.length() - 1);
+					if ( val.endsWith(".") ) val = val.substring(0, val.length() - 1);
+				}
 				break;
 			default:
 				return EvaluationResult.makeError("bad field specifier \"" + formatc + "\"");

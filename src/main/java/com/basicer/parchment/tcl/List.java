@@ -28,19 +28,18 @@ public class List extends TCLCommand {
 
 	public static String encode(String src, boolean first) {
 		boolean looks_bracy = false;
-		boolean has_braces = false;
 		boolean bad_braces = false;
 		
 		if ( src.length() == 0 ) return "{}";
 		
 		int openb = 0;
 		
-		StringBuilder b = new StringBuilder();
+
 		for ( int i = 0; i < src.length(); ++i ) {
 			char c = src.charAt(i);
 		
 			if ( c == '{' ) {
-				if ( i == 0 ) has_braces = true;
+				if ( i == 0 ) looks_bracy = true;
 				++openb;
 			}
 			else if ( c == '}' ) {	
@@ -48,6 +47,8 @@ public class List extends TCLCommand {
 			}
 			else if ( Character.isWhitespace(c) ) looks_bracy = true;
 			else if ( c == ';' ) looks_bracy = true;
+			else if ( c == '[' ) looks_bracy = true;
+			else if ( c == '$' ) looks_bracy = true;
 			else if ( c == '#' && i == 0 && first ) looks_bracy = true;
 			
 		}
@@ -55,22 +56,38 @@ public class List extends TCLCommand {
 		if ( openb > 0 ) bad_braces = true;
 
 		if ( bad_braces ) looks_bracy = false;
-		
+
+
+		if ( looks_bracy ) return "{" + src + "}";
+
+		StringBuilder b = new StringBuilder();
 		for ( int i = 0; i < src.length(); ++i ) {
 			char c = src.charAt(i);
-			if ( c == '\t' && !looks_bracy ) {
+
+
+			if ( c == '\t' ) {
 				b.append("\\t");
-			} else if ( !looks_bracy && c == '\n' ) {
-				b.append("\\n");	
+			} else if ( c == '\n' ) {
+				b.append("\\n");
+			} else if ( c == '\f' ) {
+				b.append("\\f");
+			} else if ( c == '\r' ) {
+				b.append("\\r");
+			} else if ( c == 11 ) {
+				b.append("\\v");
+			} else if ( c == '#' && first && i == 0) {
+				b.append("\\#");
+			} else if ( c == '"'  && i == 0) {
+				b.append("\\\"");
 			} else {
-				if ( !looks_bracy && c == '$' ) b.append('\\');
-				else if ( c == '{' || c == '}' || c == '\\' || c == '[' || c == ']' ) b.append('\\');
+				if ( c == '$' ) b.append('\\');
+				else if ( (c == '{' || c == '}') && bad_braces ) { b.append('\\'); }
+				else if ( c == '\\' || c == '[' || c == ']' ) b.append('\\');
 				b.append(c);
 			}
 		}
 
-			
-		if ( looks_bracy ) return "{" + b.toString() + "}";
+
 		String out = b.toString();
 		
 		return out;

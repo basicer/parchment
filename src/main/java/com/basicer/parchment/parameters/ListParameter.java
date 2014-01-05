@@ -74,6 +74,7 @@ public class ListParameter extends Parameter {
 	@Override
 	public String asString(Context ctx) {
 		StringBuilder b = new StringBuilder();
+		boolean first = true;
 		for ( Parameter p : self) {
 			if ( b.length() > 0 ) b.append(" ");
 			/*
@@ -88,8 +89,9 @@ public class ListParameter extends Parameter {
 			}
 			*/
 			if ( p != null ) {
-				b.append(com.basicer.parchment.tcl.List.encode(p.asString(), false));
+				b.append(com.basicer.parchment.tcl.List.encode(p.asString(), first));
 			} else b.append("{}");
+			first = false;
 		}
 		return b.toString();
 	}
