@@ -25,7 +25,7 @@ public class Format extends TCLCommand {
 		String format = ctx.get("formatString").asString();
 
 		StringBuffer result = new StringBuffer();
-		Matcher m = Pattern.compile("%(?:([0-9]+)[$])?([ +#0-]*)([1-9][0-9]*|[*])?(?:[.]([0-9]*|[*]))?(l|h|ll)?([^ *]|)").matcher(format);
+		Matcher m = Pattern.compile("%(?:([0-9]+)[$])?([ +#0-]{0,5}+)([1-9][0-9]*|[*])?(?:[.]([*]|[0-9]+|)){0,1}+(l|h|ll)?([^ ]|)").matcher(format);
 		ArrayList<Parameter> args = ctx.getArgs();
 		int i = 0;
 		boolean manual = false;
