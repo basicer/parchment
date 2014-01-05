@@ -29,7 +29,7 @@ public class TCLEngine {
 	public static Function<Callable<EvaluationResult>, EvaluationResult> commandGuard = null;
 
 	public TCLEngine(String src, Context ctx) {
-		sourcecode = new PushbackReader(new StringReader(src));
+		sourcecode = new PushbackReader(new StringReader(src), 2);
 		this.ctx = ctx;
 	}
 
@@ -263,7 +263,14 @@ public class TCLEngine {
 						in = '\0';
 						int xcn = s.read();
 						if ( xcn > 0 ) {
+							int xcnn = s.read();
+							if ( xcnn > 0 ) s.unread(xcnn);
 							s.unread(xcn);
+
+							//If right after a close quote we try to eat a new line, thats okay.
+							//TODO: This wount throw the correct error for something like "\\
+							if ( xcn == '\\' ) xcn = xcnn;
+
 
 							if ( !Character.isWhitespace(xcn) && (char) xcn != ';' ) {
 								System.err.println("Bad : " + xcn + " " + ((char) xcn));
@@ -333,9 +340,15 @@ public class TCLEngine {
 							append = true;
 						}
 					} else if ( c == '#' && current.empty() && out.size() < 1 ) {
-						while ( c != '\n' ) {
+						boolean before_slash = false;
+
+						while ( c != '\n' || before_slash ) {
 							r = s.read();
 							if ( r < 0 ) return null;
+
+							//Account for an escaped endline, which continues the comment
+							if ( before_slash ) before_slash = false;
+							else if ( c == '\\' ) before_slash = true;
 							c = (char) r;
 						}
 						return new ParameterAccumulator[0];

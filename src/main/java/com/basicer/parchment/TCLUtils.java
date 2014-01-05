@@ -57,7 +57,7 @@ public class TCLUtils {
 		boolean quotes = false;
 		while (brackets > 0) {
 			int n = s.read();
-			if (n < 0) throw new IOException("Unmathced []'s");
+			if (n < 0) throw new IOException("missing close-bracket");
 			char c = (char) n;
 
 			if ( !quotes ) {
