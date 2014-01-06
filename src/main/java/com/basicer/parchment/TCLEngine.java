@@ -443,10 +443,10 @@ public class TCLEngine {
 						int xcnn = s.read();
 						if ( xcnn > 0 ) s.unread(xcnn);
 						s.unread(xcn);
+						//If right after a close quote we try to eat a new line, thats okay.
+						//TODO: This wount throw the correct error for something like "\\
+						if ( xcn == '\\' ) xcn = xcnn;
 						if ( !Character.isWhitespace(xcn) && (char) xcn != ';' ) {
-							//If right after a close quote we try to eat a new line, thats okay.
-							//TODO: This wount throw the correct error for something like "\\
-							if ( xcn == '\\' ) xcn = xcnn;
 							if ( extraStop.indexOf(xcn) == -1 ) throw new FizzleException("extra characters after close-quote");
 						}
 
