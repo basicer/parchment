@@ -90,35 +90,43 @@ public class Block extends OperationalSpell<BlockParameter> {
 		
 		return Parameter.from(b);
 	}
-	
+
+	private static Parameter rel(org.bukkit.block.Block block, BlockFace dir) {
+		org.bukkit.block.Block bp = block.getRelative(dir);
+		if ( bp == null ) {
+			Debug.info("Coudlnt navigate");
+		}
+		return BlockParameter.from(bp);
+	}
+
 	@Operation(desc = "Return the block north of this block.")
 	public static Parameter northOperation(org.bukkit.block.Block block, Context ctx) {
-		return Parameter.from(block.getRelative(BlockFace.NORTH));
+		return rel(block, BlockFace.NORTH);
 	}
 	
 	@Operation(desc = "Return the block south of this block.")
 	public static Parameter southOperation(org.bukkit.block.Block block, Context ctx) {
-		return Parameter.from(block.getRelative(BlockFace.SOUTH));
+		return rel(block, BlockFace.SOUTH);
 	}
 	
 	@Operation(desc = "Return the block east of this block.")
 	public static Parameter eastOperation(org.bukkit.block.Block block, Context ctx) {
-		return Parameter.from(block.getRelative(BlockFace.EAST));
+		return rel(block, BlockFace.EAST);
 	}
 	
 	@Operation(desc = "Return the block west of this block.")
 	public static Parameter westOperation(org.bukkit.block.Block block, Context ctx) {
-		return Parameter.from(block.getRelative(BlockFace.WEST));
+		return rel(block, BlockFace.WEST);
 	}
 	
 	@Operation(desc = "Return the block above this block.")
-		 public static Parameter upOperation(org.bukkit.block.Block block, Context ctx) {
-		return Parameter.from(block.getRelative(BlockFace.UP));
+	public static Parameter upOperation(org.bukkit.block.Block block, Context ctx) {
+		return rel(block, BlockFace.UP);
 	}
 	
 	@Operation(desc = "Return the block below this block.")
 	public static Parameter downOperation(org.bukkit.block.Block block, Context ctx) {
-		return Parameter.from(block.getRelative(BlockFace.DOWN));
+		return rel(block, BlockFace.DOWN);
 	}
 
 	@Operation(desc = "Return the block some distance from a block face.", argnames = {"direction", "amount"})
