@@ -533,8 +533,8 @@ public class TCLEngine {
 
 		}
 
-		if ( !current.empty() ) return current;
 		if ( in != '\0' ) throw new FizzleException("missing " + in);
+		if ( !current.empty() ) return current;
 		return null;
 	}
 
