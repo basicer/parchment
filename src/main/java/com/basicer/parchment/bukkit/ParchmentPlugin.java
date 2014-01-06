@@ -22,10 +22,6 @@ import com.basicer.parchment.*;
 
 import com.basicer.parchment.parameters.*;
 
-import net.milkbowl.vault.chat.Chat;
-import net.milkbowl.vault.economy.Economy;
-import net.milkbowl.vault.permission.Permission;
-
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.event.Event;
@@ -51,7 +47,7 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 
 
-public class ParchmentPlugin extends ParchmentPluginLite implements Listener, PluginMessageListener {
+public class ParchmentPlugin extends ParchmentPluginLite implements PluginMessageListener {
 
 	protected GlobalListener	listener;
 
@@ -62,7 +58,7 @@ public class ParchmentPlugin extends ParchmentPluginLite implements Listener, Pl
 	public void onDisable() {
 		loader.cancel();
 		Bukkit.getMessenger().unregisterIncomingPluginChannel(this);
-		
+		super.onDisable();
 	}
 
 
@@ -71,7 +67,7 @@ public class ParchmentPlugin extends ParchmentPluginLite implements Listener, Pl
 		listener = new GlobalListener(this);
 
 		PluginManager pm = this.getServer().getPluginManager();
-		pm.registerEvents(this, this);
+		pm.registerEvents(new ParchmentEventListener(this), this);
 
 
 		Bukkit.getMessenger().registerIncomingPluginChannel(this, "MC|BEdit", this);
@@ -161,8 +157,8 @@ public class ParchmentPlugin extends ParchmentPluginLite implements Listener, Pl
 		}
 
 	}
-	
-	private Context createContext(Player p) {
+
+	Context createContext(Player p) {
 		Context ctx = new Context();
 		ctx.setSpellFactory(spellfactory);
 		if ( p != null ) {
@@ -172,149 +168,6 @@ public class ParchmentPlugin extends ParchmentPluginLite implements Listener, Pl
 		ctx.put("origin", Parameter.from("createContext"));
 		return ctx;
 	}
-	
-
-
-	@EventHandler
-	public void onPlayerMove(PlayerMoveEvent e) {
-	}
-	
-	@EventHandler
-	public void onItemSpawn(ItemSpawnEvent e) {
-		//Book.ensureSpellWritten(e.getEntity().getItemStack());
-	}
-
-
-	@EventHandler
-	public void onPlayerCommandPreprocessEvent(PlayerCommandPreprocessEvent e) {
-		Enumeration<TCLCommand> enu = this.spellfactory.getAll().elements();
-
-		String[] parts = e.getMessage().split(" ");
-		final String binding = parts[0].substring(1);
-
-
-		Debug.info("Got command: " + binding);
-		while ( enu.hasMoreElements() ) {
-			TCLCommand cmd = enu.nextElement();
-			if ( !(cmd instanceof ScriptedSpell )) continue;
-			final ScriptedSpell s = (ScriptedSpell) cmd;
-			if ( !s.canExecuteBinding("command:" + binding) ) continue;
-
-			final Context ctx = createContext(null);
-			ctx.setCaster(Parameter.from(e.getPlayer()));
-			final ArrayList<Parameter> args = new ArrayList<Parameter>();
-			for ( String part : parts ) args.add(Parameter.from(part));
-
-
-			ThreadManager.instance().submitWork(new EvaluationResult.BranchEvaluationResult(null, ctx, new EvaluationResult.EvalCallback() {
-
-				public EvaluationResult result(EvaluationResult e) {
-					return s.executeBinding("command:" + binding, ctx, null, args);
-				}
-
-			}));
-
-
-
-			e.setCancelled(true);
-
-		}
-	}
-
-	@EventHandler
-	public void onPlayerInteract(PlayerInteractEvent e) {
-		Player p = e.getPlayer();
-		ItemStack holding = p.getItemInHand();
-		//if ( holding != null ) Book.ensureSpellWritten(holding);
-		TCLCommand s = null;
-		Context ctx = createContext(p);
-		
-		if (e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK) {
-			if ( e.getPlayer().isOp() && (holding.getType() == org.bukkit.Material.BOOK_AND_QUILL || holding.getType() == org.bukkit.Material.WRITTEN_BOOK)) {
-				BookMeta b = (BookMeta) holding.getItemMeta();
-
-				if (e.getClickedBlock() != null && e.getClickedBlock().getType() == org.bukkit.Material.BOOKSHELF) {
-					holding.setType(org.bukkit.Material.BOOK_AND_QUILL);
-					e.setCancelled(true);
-					return;
-				}
-
-				StringBuilder sb = new StringBuilder();
-				for (int i = 0; i < b.getPageCount(); ++i) {
-					sb.append(b.getPage(i + 1));
-					sb.append("\n");
-				}
-				// p.sendMessage(action);
-				/*
-				 * if ( action.startsWith("bridge") ) { for (Block bl :
-				 * p.getLineOfSight(null, 40)) { if
-				 * (bl.getLocation().distance(p.getLocation()) > 2)
-				 * bl.getWorld()
-				 * .getHighestBlockAt(bl.getLocation()).getRelative(0, 0,
-				 * 0).setTypeId(66); } } else if ( action.startsWith("arrow") )
-				 * { Arrow a = p.launchProjectile(Arrow.class);
-				 * a.setVelocity(a.getVelocity().multiply(4)); } else if (
-				 * action.startsWith("eval")) { p.sendMessage("Preformed " +
-				 * action.substring(5)); p.performCommand(action.substring(5));
-				 * } else if ( action.startsWith("heal") ) { Context ctx = new
-				 * Context(); ctx.setTarget(Parameter.from(p));
-				 * ctx.setCaster(Parameter.from(p)); Heal h = new Heal(); try {
-				 * h.cast(ctx); } catch ( FizzleException fizzle ) {
-				 * p.sendMessage("The spell fizzles"); } } else {
-				 * p.sendMessage("Couldnt do " + action); }
-				 */
-
-				// e.getClickedBlock().breakNaturally(e.getPlayer().getItemInHand());
-
-				ScriptedSpell ss = new ScriptedSpell("SomeBook", new PushbackReader(new StringReader(sb.toString())), spellfactory);
-			
-
-				ctx.setSource("wand");
-				ss.executeBinding("cast", ctx, null);
-				e.setCancelled(true);
-				return;
-			}
-		}
-		
-		// p.sendMessage("MATERIAL IS " + holding.getType().toString());
-		
-		String ss = BindingUtils.getBinding(holding);
-		if ( ss == null ) {
-			Debug.trace("Your blade is dull");
-			e.setCancelled(false);
-			return;
-		}
-		this.getLogger();
-		Debug.trace("Your blade is: " + ss + "/" + ss.length());
-		
-		TCLCommand cmd = spellfactory.get(ss);
-		if ( cmd == null ) return;
-		Spell scmd = (Spell) cmd;
-		ctx.setSource("item");
-		Parameter cancel = Parameter.from(e.isCancelled());
-		Debug.trace(cancel.toString());
-		ctx.put("cancel", cancel);
-		
-		String binding = "cast";
-		switch ( e.getAction() ) {
-			case LEFT_CLICK_AIR:
-			case LEFT_CLICK_BLOCK:
-				binding = "cast";
-				break;
-			case RIGHT_CLICK_AIR:
-			case RIGHT_CLICK_BLOCK:
-				binding = "alt";
-				break;
-			case PHYSICAL:
-				return;
-		}
-		EvaluationResult r = scmd.executeBinding(binding, ctx, null);
-		
-		e.setCancelled(ctx.get("cancel").asBoolean());
-
-
-	}
-
 
 	public void handleEvent(Event e) {
 		//Bukkit.getLogger().info(e.getEventName() + " : " + e.toString());
@@ -410,10 +263,7 @@ public class ParchmentPlugin extends ParchmentPluginLite implements Listener, Pl
 		
 	}
 	
-	@EventHandler
-	public void onPlayerItemHeld(PlayerItemHeldEvent e) {
 
-	}
 
 	public void onPluginMessageReceived(String channel, Player player, byte[] message) {
 		player.sendMessage("I hear you like books");
