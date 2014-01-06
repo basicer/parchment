@@ -2,6 +2,7 @@ package com.basicer.parchment;
 
 import java.io.IOException;
 import java.io.PushbackReader;
+import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -253,7 +254,7 @@ public class TCLUtils {
 
 	}
 
-	public static Parameter evaluate(PushbackReader s, Context ctx) {
+	public static Parameter evaluate(Reader s, Context ctx) {
 		TCLEngine e = new TCLEngine(s, ctx);
 		while (e.step()) {
 		}
@@ -262,6 +263,7 @@ public class TCLUtils {
 	}
 
 	public static String readBracketExpressionToString(PushbackReader s) {
+
 		StringBuilder b = new StringBuilder();
 		try {
 			readBracketExpression(s, b);

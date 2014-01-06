@@ -121,7 +121,7 @@ public class ParchmentEventListener implements Listener {
 
 				// e.getClickedBlock().breakNaturally(e.getPlayer().getItemInHand());
 
-				ScriptedSpell ss = new ScriptedSpell("SomeBook", new PushbackReader(new StringReader(sb.toString())), plugin.getSpellFactory());
+				ScriptedSpell ss = new ScriptedSpell("SomeBook", new StringReader(sb.toString()), plugin.getSpellFactory());
 
 
 				ctx.setSource("wand");

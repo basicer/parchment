@@ -99,8 +99,7 @@ public class ParchmentPlugin extends ParchmentPluginLite implements PluginMessag
 					FileInputStream fis = null;
 					try {
 						 fis = new FileInputStream(s);
-						PushbackReader reader = new PushbackReader(new InputStreamReader(fis));
-						spellfactory.addCustomSpell(sname, new ScriptedSpell(sname, reader, spellfactory));
+						spellfactory.addCustomSpell(sname, new ScriptedSpell(sname, new InputStreamReader(fis), spellfactory));
 						logger.info("Loaded " + sname + " / " + time);
 					} catch (FileNotFoundException e) {
 						logger.warning("Couldnt load " + sname);

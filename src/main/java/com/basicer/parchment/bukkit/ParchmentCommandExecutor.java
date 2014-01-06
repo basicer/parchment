@@ -1,10 +1,6 @@
 package com.basicer.parchment.bukkit;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStreamReader;
-import java.io.PushbackReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -137,9 +133,9 @@ public class ParchmentCommandExecutor implements CommandExecutor {
 				sender.sendMessage("Unknown file " + file);
 				return true;
 			}
-			PushbackReader reader;
+			Reader reader;
 			try {
-				reader = new PushbackReader(new InputStreamReader(new FileInputStream(rfile)));
+				reader = new InputStreamReader(new FileInputStream(rfile));
 				ArrayList<Parameter> argz = new ArrayList<Parameter>();
 				while ( qargs.size() > 0 ) argz.add(Parameter.from(qargs.poll()));
 				ctx.put("args", ListParameter.from(argz));

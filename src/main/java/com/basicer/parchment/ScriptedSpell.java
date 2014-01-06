@@ -1,6 +1,7 @@
 package com.basicer.parchment;
 
 import java.io.PushbackReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -53,7 +54,7 @@ public class ScriptedSpell extends Spell {
 	}
 
 
-	public ScriptedSpell(String name, PushbackReader source, SpellFactory f) {
+	public ScriptedSpell(String name, Reader source, SpellFactory f) {
 		super();
 		this.name = name;
 		spellStatic.put("this", Parameter.from(this));

@@ -1,5 +1,6 @@
 package com.basicer.parchment.tcl;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -75,6 +76,7 @@ public class Expr extends TCLCommand {
 	
 	public static Parameter eval(String expr, Context ctx, TCLEngine e) {
 		Debug.info("in Considering %s", expr);
+		final String exprSymbols = "-+*/%=<>^&|!";
 		final Pattern pattern = Pattern.compile("([a-z]+)\\(([^()]*)\\)");
 		final Matcher matcher = pattern.matcher(expr);
 
@@ -85,13 +87,40 @@ public class Expr extends TCLCommand {
 		}
 
 
-		PushbackReader s = new PushbackReader(new StringReader(expr));
+		PushbackReader s = new PushbackReader(new StringReader(expr), 2);
 		Queue<Parameter> tokens = new LinkedList<Parameter>();
 
-		for ( ParameterAccumulator p : e.parseLine(s, ctx, true) ) {
-			//Debug.trace("TKN " + p.asString());
-			tokens.add(p.cheatyResolveOrFizzle());
-		}
+		boolean operator = false;
+		do {
+			try {
+				ParameterAccumulator read = null;
+				if ( operator ) {
+
+					do {
+						int r = s.read();
+						if ( r < 0 ) break;
+						if ( Character.isWhitespace((char) r) ) continue;
+						if ( exprSymbols.indexOf((char) r) == -1 ) {
+							s.unread(r);
+							break;
+						}
+						if ( read == null ) read = new ParameterAccumulator();
+						read.append("" + (char)r);
+					} while ( true );
+					operator = false;
+				} else {
+					read = TCLEngine.parseWord(s, ctx, false, exprSymbols);
+					operator = true;
+				}
+				if ( read == null ) break;
+				//System.out.println("--> " + read.toString() );
+				tokens.add(read.cheatyResolveOrFizzle());
+			} catch (IOException ex) {
+				break;
+			}
+
+		} while ( true );
+
 		return parse(tokens, tokens.poll(), 0);
 	}
 	
@@ -132,7 +161,15 @@ public class Expr extends TCLCommand {
 			System.err.println(lhs.toString());
 		}
 	}
-	
+
+	public static int compare(Parameter lhs, Parameter rhs) {
+		boolean lhs_numeric = lhs.asDouble() != null;
+		boolean rhs_numeric = lhs.asDouble() != null;
+
+		if ( lhs_numeric && rhs_numeric ) return lhs.asDouble().compareTo(rhs.asDouble());
+		return lhs.asString().compareTo(rhs.asString());
+	}
+
 	public static Parameter evaluate(Parameter lhs, Parameter pop, Parameter rhs) {
 		String op = pop.asString();
 		Debug.trace("EVAL: %s", (lhs == null ? "null" : lhs.toString()) + " " + op + " " + (rhs == null ? "null" : rhs.toString()));
@@ -145,12 +182,15 @@ public class Expr extends TCLCommand {
 			if ( op.equals("*") ) return Parameter.from(lhs.asDouble() * rhs.asDouble()).downCastIfPossible();
 			if ( op.equals("/") ) return Parameter.from(lhs.asDouble() / rhs.asDouble()).downCastIfPossible();	
 			if ( op.equals("**") ) return Parameter.from(Math.pow(lhs.asDouble(),rhs.asDouble())).downCastIfPossible();
-			
+
+			if ( op.equals("<<") ) return Parameter.from(lhs.asLong() << rhs.asLong());
+			if ( op.equals(">>") ) return Parameter.from(lhs.asLong() >> rhs.asLong());
+
 			//TODO: TCL Says > and < work on strings.
-			if ( op.equals(">") ) return Parameter.from(lhs.asDouble() > rhs.asDouble());
-			if ( op.equals(">=") ) return Parameter.from(lhs.asDouble() >= rhs.asDouble());
-			if ( op.equals("<") ) return Parameter.from(lhs.asDouble() < rhs.asDouble());
-			if ( op.equals("<=") ) return Parameter.from(lhs.asDouble() <= rhs.asDouble());
+			if ( op.equals(">") ) return Parameter.from(compare(lhs,rhs) > 0);
+			if ( op.equals(">=") ) return Parameter.from(compare(lhs,rhs) >= 0);
+			if ( op.equals("<") ) return Parameter.from(compare(lhs,rhs) < 0);
+			if ( op.equals("<=") ) return Parameter.from(compare(lhs, rhs) <= 0);
 			
 			if ( op.equals("||") ) return Parameter.from(lhs.asBoolean() || rhs.asBoolean());
 			if ( op.equals("&&") ) return Parameter.from(lhs.asBoolean() && rhs.asBoolean());

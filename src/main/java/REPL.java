@@ -48,7 +48,8 @@ public class REPL {
 				c.printf("-> %s\n", execute(line, commandctx));
 			}
 		}
-		
+
+		if ( com.basicer.parchment.test.Test.tests != null )
 		for ( com.basicer.parchment.test.Test.TestResult r : com.basicer.parchment.test.Test.tests) {
 			boolean ok = r.why == null;
 			System.out.println(String.format("%s %s %s - %s", ok ? "+" : "-", r.name, r.description, r.why == null ? "Success" : r.why));

@@ -161,7 +161,16 @@ public class ParameterAccumulator {
 	 * return new EvaluationResult(Parameter.from(b.toString())); }
 	 */
 
-	
+	public String toString() {
+		StringBuilder b = new StringBuilder();
+		b.append("[");
+		for ( Entry e : entries ) {
+			b.append(e.type + ":" + e.data);
+			b.append("|");
+		}
+		b.append("]");
+		return b.toString();
+	}
 
 	public boolean empty() {
 		return entries.size() == 0;
