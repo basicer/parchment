@@ -221,14 +221,16 @@ public class Context {
 
 	}
 
-	public void upvar(int level, String var, String as) {
+	public boolean upvar(int level, String var, String as) {
 		Context ctx = up(level);
+		if ( ctx == null ) return false;
 		ParameterPtr p = ctx.getRaw(var);
 		if ( p == null ) {
 			p = new ParameterPtr();
 			ctx.setRaw(var, p);
 		}
 		setRaw(as, p);
+		return true;
 	}
 	
 	public Parameter resolve(String var) {

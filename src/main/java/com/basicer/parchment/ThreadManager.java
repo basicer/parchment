@@ -71,10 +71,12 @@ public class ThreadManager {
 	}
 	
 	PriorityQueue<WorkItem> work;
-	
+
+	Function<Callable<EvaluationResult>, EvaluationResult> workerCommandGuard;
+
 	public ThreadManager() {
 		work = new PriorityQueue<WorkItem>();
-		TCLEngine.commandGuard = new Function<Callable<EvaluationResult>, EvaluationResult>() {
+		workerCommandGuard = new Function<Callable<EvaluationResult>, EvaluationResult>() {
 
 			@Override
 			public EvaluationResult apply(@Nullable Callable<EvaluationResult> evaluationResultCallable) {
@@ -97,7 +99,8 @@ public class ThreadManager {
 
 	public void submitWork(BranchEvaluationResult br) {
 		TCLEngine engine = new TCLEngine(br);
-		work.add(new WorkItem(new TCLEngine(br)));
+		engine.commandGuard = workerCommandGuard;
+		work.add(new WorkItem(engine));
 	}
 	
 	public long doWork() {

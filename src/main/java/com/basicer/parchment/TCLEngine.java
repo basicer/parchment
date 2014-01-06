@@ -26,7 +26,7 @@ public class TCLEngine {
 	private TCLEngine sub;
 	private BranchEvaluationResult subbr;
 	public boolean resilient = false;
-	public static Function<Callable<EvaluationResult>, EvaluationResult> commandGuard = null;
+	public Function<Callable<EvaluationResult>, EvaluationResult> commandGuard = null;
 
 	public TCLEngine(String src, Context ctx) {
 		sourcecode = new PushbackReader(new StringReader(src), 2);
@@ -85,7 +85,10 @@ public class TCLEngine {
 			EvaluationResult.BranchEvaluationResult br = (EvaluationResult.BranchEvaluationResult) result;
 			Long when = br.getScheduleAfter();
 			if ( when != null && when > System.currentTimeMillis() && allow_sleeping ) return true;
-			if ( br.getToRun() != null ) sub = new TCLEngine(br.getToRun(), br.getContext());
+			if ( br.getToRun() != null ) {
+				sub = new TCLEngine(br.getToRun(), br.getContext());
+				sub.commandGuard = commandGuard;
+			}
 			last_ran_code = br.getToRun();
 			subbr = br;
 			return true;
@@ -245,12 +248,14 @@ public class TCLEngine {
 	}
 
 	public static ParameterAccumulator[] parseLine(PushbackReader s, Context ctx, boolean expr) {
-		final String exprSymbols = "+*-/%=<>^&|";
+
+		final String exprSymbols = "-+*/%=<>^&|!";
 		List<ParameterAccumulator> out = new ArrayList<ParameterAccumulator>();
 
 		char in = '\0';
 		ParameterAccumulator current = new ParameterAccumulator();
 		boolean at_end = true;
+		boolean did_expr_match = false;
 		int r;
 		try {
 			while ( (r = s.read()) > 0 ) {
@@ -352,7 +357,7 @@ public class TCLEngine {
 							c = (char) r;
 						}
 						return new ParameterAccumulator[0];
-					} else if ( expr && exprSymbols.indexOf(c) != -1 ) {
+					} else if ( expr && exprSymbols.indexOf(c) != -1 && !did_expr_match ) {
 						if ( !current.empty() ) {
 							out.add(current);
 						}
@@ -365,12 +370,14 @@ public class TCLEngine {
 
 						out.add(op);
 						current = new ParameterAccumulator();
+						did_expr_match = true;
 					} else {
 						append = true;
 					}
 				}
 
 				if ( append ) {
+					did_expr_match = false;
 					current.append("" + c);
 				}
 
