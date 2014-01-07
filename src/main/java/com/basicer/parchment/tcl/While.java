@@ -32,6 +32,8 @@ public class While extends TCLCommand {
 					//First time though
 				} else {
 					if (er.getCode() == Code.BREAK) return EvaluationResult.OK;
+					else if (er.getCode() == Code.RETURN) return er;
+					else if (er.getCode() == Code.ERROR) return er;
 				}
 				Parameter ok = Expr.eval(expr.asString(), evalctx, engine);
 				if (ok == null)
@@ -49,3 +51,5 @@ public class While extends TCLCommand {
 
 	}
 }
+
+

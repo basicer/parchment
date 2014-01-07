@@ -217,7 +217,7 @@ public abstract class Parameter implements Iterable<Parameter> {
 
 		}
 		
-		Debug.trace("Trying Construcotr Caster" + type);
+		Debug.trace("Trying Constructor Caster" + type);
 		
 		try {
 			Debug.trace("Har we go casting " + this + " to " + type);

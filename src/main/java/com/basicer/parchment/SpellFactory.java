@@ -51,6 +51,7 @@ public class SpellFactory {
 		addBuiltinCommand(For.class);
 		addBuiltinCommand(Return.class);
 		addBuiltinCommand(Break.class);
+		addBuiltinCommand(Continue.class);
 		addBuiltinCommand(Error.class);
 		addBuiltinCommand(Type.class);
 		addBuiltinCommand(Incr.class);

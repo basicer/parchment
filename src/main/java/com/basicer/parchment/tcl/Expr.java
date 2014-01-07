@@ -96,6 +96,7 @@ public class Expr extends TCLCommand {
 				ParameterAccumulator read = null;
 				if ( operator ) {
 
+
 					do {
 						int r = s.read();
 						if ( r < 0 ) break;
@@ -158,7 +159,7 @@ public class Expr extends TCLCommand {
 			
 			lhs = evaluate(lhs, op, rhs);
 			
-			System.err.println(lhs.toString());
+			Debug.trace("%s",lhs.toString());
 		}
 	}
 

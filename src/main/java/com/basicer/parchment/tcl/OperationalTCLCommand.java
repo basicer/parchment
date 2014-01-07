@@ -221,14 +221,16 @@ public abstract class OperationalTCLCommand extends TCLCommand {
 
 		return method_args;
 	}
-	
+
 	public static Method locateOperation(Class<?> c, String op, String suffix) {
 		Method[] methods = c.getMethods();
+		//TODO: This whole business needs to be cached.
 		for ( Method mc : methods ) {
 			
 			if ( !mc.getName().equalsIgnoreCase(op + suffix) ) {
-				if ( mc.getAnnotation(Operation.class) == null ) continue;
+
 				Operation opp = mc.getAnnotation(Operation.class);
+				if ( opp == null ) continue;
 				if ( opp.aliases() == null ) continue;
 				for ( String s : opp.aliases() ) {
 					if ( s.equals(op) ) return mc;
