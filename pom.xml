@@ -103,7 +103,7 @@
                     <workingDirectory>${basedir}</workingDirectory>
                     <useFile>true</useFile>
                     <includes>
-                            <!-- <include>**/*TestSuite.java</include> -->
+                            <include>**/*TestSuite.java</include>
                     </includes>
                 </configuration>
             </plugin>
