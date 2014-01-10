@@ -33,7 +33,7 @@ public class Array extends OperationalTCLCommand {
 		DictionaryParameter array = resolve(str, ctx);
 		ArrayList<Parameter> out = new ArrayList<Parameter>();
 		for ( String s : array.getGetSet() ) {
-			if ( pattern == null || StringCmd.TCLStyleMatch(s, pattern.asString()) ) out.add(StringParameter.from(s));
+			if ( pattern == null || StringCmd.GlobMatch(s, pattern.asString()) ) out.add(StringParameter.from(s));
 		}
 
 		return ListParameter.from(out);

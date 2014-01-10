@@ -19,8 +19,40 @@ public class StringCmd extends OperationalTCLCommand {
 	}
 
 
-	public static boolean TCLStyleMatch(String target, String pattern) {
-		return target.equals(pattern);
+	public static boolean GlobMatch(String target, String pattern) {
+		StringBuilder regex = new StringBuilder();
+		boolean escape = false;
+		for ( char c : pattern.toCharArray() ) {
+			if ( escape ) {
+				switch (c) {
+					case '[':
+					case ']':
+						regex.append('\\');
+						regex.append(c);
+						break;
+					case '\\':
+						regex.append("\\\\");
+					default:
+						regex.append("[" + c + "]");
+				}
+			}
+			switch (c) {
+				case '*':
+					regex.append(".*");
+					break;
+				case '?':
+					regex.append(".");
+					break;
+				case '\\':
+					escape = true;
+					break;
+				default:
+					regex.append("[" + c + "]");
+			}
+		}
+		boolean match = target.matches("^" + regex.toString() + "$");
+		return match;
+
 	}
 
 	public Parameter lengthOperation(Parameter dummy, Context ctx, StringParameter str) {
@@ -50,8 +82,15 @@ public class StringCmd extends OperationalTCLCommand {
 	
 	//TODO: This need to support flags
 	public Parameter equalOperation(Parameter dummy, Context ctx, StringParameter stra, StringParameter strb) {
-		
 		return Parameter.from(stra.asString().equals(strb.asString()) ? 1 : 0);
+	}
+
+	public Parameter matchOperation(Parameter dummy, Context ctx, StringParameter stra, StringParameter strb) {
+		return Parameter.from(GlobMatch(strb.asString(), stra.asString()) ? 1 : 0);
+	}
+
+	public Parameter compareOperation(Parameter dummy, Context ctx, StringParameter stra, StringParameter strb) {
+		return Parameter.from(stra.asString().compareTo(strb.asString()));
 	}
 
 	@Operation(argnames={"string"})

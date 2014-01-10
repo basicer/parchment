@@ -3,9 +3,7 @@ package com.basicer.parchment.tcl;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 
 import com.basicer.parchment.Context;
 import com.basicer.parchment.Debug;
@@ -32,7 +30,7 @@ public class Expr extends TCLCommand {
 		String expr = Concat.doConcat(ctx.getArgs()).asString(ctx);
 
 		try {
-			return new EvaluationResult(eval(expr, ctx, e));
+			return new EvaluationResult(eval(expr, ctx.up(1), e));
 		} catch ( RuntimeException ex ) {
 			ex.printStackTrace();
 			return EvaluationResult.makeError(ex.getMessage());
@@ -65,6 +63,12 @@ public class Expr extends TCLCommand {
 
 		try {
 			out = (Parameter)method.invoke(null, pl);
+			if ( out instanceof DoubleParameter ) {
+				double d = out.asDouble().doubleValue();
+				boolean down_convert = (d == Math.floor(d));
+				for ( int i = 0; i < pl.size(); ++i )if ( !(pl.get(i) instanceof IntegerParameter) ) down_convert = false;
+				if ( down_convert ) out = IntegerParameter.from((long) d);
+			}
 		} catch ( InvocationTargetException ex ) {
 			throw new RuntimeException(ex.getTargetException());
 		}catch ( IllegalAccessException ex ) {
@@ -74,7 +78,7 @@ public class Expr extends TCLCommand {
 		return com.basicer.parchment.tcl.List.encode(out.asString(), true);
 	}
 
-	private static final Pattern fx_pattern = Pattern.compile("([a-z]+)\\(([^()]*)\\)");
+	private static final Pattern fx_pattern = Pattern.compile("([a-z][a-z0-9]*)\\(([^()]*)\\)");
 	public static Parameter eval(String expr, Context ctx, TCLEngine e) {
 		Debug.info("in Considering %s", expr);
 		final String exprSymbols = "-+*/%=<>^&|!";
@@ -244,53 +248,165 @@ public class Expr extends TCLCommand {
 		return 0;
 	}
 
+	private static void checkArgumentSize( String func, ArrayList<Parameter> args, int n) {
+		if ( args.size() < n ) throw new FizzleException("too few arguments for math function \"" + func + "\"");
+		if ( args.size() > n ) throw new FizzleException("too many arguments for math function \"" + func + "\"");
+	}
 
+	private static Random randomNumberGenerator;
 	private static Parameter randFunc(ArrayList<Parameter> args) {
-		return Parameter.from(StrictMath.random());
+		checkArgumentSize("rand", args,0);
+		if ( randomNumberGenerator == null ) randomNumberGenerator = new Random();
+		return Parameter.from(randomNumberGenerator.nextDouble());
+	}
+
+	private static Parameter srandFunc(ArrayList<Parameter> args) {
+		checkArgumentSize("srand", args,1);
+		randomNumberGenerator = new Random(args.get(0).asLong());
+		return Parameter.from(randomNumberGenerator.nextDouble());
 	}
 
 	private static Parameter absFunc(ArrayList<Parameter> args) {
-		if ( args.size() != 1 ) throw new FizzleException("abs expects 1 arguments");
+		checkArgumentSize("abs", args,1);
 		double value = args.get(0).asDouble();
 		value = Math.abs(value);
-		if ( args.get(0) instanceof IntegerParameter ) return IntegerParameter.from(value);
 		return DoubleParameter.from(value);
 	}
 
 	private static Parameter intFunc(ArrayList<Parameter> args) {
-		if ( args.size() != 1 ) throw new FizzleException("int expects 1 arguments");
+		checkArgumentSize("int", args,1);
 		double value = args.get(0).asDouble();
-		return IntegerParameter.from((int)value);
+		return IntegerParameter.from((long)value);
 	}
 
 	private static Parameter roundFunc(ArrayList<Parameter> args) {
-		if ( args.size() != 1 ) throw new FizzleException("round expects 1 arguments");
+		checkArgumentSize("round", args,1);
 		double value = args.get(0).asDouble();
 		return IntegerParameter.from(Math.round(value));
 	}
 
+	private static Parameter floorFunc(ArrayList<Parameter> args) {
+		checkArgumentSize("floor", args,1);
+		double value = args.get(0).asDouble();
+		return IntegerParameter.from(Math.floor(value));
+	}
+
+	private static Parameter ceilFunc(ArrayList<Parameter> args) {
+		checkArgumentSize("ceil", args,1);
+		double value = args.get(0).asDouble();
+		return IntegerParameter.from(Math.ceil(value));
+	}
+
 	private static Parameter doubleFunc(ArrayList<Parameter> args) {
-		if ( args.size() != 1 ) throw new FizzleException("double expects 1 arguments");
+		checkArgumentSize("double", args,1);
 		double value = args.get(0).asDouble();
 		return DoubleParameter.from(value);
 	}
 
 	private static Parameter sinFunc(ArrayList<Parameter> args) {
-		if ( args.size() != 1 ) throw new FizzleException("sin expects 1 arguments");
+		checkArgumentSize("sin", args,1);
 		double value = args.get(0).asDouble();
 		return DoubleParameter.from(Math.sin(value));
 	}
 
 	private static Parameter cosFunc(ArrayList<Parameter> args) {
-		if ( args.size() != 1 ) throw new FizzleException("cos expects 1 arguments");
+		checkArgumentSize("cos", args,1);
 		double value = args.get(0).asDouble();
 		return DoubleParameter.from(Math.cos(value));
 	}
 
 	private static Parameter tanFunc(ArrayList<Parameter> args) {
-		if ( args.size() != 1 ) throw new FizzleException("tan expects 1 arguments");
+		checkArgumentSize("tan", args,1);
 		double value = args.get(0).asDouble();
 		return DoubleParameter.from(Math.tan(value));
+	}
+
+	private static Parameter asinFunc(ArrayList<Parameter> args) {
+		checkArgumentSize("asin", args,1);
+		double value = args.get(0).asDouble();
+		return DoubleParameter.from(Math.asin(value));
+	}
+
+	private static Parameter acosFunc(ArrayList<Parameter> args) {
+		checkArgumentSize("acos", args,1);
+		double value = args.get(0).asDouble();
+		return DoubleParameter.from(Math.acos(value));
+	}
+
+	private static Parameter atanFunc(ArrayList<Parameter> args) {
+		checkArgumentSize("atan", args,1);
+		double value = args.get(0).asDouble();
+		return DoubleParameter.from(Math.atan(value));
+	}
+
+	private static Parameter atan2Func(ArrayList<Parameter> args) {
+		checkArgumentSize("atan2", args,2);
+		double value1 = args.get(0).asDouble();
+		double value2 = args.get(1).asDouble();
+		return DoubleParameter.from(Math.atan2(value1, value2));
+	}
+
+	private static Parameter sinhFunc(ArrayList<Parameter> args) {
+		checkArgumentSize("sinh", args,1);
+		double value = args.get(0).asDouble();
+		return DoubleParameter.from(Math.sinh(value));
+	}
+
+	private static Parameter coshFunc(ArrayList<Parameter> args) {
+		checkArgumentSize("cosh", args,1);
+		double value = args.get(0).asDouble();
+		return DoubleParameter.from(Math.cosh(value));
+	}
+
+	private static Parameter tanhFunc(ArrayList<Parameter> args) {
+		checkArgumentSize("tanh", args,1);
+		double value = args.get(0).asDouble();
+		return DoubleParameter.from(Math.tanh(value));
+	}
+
+	private static Parameter hypotFunc(ArrayList<Parameter> args) {
+		checkArgumentSize("hypot", args,2);
+		double value1 = args.get(0).asDouble();
+		double value2 = args.get(1).asDouble();
+		return DoubleParameter.from(Math.hypot(value1, value2));
+	}
+
+	private static Parameter sqrtFunc(ArrayList<Parameter> args) {
+		checkArgumentSize("sqrt", args,1);
+		double value = args.get(0).asDouble();
+		return DoubleParameter.from(Math.sqrt(value));
+	}
+
+	private static Parameter powFunc(ArrayList<Parameter> args) {
+		checkArgumentSize("pow", args,2);
+		double value1 = args.get(0).asDouble();
+		double value2 = args.get(1).asDouble();
+		return DoubleParameter.from(Math.pow(value1, value2));
+	}
+
+	private static Parameter expFunc(ArrayList<Parameter> args) {
+		checkArgumentSize("exp", args,1);
+		double value = args.get(0).asDouble();
+		return DoubleParameter.from(Math.exp(value));
+	}
+
+	private static Parameter logFunc(ArrayList<Parameter> args) {
+		checkArgumentSize("log", args,1);
+		double value = args.get(0).asDouble();
+		return DoubleParameter.from(Math.log(value));
+	}
+
+	private static Parameter log10Func(ArrayList<Parameter> args) {
+		checkArgumentSize("log10", args,1);
+		double value = args.get(0).asDouble();
+		return DoubleParameter.from(Math.log10(value));
+	}
+
+	private static Parameter fmodFunc(ArrayList<Parameter> args) {
+		checkArgumentSize("fmod", args,2);
+		double value1 = args.get(0).asDouble();
+		double value2 = args.get(1).asDouble();
+		return DoubleParameter.from(value1 % value2);
 	}
 
 }

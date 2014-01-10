@@ -52,7 +52,7 @@ public class Info extends OperationalTCLCommand {
 	public Parameter commandsOperation(Parameter dummy, Context ctx, StringParameter pattern) {
 		ArrayList<Parameter> result = new ArrayList<Parameter>();
 		for ( String s : ctx.getSpellFactory().getAll().keySet() ) {
-			if ( pattern != null && !StringCmd.TCLStyleMatch(s, pattern.asString())) continue;;
+			if ( pattern != null && !StringCmd.GlobMatch(s, pattern.asString())) continue;;
 			result.add(StringParameter.from(s));
 		}
 
