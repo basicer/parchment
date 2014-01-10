@@ -25,6 +25,7 @@ public class Test extends TCLCommand {
 		public String		name;
 		public String		description;
 		public String		body;
+		public String		match;
 		public Parameter	expected;
 		public int			expectedCode;
 
