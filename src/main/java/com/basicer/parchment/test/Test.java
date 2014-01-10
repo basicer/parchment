@@ -3,9 +3,7 @@ package com.basicer.parchment.test;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bukkit.ChatColor;
-import org.bukkit.Color;
-import org.fusesource.jansi.Ansi;
+import com.basicer.parchment.tcl.StringCmd;
 
 import com.basicer.parchment.Context;
 import com.basicer.parchment.Debug;
