@@ -29,7 +29,7 @@ public class Expr extends TCLCommand {
 	@Override
 	public EvaluationResult extendedExecute(Context ctx, TCLEngine e) {
 
-		String expr = ListParameter.from(ctx.getArgs()).asString(ctx);
+		String expr = Concat.doConcat(ctx.getArgs()).asString(ctx);
 
 		try {
 			return new EvaluationResult(eval(expr, ctx, e));
@@ -73,12 +73,13 @@ public class Expr extends TCLCommand {
 
 		return com.basicer.parchment.tcl.List.encode(out.asString(), true);
 	}
-	
+
+	private static final Pattern fx_pattern = Pattern.compile("([a-z]+)\\(([^()]*)\\)");
 	public static Parameter eval(String expr, Context ctx, TCLEngine e) {
 		Debug.info("in Considering %s", expr);
 		final String exprSymbols = "-+*/%=<>^&|!";
-		final Pattern pattern = Pattern.compile("([a-z]+)\\(([^()]*)\\)");
-		final Matcher matcher = pattern.matcher(expr);
+
+		final Matcher matcher = fx_pattern.matcher(expr);
 
 		while ( matcher.find() ) {
 			Debug.info("Found %s", matcher.group(1));

@@ -68,6 +68,7 @@ public class SpellFactory {
 		addBuiltinCommand(Test.class);
 		addBuiltinCommand(TestConstraint.class);
 
+		addBuiltinCommand(Array.class);
 		addBuiltinCommand(List.class);
 		
 		addBuiltinCommand(StringCmd.class);

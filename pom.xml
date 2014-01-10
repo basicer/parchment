@@ -25,6 +25,7 @@
                     <archive>
                         <manifestEntries>
                             <Build-Date>${maven.build.timestamp}</Build-Date>
+                            <Main-Class>REPL</Main-Class>
                         </manifestEntries>
                     </archive>
                 </configuration>
@@ -102,7 +103,7 @@
                     <workingDirectory>${basedir}</workingDirectory>
                     <useFile>true</useFile>
                     <includes>
-                       <include>**/*TestSuite.java</include>
+                            <!-- <include>**/*TestSuite.java</include> -->
                     </includes>
                 </configuration>
             </plugin>
@@ -177,7 +178,7 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>3.8.1</version>
+			<version>4.8.1</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

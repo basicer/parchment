@@ -20,12 +20,14 @@ public class Format extends TCLCommand {
 		return new String[] { "formatString", "args" };
 	}
 
+	public static final Pattern format_pattern = Pattern.compile("%(?:([0-9]+)[$])?([ +#0-]{0,5}+)([1-9][0-9]*|[*])?(?:[.]([*]|[0-9]+|)){0,1}+(l|h|ll)?([^ ]|)");
+
 	@Override
 	public EvaluationResult extendedExecute(Context ctx, TCLEngine e) {
 		String format = ctx.get("formatString").asString();
 
 		StringBuffer result = new StringBuffer();
-		Matcher m = Pattern.compile("%(?:([0-9]+)[$])?([ +#0-]{0,5}+)([1-9][0-9]*|[*])?(?:[.]([*]|[0-9]+|)){0,1}+(l|h|ll)?([^ ]|)").matcher(format);
+		Matcher m = format_pattern.matcher(format);
 		ArrayList<Parameter> args = ctx.getArgs();
 		int i = 0;
 		boolean manual = false;

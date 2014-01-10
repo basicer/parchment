@@ -43,6 +43,9 @@ public class IntegerParameter extends Parameter {
 	public boolean asBooleanStrict(Context ctx) {
 		return ( self != 0 );
 	}
-	
 
+
+	public int intValue() {
+		return self.intValue();
+	}
 }

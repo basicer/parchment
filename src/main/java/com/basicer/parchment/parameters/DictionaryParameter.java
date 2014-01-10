@@ -1,9 +1,6 @@
 package com.basicer.parchment.parameters;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -22,7 +19,13 @@ public class DictionaryParameter extends Parameter {
 	public DictionaryParameter() {
 		this.self = new HashMap<String, Parameter>();
 	}
-	
+
+	@Override
+	public Parameter index(int i) {
+		return index("" +i );
+	}
+
+	@Override
 	public Parameter index(String s) {
 		return self.get(s);
 	}
@@ -57,5 +60,13 @@ public class DictionaryParameter extends Parameter {
 
 	public boolean hasIndex(String name) {
 		return self.containsKey(name);
+	}
+
+	public int size() {
+		return self.size();
+	}
+
+	public Set<String> getGetSet() {
+		return self.keySet();
 	}
 }
