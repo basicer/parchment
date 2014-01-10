@@ -9,6 +9,7 @@ import java.util.List;
 
 import com.basicer.parchment.parameters.DictionaryParameter;
 import com.basicer.parchment.parameters.Parameter;
+import com.basicer.parchment.tcl.StringCmd;
 import com.basicer.parchment.test.Test;
 import com.basicer.parchment.test.Test.TestResult;
 
