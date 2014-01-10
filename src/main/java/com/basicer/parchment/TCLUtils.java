@@ -254,6 +254,24 @@ public class TCLUtils {
 
 	}
 
+	public static Number parseStringToNumber(String str) {
+		if ( str.startsWith("0o") ) {
+			str = "0" + str.substring(2);
+		} else if ( str.startsWith("-0o") ) {
+			str = "-0" + str.substring(3);
+		} else if ( str.startsWith("+0o") ) {
+			str = "0" + str.substring(3);
+		}
+
+		try { return Long.decode(str); }
+		catch ( NumberFormatException ex ) { }
+
+		try { return Double.parseDouble(str); }
+		catch ( NumberFormatException ex ) { }
+
+		return null;
+	}
+
 	public static Parameter evaluate(Reader s, Context ctx) {
 		TCLEngine e = new TCLEngine(s, ctx);
 		while (e.step()) {

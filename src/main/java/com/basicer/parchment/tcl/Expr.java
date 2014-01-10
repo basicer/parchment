@@ -13,10 +13,12 @@ import com.basicer.parchment.TCLCommand;
 import com.basicer.parchment.TCLEngine;
 import com.basicer.parchment.TCLUtils;
 import com.basicer.parchment.parameters.*;
+import com.comphenix.protocol.reflect.FuzzyReflection;
 
 import java.io.PushbackReader;
 import java.io.StringReader;
 import java.util.LinkedList;
+import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,6 +33,8 @@ public class Expr extends TCLCommand {
 
 		try {
 			return new EvaluationResult(eval(expr, ctx.up(1), e));
+		} catch (FizzleException fex ) {
+			throw fex;
 		} catch ( RuntimeException ex ) {
 			ex.printStackTrace();
 			return EvaluationResult.makeError(ex.getMessage());
@@ -41,15 +45,11 @@ public class Expr extends TCLCommand {
 
 		ArrayList<Parameter> pl = new ArrayList<Parameter>();
 
-
 		String[] args = params.split(",");
 		for ( String p : args ) {
 			p = p.trim();
 			if (p.length() > 0 ) pl.add(eval(p, ctx, e));
 		}
-
-
-
 
 		Parameter out;
 
@@ -70,8 +70,9 @@ public class Expr extends TCLCommand {
 				if ( down_convert ) out = IntegerParameter.from((long) d);
 			}
 		} catch ( InvocationTargetException ex ) {
-			throw new RuntimeException(ex.getTargetException());
-		}catch ( IllegalAccessException ex ) {
+			if ( ex.getTargetException() instanceof RuntimeException ) throw (RuntimeException)ex.getTargetException();
+			else throw new RuntimeException(ex.getTargetException());
+		} catch ( IllegalAccessException ex ) {
 			throw new RuntimeException(ex);
 		}
 
@@ -87,7 +88,11 @@ public class Expr extends TCLCommand {
 
 		while ( matcher.find() ) {
 			Debug.info("Found %s", matcher.group(1));
-			expr = expr.substring(0, matcher.start()) + evaluateFunction(matcher.group(1), matcher.group(2), ctx, e) + expr.substring(matcher.end());
+			try {
+				expr = expr.substring(0, matcher.start()) + evaluateFunction(matcher.group(1), matcher.group(2), ctx, e) + expr.substring(matcher.end());
+			} catch ( Exception ex ) {
+				throw new FizzleException(ex.getMessage());
+			}
 			matcher.reset(expr);
 		}
 
@@ -127,24 +132,24 @@ public class Expr extends TCLCommand {
 
 		} while ( true );
 
-		return parse(tokens, tokens.poll(), 0);
+
+		Parameter p = parse(tokens, tokens.poll(), 0);
+		try {
+			if ( p == null ) throw new FizzleException("Null during expr");
+		} catch ( Exception ex ) {
+			throw new FizzleException(ex.getMessage());
+		}
+		return p;
+
 	}
 	
 	
 	//TODO: Doesn't handle ()'s
 	public static Parameter parse(Queue<Parameter> tokens, Parameter lhs, int min) {
-
 		while ( true ) {
 			if ( tokens.size() < 1 ) {
-				if ( lhs instanceof IntegerParameter ) {
-					return lhs;
-				} else if ( lhs instanceof DoubleParameter ) {
-					return ((DoubleParameter) lhs).downCastIfPossible();
-				} 
-				
-				DoubleParameter db = lhs.cast(DoubleParameter.class);
-				if ( db != null ) return db.downCastIfPossible();
-				
+				Parameter n = lhs.makeNumeric();
+				if ( n != null ) return n;
 				return lhs;
 			}
 			Parameter op = tokens.peek();
@@ -161,16 +166,40 @@ public class Expr extends TCLCommand {
 				
 				rhs = parse(tokens, rhs, getTokenPrecedence(lookahead));
 			}
-			
+
+			boolean downcast = hasIntPrecision(lhs) && hasIntPrecision(rhs);
 			lhs = evaluate(lhs, op, rhs);
-			
+			if ( downcast ) {
+				Parameter n = IntegerParameter.from(lhs.asInteger());
+				if ( n != null ) lhs = n;
+			}
+
 			Debug.trace("%s",lhs.toString());
 		}
 	}
 
+	public static boolean hasIntPrecision(Parameter p) {
+		if ( p == null ) return false;
+		if ( p instanceof DoubleParameter ) return false;
+		if ( p instanceof IntegerParameter ) return true;
+		try {
+			Number n = TCLUtils.parseStringToNumber(p.asString());
+			if ( n == null ) return false;
+			return ( n instanceof Long );
+		} catch ( NumberFormatException ex ) {
+			return false;
+		}
+	}
+
+	public static boolean isNumeric(Parameter p) {
+		return p.asDouble() != null;
+	}
+
+
+
 	public static int compare(Parameter lhs, Parameter rhs) {
-		boolean lhs_numeric = lhs.asDouble() != null;
-		boolean rhs_numeric = lhs.asDouble() != null;
+		boolean lhs_numeric = isNumeric(lhs);
+		boolean rhs_numeric = isNumeric(rhs);
 
 		if ( lhs_numeric && rhs_numeric ) return lhs.asDouble().compareTo(rhs.asDouble());
 		return lhs.asString().compareTo(rhs.asString());
@@ -179,35 +208,40 @@ public class Expr extends TCLCommand {
 	public static Parameter evaluate(Parameter lhs, Parameter pop, Parameter rhs) {
 		String op = pop.asString();
 		Debug.trace("EVAL: %s", (lhs == null ? "null" : lhs.toString()) + " " + op + " " + (rhs == null ? "null" : rhs.toString()));
-		
-		//TODO: Downcasting is not how TCL works, we need to look at the input arguments.
-		try {
-			if ( op.equals("+") ) return Parameter.from(lhs.asDouble() + rhs.asDouble()).downCastIfPossible();
-			if ( op.equals("-") ) return Parameter.from(lhs.asDouble() - rhs.asDouble()).downCastIfPossible();
-			if ( op.equals("%") ) return Parameter.from(lhs.asInteger() % rhs.asInteger());
-			if ( op.equals("*") ) return Parameter.from(lhs.asDouble() * rhs.asDouble()).downCastIfPossible();
-			if ( op.equals("/") ) return Parameter.from(lhs.asDouble() / rhs.asDouble()).downCastIfPossible();	
-			if ( op.equals("**") ) return Parameter.from(Math.pow(lhs.asDouble(),rhs.asDouble())).downCastIfPossible();
 
+		try {
+
+			if ( op.equals(">") ) return Parameter.from(compare(lhs,rhs) > 0 ? 1 : 0);
+			if ( op.equals(">=") ) return Parameter.from(compare(lhs,rhs) >= 0 ? 1 : 0);
+			if ( op.equals("<") ) return Parameter.from(compare(lhs,rhs) < 0 ? 1 : 0);
+			if ( op.equals("<=") ) return Parameter.from(compare(lhs, rhs) <= 0 ? 1 : 0);
+			if ( op.equals("eq") ) return Parameter.from(testEquality(lhs,rhs) ? 1 : 0);
+			if ( op.equals("ne") ) return Parameter.from(!testEquality(lhs,rhs) ? 1 : 0);
+			if ( op.equals("==") ) return Parameter.from(testEquality(lhs,rhs) ? 1 : 0);
+			if ( op.equals("!=") ) return Parameter.from(!testEquality(lhs,rhs) ? 1 : 0);
+
+			if ( !isNumeric(lhs) || !isNumeric(rhs) ) throw new FizzleException("can't use non-numeric string as operand of \"" + op + "\"");
+			if ( op.equals("+") ) return Parameter.from(lhs.asDouble() + rhs.asDouble());
+			if ( op.equals("-") ) return Parameter.from(lhs.asDouble() - rhs.asDouble());
+
+			if ( op.equals("*") ) return Parameter.from(lhs.asDouble() * rhs.asDouble());
+			if ( op.equals("/") ) return Parameter.from(lhs.asDouble() / rhs.asDouble());
+			if ( op.equals("**") ) return Parameter.from(Math.pow(lhs.asDouble(), rhs.asDouble()));
+
+			if ( !hasIntPrecision(lhs) || !hasIntPrecision(rhs) ) throw new FizzleException("can't use floating-point value as operand of \"" + op + "\"");
+			if ( op.equals("%") ) return Parameter.from(lhs.asInteger() % rhs.asInteger());
 			if ( op.equals("<<") ) return Parameter.from(lhs.asLong() << rhs.asLong());
 			if ( op.equals(">>") ) return Parameter.from(lhs.asLong() >> rhs.asLong());
 
-			//TODO: TCL Says > and < work on strings.
-			if ( op.equals(">") ) return Parameter.from(compare(lhs,rhs) > 0);
-			if ( op.equals(">=") ) return Parameter.from(compare(lhs,rhs) >= 0);
-			if ( op.equals("<") ) return Parameter.from(compare(lhs,rhs) < 0);
-			if ( op.equals("<=") ) return Parameter.from(compare(lhs, rhs) <= 0);
-			
-			if ( op.equals("||") ) return Parameter.from(lhs.asBoolean() || rhs.asBoolean());
-			if ( op.equals("&&") ) return Parameter.from(lhs.asBoolean() && rhs.asBoolean());
+
+
+			if ( op.equals("||") ) return Parameter.from((lhs.asBoolean() || rhs.asBoolean()) ? 1 : 0 );
+			if ( op.equals("&&") ) return Parameter.from((lhs.asBoolean() && rhs.asBoolean()) ? 1 : 0 );
 			
 			
-			if ( op.equals("eq") ) return Parameter.from(testEquality(lhs,rhs));
-			if ( op.equals("ne") ) return Parameter.from(!testEquality(lhs,rhs));
-			if ( op.equals("==") ) return Parameter.from(testEquality(lhs,rhs));
-			if ( op.equals("!=") ) return Parameter.from(!testEquality(lhs,rhs));
-		} catch ( NullPointerException ex ) {
-			throw new FizzleException("can't use non-numeric string as operand of \"" + op + "\"");
+
+		} catch ( Exception ex ) {
+			throw new FizzleException(ex.getMessage());
 		}
 		
 		throw new FizzleException("No support for " + op);
@@ -215,7 +249,7 @@ public class Expr extends TCLCommand {
 	
 	protected static boolean testEquality(Parameter lhs, Parameter rhs) {
 		if ( lhs == null && rhs == null ) return true;
-		if ( lhs == null || lhs == null ) return false;
+		if ( lhs == null || rhs == null ) return false;
 		return lhs.equals(rhs);
 	}
 	

@@ -376,7 +376,32 @@ public abstract class Parameter implements Iterable<Parameter> {
 		if ( as != null ) return "[" + type + ": " + as + "]";
 		return "[" + type + "]";
 	}
-	
+
+	public Parameter makeNumeric() {
+		//if ( true ) return this;
+		if ( this instanceof IntegerParameter ) return this;
+		if ( this instanceof DoubleParameter ) return this;
+		String s = this.asString();
+		Long l = asLong();
+
+		try {
+			Number n = TCLUtils.parseStringToNumber(s);
+			if ( n instanceof Long ) return IntegerParameter.from(n.longValue());
+			if ( n instanceof Integer ) return IntegerParameter.from(n.longValue());
+		} catch ( NumberFormatException ex ) {
+
+		}
+		try {
+
+			double d = Double.parseDouble(s);
+			if ( ((long) d) == d ) return IntegerParameter.from((long) d);
+			return DoubleParameter.from(d);
+
+		} catch ( NumberFormatException ex ) {
+			return this;
+		}
+	}
+
 	private class SingleIterator<T> implements Iterator<T> {
 
 		private T one;

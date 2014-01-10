@@ -1,6 +1,7 @@
 package com.basicer.parchment.parameters;
 
 import com.basicer.parchment.FizzleException;
+import com.basicer.parchment.TCLUtils;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 
@@ -27,14 +28,10 @@ public class StringParameter extends Parameter {
 	
 	public Long asLong(Context ctx) {
 		
-		if ( self.startsWith("0o") ) {
-			return Long.valueOf(self.substring(2), 8);
-		}
-		if ( self.startsWith("0x") ) {
-			return Long.valueOf(self.substring(2), 16);
-		}
+		Number n = TCLUtils.parseStringToNumber(self);
+		if ( n == null ) return null;
 		try {
-			return (long)(Double.parseDouble(self));
+			return n.longValue();
 		} catch (NumberFormatException ex) {
 			return null;
 		}

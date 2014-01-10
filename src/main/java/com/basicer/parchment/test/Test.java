@@ -75,6 +75,8 @@ public class Test extends TCLCommand {
 					test.body = value.asString();
 				else if (action.equals("-result"))
 					test.expected = value;
+				else if (action.equals("-match"))
+					test.match = value.asString();
 				else if (action.equals("-returnCodes")) {
 					if (value.asInteger() != null)
 						test.expectedCode = value.asEnum(EvaluationResult.Code.class).ordinal();
@@ -85,7 +87,7 @@ public class Test extends TCLCommand {
 		}
 		if (test.body == null) test.why = "All tests need a body.";
 		else if (test.body == null) test.why = "All tests need a result.";
-		else if (test.expected.asString() == null) test.why = "Result wasent a string.";
+		else if (test.expected.asString() == null) test.why = "Result wasen't a string.";
 
 		if ( constraint != null ) {
 				String cs = constraint.asString();
@@ -102,7 +104,10 @@ public class Test extends TCLCommand {
 			TCLEngine ngn = new TCLEngine(test.body, ctxx);
 			long time = System.currentTimeMillis();
 			while (ngn.step()) {
-				if ( System.currentTimeMillis() - time > 1000 ) return EvaluationResult.makeError("Test time limit reached....");
+				if ( System.currentTimeMillis() - time > 1000 ) {
+					testResult = EvaluationResult.makeError("Test time limit reached....");
+					break;
+				}
 			}
 			;
 
@@ -126,14 +131,29 @@ public class Test extends TCLCommand {
 			}
 
 			if (test.resultCode != test.expectedCode) {
-				test.why = String.format("Expcted return code of %d got %d (%s)", test.expectedCode, testResult
-						.getCode().ordinal(), testResult.getValue().asString());
+				String value = (testResult.getValue() == null) ? "null" : testResult.getValue().asString();
+				test.why = String.format("Expected return code of %d got %d (%s)",
+						test.expectedCode,
+						testResult.getCode().ordinal(),
+						value
+				);
 			} else if (test.result == null) {
 				test.why = String.format("Expected some return value (%s) but got a real null.",
 						test.expected.asString());
-			} else if (!(test.result.asString().equals(test.expected.asString()))) {
-				test.why = String.format("Expcted |%s| got |%s|", test.expected.asString(), testResult.getValue()
-						.asString());
+			} if ( test.match != null ) {
+				if ( test.match.equals("exact")) {
+					if ( !( test.expected.asString().equals(test.result.asString()) ) ) {
+						test.why = String.format("Expected '%s' got '%s'", test.expected.toString(), test.result.toString());
+					}
+				} else if ( test.match.equals("glob") ) {
+					if ( !test.expected.asString().equals("*") ) {
+						if ( !StringCmd.GlobMatch(test.result.asString(), test.expected.asString()) ) {
+							test.why = "\"" + test.expected.asString() + "\" doesn't match \"" + test.result.asString() + "\"";
+						}
+					}
+				} else {
+					test.why = "Unknown match type";
+				}
 			}
 		}
 

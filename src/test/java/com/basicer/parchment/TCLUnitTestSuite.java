@@ -37,8 +37,23 @@ public class TCLUnitTestSuite extends TestCase {
 			assertTrue(result.why, false);
 		} else {
 			assertNotNull(result);
-			if ( result.result == null ) assertNull(result.why, result.why);
-			assertEquals(result.expected.asString(), result.result.asString());
+			if ( result.result == null ) {
+				assertNull(result.why, result.why);
+			}
+
+			if ( result.match == null || result.match.equals("exact")) {
+
+				assertEquals(result.expected.asString(), result.result.asString());
+			} else if ( result.match.equals("glob") ) {
+				if ( !result.expected.asString().equals("*") ) {
+					assertTrue(
+							"\"" + result.expected.asString() + "\" doesn't match \"" + result.result.asString() + "\"",
+							StringCmd.GlobMatch(result.result.asString(), result.expected.asString())
+					);
+				}
+			} else {
+				assertTrue("Unknown match type " + result.match, false);
+			}
 			
 			assertNull(result.why, result.why);
 		}
