@@ -5,7 +5,12 @@ import com.basicer.parchment.EvaluationResult;
 import com.basicer.parchment.TCLCommand;
 import com.basicer.parchment.TCLEngine;
 import com.basicer.parchment.parameters.Parameter;
-import org.bukkit.Location;
+import com.basicer.parchment.parameters.VectorParameter;
+import org.bukkit.util.Vector;
+
+
+
+
 
 /**
  * Created with IntelliJ IDEA.
@@ -26,8 +31,8 @@ public class Dist extends TCLCommand {
 	}
 
 	public Parameter execute(Context ctx) {
-		Location a = ctx.get("a").as(Location.class);
-		Location b = ctx.get("b").as(Location.class);
-		return Parameter.from(a.distance(b));
+		VectorParameter a = ctx.get("a").cast(VectorParameter.class);
+		VectorParameter b = ctx.get("b").cast(VectorParameter.class);
+		return Parameter.from(a.asVector().distance(b.asVector()));
 	}
 }

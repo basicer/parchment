@@ -18,6 +18,7 @@ public class ListParameter extends Parameter {
 	public Class<List> getUnderlyingType() { return List.class; }
 	
 	private List<Parameter> self;
+
 	ListParameter(List<Parameter> self) {
 		this.self = new ArrayList<Parameter>(self);;
 	}
@@ -70,7 +71,11 @@ public class ListParameter extends Parameter {
 	}
 
 	*/
-	
+
+	public static ListParameter createEmpty() {
+		return new ListParameter(new ArrayList<Parameter>());
+	}
+
 	@Override
 	public String asString(Context ctx) {
 		StringBuilder b = new StringBuilder();

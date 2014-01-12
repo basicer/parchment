@@ -13,7 +13,7 @@ import com.basicer.parchment.parameters.Parameter;
 public class For extends TCLCommand {
 
 	@Override
-	public String[] getArguments() { return new String[] { "start", "test", "next", "body"  }; }
+	public String[] getArguments() { return new String[] { "start", "test", "next", "command"  }; }
 
 	@Override
 	public EvaluationResult extendedExecute(final Context ctx, final TCLEngine e) {
@@ -28,7 +28,7 @@ public class For extends TCLCommand {
 				Parameter ok = Expr.eval(expr.asString(), evalctx, e);
 				if ( ok == null ) throw new RuntimeException("Invalid expression: " + expr.asString());
 				if ( !ok.asBoolean() ) return new EvaluationResult(Parameter.EmptyString);
-				return new EvaluationResult.BranchEvaluationResult(ctx.get("body").asString(), evalctx, new EvaluationResult.EvalCallback(){
+				return new EvaluationResult.BranchEvaluationResult(ctx.get("command").asString(), evalctx, new EvaluationResult.EvalCallback(){
 					public EvaluationResult result(EvaluationResult er) {
 						if ( er.getCode() == Code.BREAK ) return new EvaluationResult(Parameter.EmptyString);
 						if ( er.getCode() == Code.RETURN ) return er;

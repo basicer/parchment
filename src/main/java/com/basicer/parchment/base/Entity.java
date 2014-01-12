@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 
+import com.basicer.parchment.parameters.*;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
@@ -24,17 +25,6 @@ import com.basicer.parchment.OperationalSpell;
 import com.basicer.parchment.Spell;
 import com.basicer.parchment.Spell.DefaultTargetType;
 import com.basicer.parchment.annotations.Operation;
-import com.basicer.parchment.parameters.BlockParameter;
-import com.basicer.parchment.parameters.DoubleParameter;
-import com.basicer.parchment.parameters.EntityParameter;
-import com.basicer.parchment.parameters.IntegerParameter;
-import com.basicer.parchment.parameters.ItemParameter;
-import com.basicer.parchment.parameters.LivingEntityParameter;
-import com.basicer.parchment.parameters.LocationParameter;
-import com.basicer.parchment.parameters.MaterialParameter;
-import com.basicer.parchment.parameters.Parameter;
-import com.basicer.parchment.parameters.PlayerParameter;
-import com.basicer.parchment.parameters.StringParameter;
 
 public class Entity extends OperationalSpell<EntityParameter>  {
 
@@ -97,31 +87,20 @@ public class Entity extends OperationalSpell<EntityParameter>  {
 		ent.setFallDistance(0.0f);
 		return Parameter.from(true);
 	}
-	
-	public static Parameter addPotionOperation(org.bukkit.entity.Entity ent, Context ctx, StringParameter name, DoubleParameter dur, IntegerParameter power)
-	{
-		if ( !( ent instanceof LivingEntity )) fizzle("Operation requires living Entity");
-		LivingEntity lent = (LivingEntity) ent;
-		
-		PotionEffectType eff = PotionEffectType.getByName(name.asString().toUpperCase());
-		lent.addPotionEffect(eff.createEffect((int)(100 * dur.asDouble()), power.asInteger()));
-		
-		return Parameter.from(ent);
+
+
+	@Operation(aliases={"vel"})
+	public static Parameter velocityOperation(org.bukkit.entity.Entity ent, Context ctx, VectorParameter set) {
+		if ( set != null ) 	ent.setVelocity(set.asVector(ctx));
+		return VectorParameter.from(ent.getVelocity());
+
+
 	}
-	
-	public static Parameter clearPotionsOperation(org.bukkit.entity.Entity ent, Context ctx) {
-		if ( !( ent instanceof LivingEntity )) fizzle("Operation requires living Entity");
-		LivingEntity lent = (LivingEntity) ent;
-		for ( PotionEffect e : lent.getActivePotionEffects() ) {
-			lent.removePotionEffect(e.getType());
-		}
-		return Parameter.from(ent);
-	}
-	
+
 
 	@Operation(aliases = {"ignight"})
 	public static Parameter igniteOperation(org.bukkit.entity.Entity ent, Context ctx) {
-		ent.setFireTicks(10 * 15);
+		ent.setFireTicks(20 * 15);
 		return Parameter.from(ent);
 	}
 	
@@ -191,17 +170,6 @@ public class Entity extends OperationalSpell<EntityParameter>  {
 	@Operation(aliases = {"pos"}, desc = "Returns the entities position as a Location.")
 	public static Parameter locationOperation(org.bukkit.entity.Entity ent, Context ctx) {
 		return Parameter.from(ent.getLocation());
-	}
-
-	public static Parameter targetOperation(org.bukkit.entity.Entity ent, Context ctx, EntityParameter target) {
-		if (!(ent instanceof Creature)) fizzle("Entity needs to be a Creature.");
-		Creature c = (Creature) ent;
-		if ( target != null ) {
-			LivingEntity le = target.asLivingEntity(ctx);
-			if ( le == null ) fizzle("Target entity must be a living entity.");
-			c.setTarget(le);
-		}
-		return Parameter.from(c.getTarget());
 	}
 
 	public static Parameter onGroundOperation(org.bukkit.entity.Entity ent, Context ctx) {

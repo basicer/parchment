@@ -9,6 +9,7 @@ import java.util.List;
 
 import com.basicer.parchment.EvaluationResult.Code;
 import com.basicer.parchment.parameters.Parameter;
+import com.basicer.parchment.parameters.ParameterAccumulator;
 import com.basicer.parchment.tcl.Set;
 import com.basicer.parchment.tclstrings.ErrorStrings;
 
@@ -185,6 +186,146 @@ public class TCLUtils {
 
 		// return Parameter.from("[VAR: " + cmd.toString() + "]");
 		return var;
+	}
+
+	public static ParameterAccumulator[] parseLine(PushbackReader s, Context ctx, boolean expr) {
+		ArrayList<ParameterAccumulator> out = new ArrayList<>();
+		boolean first = true;
+		do {
+			try {
+				ParameterAccumulator read = parseWord(s, ctx, first);
+				if ( read == null ) {
+					if ( read == null && out.size() == 0 ) return null;
+//					for ( int i = 0; i < out.size(); ++i ) {
+//						System.out.println(" " + i + " :" + out.get(i).toString());
+//					}
+					return out.toArray(new ParameterAccumulator[0]);
+				}
+				out.add(read);
+			} catch ( IOException ex ) {
+				throw new FizzleException(ex.getMessage());
+			}
+			first = false;
+		} while ( true );
+
+
+	}
+
+	public static ParameterAccumulator parseWord(PushbackReader s, Context ctx, boolean first) throws IOException {
+		return parseWord(s, ctx, first, "");
+	}
+	public static ParameterAccumulator parseWord(PushbackReader s, Context ctx, boolean first, String extraStop) throws IOException {
+		char in = '\0';
+		ParameterAccumulator current = new ParameterAccumulator();
+
+		int r;
+		while ( (r = s.read()) > 0 ) {
+			char c = (char) r;
+			boolean append = false;
+			if ( in == '"' ) {
+				if ( c == '\\' ) {
+					current.append(TCLUtils.readSlashCode(s));
+				} else if ( c == '"' ) {
+					in = '\0';
+					int xcn = s.read();
+					if ( xcn > 0 ) {
+						int xcnn = s.read();
+						if ( xcnn > 0 ) s.unread(xcnn);
+						s.unread(xcn);
+						//If right after a close quote we try to eat a new line, thats okay.
+						//TODO: This wount throw the correct error for something like "\\
+						if ( xcn == '\\' ) xcn = xcnn;
+						if ( !Character.isWhitespace(xcn) && (char) xcn != ';' ) {
+							if ( extraStop.indexOf(xcn) == -1 ) throw new FizzleException("extra characters after close-quote");
+						}
+						return current;
+
+					}
+				} else if ( c == '[' ) {
+					s.unread(r);
+					current.append(ParameterAccumulator.Type.CODE, TCLUtils.readBracketExpressionToString(s), ctx);
+				} else if ( c == '$' ) {
+					s.unread(r);
+					String name = TCLUtils.readVariableName(s, ctx);
+					if ( name.length() > 0 ) {
+						current.append(ParameterAccumulator.Type.VARIABLE, name, ctx);
+					} else {
+						append = true;
+					}
+				} else {
+					append = true;
+				}
+			} else {
+				if ( c == '\\' ) {
+					String ta = TCLUtils.readSlashCode(s);
+					if ( !ta.equals("") ) {
+						current.append(ta);
+						continue;
+					} else {
+						c = ' ';
+					}
+				}
+				if ( !current.empty() && extraStop.indexOf(c) != -1 ) {
+					s.unread(c);
+					return current;
+				}
+				else if ( c == '"' && current.empty() ) {
+					in = c;
+				} else if ( c == '{' && current.empty() ) {
+					s.unread(r);
+					current.append(TCLUtils.readCurlyBraceStringToString(s));
+					int xcn = s.read();
+					if ( xcn > 0 ) {
+						s.unread(xcn);
+						if ( !Character.isWhitespace(xcn) && (char) xcn != ';' ) {
+							throw new FizzleException("extra characters after close-brace");
+						}
+					}
+				} else if ( c == '[' ) {
+					s.unread(r);
+					current.append(ParameterAccumulator.Type.CODE, TCLUtils.readBracketExpressionToString(s), ctx);
+				} else if ( c == ' ' || c == '\t' || c == '\r' || c == (char) 11 || c == '\f' ) {
+					if ( !current.empty() ) return current;
+				} else if ( c == '\n' || c == ';' ) {
+					if ( !current.empty() ) {
+						s.unread(c);
+						return current;
+					} else if ( !first ) {
+						return null;
+					}
+				} else if ( c == '$' ) {
+					s.unread(r);
+					String name = TCLUtils.readVariableName(s, ctx);
+					if ( name.length() > 0 ) {
+						current.append(ParameterAccumulator.Type.VARIABLE, name, ctx);
+					} else {
+						append = true;
+					}
+				} else if ( c == '#' && current.empty() && first ) {
+					boolean before_slash = false;
+
+					while ( c != '\n' || before_slash ) {
+						r = s.read();
+						if ( r < 0 ) return parseWord(s, ctx,  first);
+
+						//Account for an escaped endline, which continues the comment
+						if ( before_slash ) before_slash = false;
+						else if ( c == '\\' ) before_slash = true;
+						c = (char) r;
+					}
+					return parseWord(s, ctx, first);
+				} else {
+					append = true;
+				}
+			}
+
+			if ( append ) current.append("" + c);
+
+		}
+
+		if ( in != '\0' ) throw new FizzleException("missing " + in);
+		if ( !current.empty() ) return current;
+		return null;
 	}
 
 	public static String readSlashCode(PushbackReader r) throws IOException {

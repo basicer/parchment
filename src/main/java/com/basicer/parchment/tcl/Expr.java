@@ -120,7 +120,7 @@ public class Expr extends TCLCommand {
 					} while ( true );
 					operator = false;
 				} else {
-					read = TCLEngine.parseWord(s, ctx, false, exprSymbols);
+					read = TCLUtils.parseWord(s, ctx, false, exprSymbols);
 					operator = true;
 				}
 				if ( read == null ) break;

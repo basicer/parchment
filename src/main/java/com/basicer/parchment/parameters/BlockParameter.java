@@ -7,6 +7,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 
 import com.basicer.parchment.Context;
+import org.bukkit.util.Vector;
 
 public class BlockParameter extends Parameter {
 	private Block self;
@@ -27,7 +28,12 @@ public class BlockParameter extends Parameter {
 	public Location asLocation(Context ctx) {
 		return self.getLocation();
 	}
-	
+
+	public Vector asVector(Context ctx) {
+		return self.getLocation().toVector();
+	}
+
+
 	public World asWorld(Context ctx) {
 		return self.getLocation().getWorld();
 	}
