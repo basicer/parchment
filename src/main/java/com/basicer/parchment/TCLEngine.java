@@ -66,7 +66,8 @@ public class TCLEngine {
 			sub = null;
 
 			if ( !(result instanceof EvaluationResult.BranchEvaluationResult) && result.getCode() == Code.ERROR ) {
-				String s = result.getValue().asString() + "\n\twhile executing\n" + last_ran_code;
+				if ( result.getRefrencedCode() == null ) result.setRefrencedCode(last_ran_code);
+				String s = result.getValue().asString() + "\n    while executing\n\"" + result.getRefrencedCode() + "\"";
 				ctx.top().put("errorInfo", StringParameter.from(s));
 			}
 
@@ -449,6 +450,7 @@ public class TCLEngine {
 						if ( !Character.isWhitespace(xcn) && (char) xcn != ';' ) {
 							if ( extraStop.indexOf(xcn) == -1 ) throw new FizzleException("extra characters after close-quote");
 						}
+						return current;
 
 					}
 				} else if ( c == '[' ) {

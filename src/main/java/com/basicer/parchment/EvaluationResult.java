@@ -11,7 +11,17 @@ public class EvaluationResult {
 	public enum Code { OK, ERROR, RETURN, BREAK, CONTINUE; }
 	private Parameter value;
 	private Code code = Code.OK;
-	
+
+	public String getRefrencedCode() {
+		return refrencedCode;
+	}
+
+	public void setRefrencedCode(String refrencedCode) {
+		this.refrencedCode = refrencedCode;
+	}
+
+	private String refrencedCode;
+
 	public static final EvaluationResult OK = new EvaluationResult();
 	
 	public EvaluationResult() {
