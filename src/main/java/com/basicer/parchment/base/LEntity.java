@@ -3,8 +3,11 @@ package com.basicer.parchment.base;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.basicer.parchment.annotations.Operation;
+import com.sun.org.apache.xerces.internal.impl.xpath.regex.Match;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
@@ -60,7 +63,7 @@ public class LEntity extends OperationalSpell<EntityParameter>  {
 		fizzle("No entities found there");
 		return null;
 	}
-	
+
 	public Parameter affect(BlockParameter target, Context ctx) {
 		return affect(target.cast(LocationParameter.class), ctx);
 	}
@@ -68,13 +71,14 @@ public class LEntity extends OperationalSpell<EntityParameter>  {
 
 	public static org.bukkit.entity.LivingEntity create(Context ctx, StringParameter type, LocationParameter where) {
 		//where.asWorld(ctx).spawn(where.asLocation(ctx), Class.forName(type));
-		org.bukkit.World world = where.asWorld(ctx);
+		Location l = where.asLocation(ctx);
 		org.bukkit.entity.EntityType etype = type.asEnum(org.bukkit.entity.EntityType.class);
+
 		if ( etype == null ) fizzle("No such entity type: " + type.asString(ctx));
-		if ( etype.isSpawnable() ) fizzle("Entity type is not spawnable.");
+		if ( !etype.isSpawnable() ) fizzle("Entity type is not spawnable.");
 		if ( !etype.isAlive() ) fizzle("Must choose living entity type.");
 		try {
-			return (LivingEntity)world.spawnEntity(where.asLocation(ctx), etype);
+			return (LivingEntity)l.getWorld().spawnEntity(l, etype);
 		} catch ( IllegalArgumentException ex ) {
 			fizzle(ex.getMessage());
 			return null;
@@ -83,11 +87,45 @@ public class LEntity extends OperationalSpell<EntityParameter>  {
 
 	}
 
-	public static Parameter addpotionOperation(org.bukkit.entity.LivingEntity lent, Context ctx, StringParameter name, DoubleParameter dur, IntegerParameter power)
-	{	
-		PotionEffectType eff = PotionEffectType.getByName(name.asString().toUpperCase());
-		lent.addPotionEffect(eff.createEffect((int)(100 * dur.asDouble()), power.asInteger()));
-		
+
+	private static Pattern potion_match = Pattern.compile("^([a-zA-Z]+)([0-9]+)?$");
+
+	public static PotionEffectType parsePotionEffect(String name) {
+		switch ( name.toUpperCase() ) {
+			case "STR":
+			case "STRENGTH":
+			case "DAMAGE":
+			case "DMG":
+				return PotionEffectType.INCREASE_DAMAGE;
+			case "HASTE":
+				return PotionEffectType.FAST_DIGGING;
+			default:
+				return PotionEffectType.getByName(name.toUpperCase());
+		}
+
+
+
+
+	}
+
+	@Operation(aliases={"apot"})
+	public static Parameter addpotionOperation(org.bukkit.entity.LivingEntity lent, Context ctx, StringParameter name, DoubleParameter dur)
+	{
+
+		if ( name == null ) fizzle("must specify potion name");
+		Matcher m = potion_match.matcher(name.asString(ctx));
+		if ( !m.matches() ) fizzle("Invalid potion effect name");
+		int amp = 0;
+		if ( m.group(2) != null ) {
+			amp = Integer.decode(m.group(2)) - 1;
+		}
+
+		PotionEffectType eff = parsePotionEffect(m.group(1));
+		double durd = 120;
+		if ( dur != null ) durd = dur.asDouble(ctx);
+		lent.addPotionEffect(eff.createEffect((int)(durd * 20), amp));
+
+
 		return Parameter.from(lent);
 	}
 	
@@ -117,6 +155,17 @@ public class LEntity extends OperationalSpell<EntityParameter>  {
 	@Operation(aliases={"hp"})
 	public static Parameter healthOperation(org.bukkit.entity.LivingEntity le, Context ctx, DoubleParameter set) {
 		if (set != null) le.setHealth(set.asDouble(ctx));
+		return Parameter.from(le.getHealth());
+	}
+
+	@Operation(aliases={"fhp"}, desc="Set's entities HP, raising its max hp if nessessiary.")
+	public static Parameter forceHealthOperation(org.bukkit.entity.LivingEntity le, Context ctx, DoubleParameter set) {
+
+		if (set != null) {
+			double nhp = set.asDouble(ctx);
+			if ( le.getMaxHealth() < nhp ) le.setMaxHealth(nhp);
+			le.setHealth(nhp);
+		}
 		return Parameter.from(le.getHealth());
 	}
 

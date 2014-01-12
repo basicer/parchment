@@ -39,7 +39,7 @@ public class World extends OperationalSpell<WorldParameter> {
 		return Parameter.from(world.generateTree(where.asLocation(ctx), t) ? 1 : 0);
 	}
 	
-	@Operation(desc = "Spawn an enitity of the given type at some location.  Returns the entity.")
+	@Operation(desc = "Spawn an entity of the given type at some location.  Returns the entity.")
 	public static Parameter spawnOperation(org.bukkit.World world, Context ctx, StringParameter type, LocationParameter where) {
 		org.bukkit.entity.Entity e = world.spawnEntity(where.asLocation(ctx), (EntityType)type.asEnum(EntityType.class));
 		return Parameter.from(e);
@@ -85,6 +85,11 @@ public class World extends OperationalSpell<WorldParameter> {
 
 	public static Parameter saveOperation(org.bukkit.World world, Context ctx) {
 		world.save();
+		return WorldParameter.from(world);
+	}
+
+	public static Parameter strikeLightningOperation(org.bukkit.World world, Context ctx, LocationParameter where) {
+		world.strikeLightning(where.asLocation(ctx));
 		return WorldParameter.from(world);
 	}
 
