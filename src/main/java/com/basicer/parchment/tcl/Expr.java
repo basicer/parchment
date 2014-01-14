@@ -12,6 +12,7 @@ import com.basicer.parchment.FizzleException;
 import com.basicer.parchment.TCLCommand;
 import com.basicer.parchment.TCLEngine;
 import com.basicer.parchment.TCLUtils;
+import com.basicer.parchment.annotations.Operation;
 import com.basicer.parchment.parameters.*;
 import com.comphenix.protocol.reflect.FuzzyReflection;
 
@@ -25,6 +26,44 @@ import java.util.regex.Pattern;
 
 
 public class Expr extends TCLCommand {
+
+	public enum Operator {
+		PLUS("+"), MINUS("-"), MULTIPLY("*"), DIVIDE ("/"), POW ("**"),
+		LSHIFT("<<"), RSHIFT(">>"), MOD("%"), NOT_EQUAL("!="), EQUAL("=="),
+		GT(">"), LT("<"), GT_EQ(">="), LT_EQ("<="),
+		OR("||"), AND("&&");
+
+		private String text;
+		Operator(String txt) { this.text = txt; }
+		public String getText() { return text; }
+
+		public static Operator parse(String in) {
+			switch (in) {
+				case "+": return PLUS;
+				case "-": return MINUS;
+				case "*": return MULTIPLY;
+				case "/": return DIVIDE;
+				case "**": return POW;
+				case "<<": return LSHIFT;
+				case ">>": return RSHIFT;
+				case "%": return MOD;
+				case "!=":
+				case "ne":
+					return NOT_EQUAL;
+				case "==":
+				case "eq":
+					return EQUAL;
+				case ">": return GT;
+				case "<": return LT;
+				case ">=": return GT_EQ;
+				case "<=": return LT_EQ;
+				case "||": return OR;
+				case "&&": return AND;
+				default: return null;
+			}
+		}
+
+	}
 
 	@Override
 	public EvaluationResult extendedExecute(Context ctx, TCLEngine e) {
@@ -206,37 +245,39 @@ public class Expr extends TCLCommand {
 	}
 
 	public static Parameter evaluate(Parameter lhs, Parameter pop, Parameter rhs) {
-		String op = pop.asString();
-		Debug.trace("EVAL: %s", (lhs == null ? "null" : lhs.toString()) + " " + op + " " + (rhs == null ? "null" : rhs.toString()));
+		Operator op = Operator.parse(pop.asString());
+		Debug.trace("EVAL: %s", (lhs == null ? "null" : lhs.toString()) + " " + op.getText() + " " + (rhs == null ? "null" : rhs.toString()));
+
+		if ( lhs.canComputeBinaryOperator(op, rhs) ) {
+			return lhs.computeBinaryOperator(op, rhs);
+		}
 
 		try {
 
-			if ( op.equals(">") ) return Parameter.from(compare(lhs,rhs) > 0 ? 1 : 0);
-			if ( op.equals(">=") ) return Parameter.from(compare(lhs,rhs) >= 0 ? 1 : 0);
-			if ( op.equals("<") ) return Parameter.from(compare(lhs,rhs) < 0 ? 1 : 0);
-			if ( op.equals("<=") ) return Parameter.from(compare(lhs, rhs) <= 0 ? 1 : 0);
-			if ( op.equals("eq") ) return Parameter.from(testEquality(lhs,rhs) ? 1 : 0);
-			if ( op.equals("ne") ) return Parameter.from(!testEquality(lhs,rhs) ? 1 : 0);
-			if ( op.equals("==") ) return Parameter.from(testEquality(lhs,rhs) ? 1 : 0);
-			if ( op.equals("!=") ) return Parameter.from(!testEquality(lhs,rhs) ? 1 : 0);
+			if ( op == Operator.GT ) return Parameter.from(compare(lhs,rhs) > 0 ? 1 : 0);
+			if ( op == Operator.GT_EQ ) return Parameter.from(compare(lhs,rhs) >= 0 ? 1 : 0);
+			if ( op == Operator.LT ) return Parameter.from(compare(lhs,rhs) < 0 ? 1 : 0);
+			if ( op == Operator.LT_EQ ) return Parameter.from(compare(lhs, rhs) <= 0 ? 1 : 0);
+			if ( op == Operator.NOT_EQUAL ) return Parameter.from(!testEquality(lhs,rhs) ? 1 : 0);
+			if ( op == Operator.EQUAL ) return Parameter.from(testEquality(lhs,rhs) ? 1 : 0);
 
 			if ( !isNumeric(lhs) || !isNumeric(rhs) ) throw new FizzleException("can't use non-numeric string as operand of \"" + op + "\"");
-			if ( op.equals("+") ) return Parameter.from(lhs.asDouble() + rhs.asDouble());
-			if ( op.equals("-") ) return Parameter.from(lhs.asDouble() - rhs.asDouble());
+			if ( op == Operator.PLUS ) return Parameter.from(lhs.asDouble() + rhs.asDouble());
+			if ( op == Operator.MINUS ) return Parameter.from(lhs.asDouble() - rhs.asDouble());
 
-			if ( op.equals("*") ) return Parameter.from(lhs.asDouble() * rhs.asDouble());
-			if ( op.equals("/") ) return Parameter.from(lhs.asDouble() / rhs.asDouble());
-			if ( op.equals("**") ) return Parameter.from(Math.pow(lhs.asDouble(), rhs.asDouble()));
+			if ( op == Operator.MULTIPLY ) return Parameter.from(lhs.asDouble() * rhs.asDouble());
+			if ( op == Operator.DIVIDE ) return Parameter.from(lhs.asDouble() / rhs.asDouble());
+			if (op == Operator.POW ) return Parameter.from(Math.pow(lhs.asDouble(), rhs.asDouble()));
 
 			if ( !hasIntPrecision(lhs) || !hasIntPrecision(rhs) ) throw new FizzleException("can't use floating-point value as operand of \"" + op + "\"");
-			if ( op.equals("%") ) return Parameter.from(lhs.asInteger() % rhs.asInteger());
-			if ( op.equals("<<") ) return Parameter.from(lhs.asLong() << rhs.asLong());
-			if ( op.equals(">>") ) return Parameter.from(lhs.asLong() >> rhs.asLong());
+			if ( op == Operator.MOD ) return Parameter.from(lhs.asInteger() % rhs.asInteger());
+			if ( op == Operator.LSHIFT ) return Parameter.from(lhs.asLong() << rhs.asLong());
+			if ( op == Operator.RSHIFT ) return Parameter.from(lhs.asLong() >> rhs.asLong());
 
 
 
-			if ( op.equals("||") ) return Parameter.from((lhs.asBoolean() || rhs.asBoolean()) ? 1 : 0 );
-			if ( op.equals("&&") ) return Parameter.from((lhs.asBoolean() && rhs.asBoolean()) ? 1 : 0 );
+			if ( op == Operator.OR ) return Parameter.from((lhs.asBoolean() || rhs.asBoolean()) ? 1 : 0 );
+			if ( op == Operator.AND ) return Parameter.from((lhs.asBoolean() && rhs.asBoolean()) ? 1 : 0 );
 			
 			
 

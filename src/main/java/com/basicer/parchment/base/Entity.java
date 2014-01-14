@@ -93,8 +93,15 @@ public class Entity extends OperationalSpell<EntityParameter>  {
 	public static Parameter velocityOperation(org.bukkit.entity.Entity ent, Context ctx, VectorParameter set) {
 		if ( set != null ) 	ent.setVelocity(set.asVector(ctx));
 		return VectorParameter.from(ent.getVelocity());
+	}
 
-
+	@Operation(aliases={"addvel"})
+	public static Parameter addVelocityOperation(org.bukkit.entity.Entity ent, Context ctx, VectorParameter add) {
+		if ( add == null ) fizzle("No velocity to add?!");
+		Vector v = ent.getVelocity();
+		v.add(add.asVector(ctx));
+		ent.setVelocity(v);
+		return VectorParameter.from(v);
 	}
 
 
@@ -167,10 +174,32 @@ public class Entity extends OperationalSpell<EntityParameter>  {
 		return Parameter.from(ent.getLocation());
 	}
 
-	@Operation(aliases = {"pos"}, desc = "Returns the entities position as a Location.")
+	@Operation(aliases = {"pos", "loc"}, desc = "Returns the entities position as a Location.")
 	public static Parameter locationOperation(org.bukkit.entity.Entity ent, Context ctx) {
 		return Parameter.from(ent.getLocation());
 	}
+
+	@Operation(aliases = {"posv", "locv"}, desc = "Returns the entities position as a Vector.")
+	public static Parameter locationVectorOperation(org.bukkit.entity.Entity ent, Context ctx) {
+		return Parameter.from(ent.getLocation().toVector());
+	}
+
+	@Operation(aliases = {"dirv"}, desc = "Returns the entities position as a unit Vector.")
+	public static Parameter directionVectorOperation(org.bukkit.entity.Entity ent, Context ctx) {
+		Location l = ent.getLocation();
+		return VectorParameter.from(l.getDirection());
+	}
+
+	@Operation(aliases = {"rotv"}, desc = "Returns the entities position as a unit Vector.")
+	public static Parameter rotationVectorOperation(org.bukkit.entity.Entity ent, Context ctx) {
+		Location l = ent.getLocation();
+		double yaw = Math.toRadians(l.getYaw() + 90);
+		Vector v = new Vector();
+		v.setZ(Math.sin(yaw));
+		v.setX(Math.cos(yaw));
+		return VectorParameter.from(v);
+	}
+
 
 	public static Parameter onGroundOperation(org.bukkit.entity.Entity ent, Context ctx) {
 		return Parameter.from(ent.isOnGround() ? 1 : 0);

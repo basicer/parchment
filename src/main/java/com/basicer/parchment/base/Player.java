@@ -117,6 +117,21 @@ public class Player extends OperationalSpell<PlayerParameter> {
 				case Fireball:
 					shot = pent.launchProjectile(Fireball.class);
 					break;
+				case LargeFireball:
+					shot = pent.launchProjectile(LargeFireball.class);
+					break;
+				case SmallFireball:
+					shot = pent.launchProjectile(SmallFireball.class);
+					break;
+				case EnderPearl:
+					shot = pent.launchProjectile(EnderPearl.class);
+					break;
+				case Egg:
+					shot = pent.launchProjectile(Egg.class);
+					break;
+				case WitherSkull:
+					shot = pent.launchProjectile(WitherSkull.class);
+					break;
 			}
 		}
 		/*

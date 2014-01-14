@@ -4,6 +4,8 @@ import com.basicer.parchment.Context;
 import com.basicer.parchment.Debug;
 import com.basicer.parchment.FizzleException;
 import com.basicer.parchment.TCLEngine;
+import com.basicer.parchment.tcl.Expr;
+import com.sun.javaws.exceptions.InvalidArgumentException;
 import org.bukkit.util.Vector;
 
 import java.io.PushbackReader;
@@ -147,6 +149,27 @@ public class VectorParameter extends Parameter {
 		return out;
 	}
 
+
+	@Override
+	public boolean canComputeBinaryOperator(Expr.Operator op, Parameter rhs) {
+		if ( op == Expr.Operator.MULTIPLY && rhs.asDouble() != null ) return true;
+		if ( op == Expr.Operator.PLUS && rhs instanceof VectorParameter ) return true;
+
+		return false;
+	}
+
+	@Override
+	public Parameter computeBinaryOperator(Expr.Operator op, Parameter rhs) {
+		if ( op == Expr.Operator.MULTIPLY && rhs.asDouble() != null ) {
+			return VectorParameter.from(self.clone().multiply(rhs.asDouble()));
+		}
+
+		if ( op == Expr.Operator.PLUS && rhs instanceof VectorParameter ) {
+			return VectorParameter.from(self.clone().add(((VectorParameter)rhs).asVector()));
+		}
+
+		return null;
+	}
 
 	public boolean isArray() { return true; }
 

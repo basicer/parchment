@@ -418,13 +418,20 @@ public class Item extends OperationalSpell<ItemParameter>  {
 		if ( name.equals("UNBREAKING") ) return Enchantment.DURABILITY;
 		if ( name.equals("SILKTOUCH") ) return Enchantment.SILK_TOUCH;
 		if ( name.equals("PUNCH") ) return Enchantment.ARROW_KNOCKBACK;
+
 		if ( name.equals("SHARPNESS") ) return Enchantment.DAMAGE_ALL;
+		if ( name.equals("SHARP") ) return Enchantment.DAMAGE_ALL;
+
 		if ( name.equals("FLAME") ) return Enchantment.ARROW_FIRE;
 		if ( name.equals("FIRE") ) return Enchantment.FIRE_ASPECT;
 		if ( name.equals("SMITE")) return Enchantment.DAMAGE_UNDEAD;
 		if ( name.equals("BANE")) return Enchantment.DAMAGE_ARTHROPODS;
-		
+
 		if ( name.equals("FAST")) return Enchantment.DIG_SPEED;
+		if ( name.equals("HASTE")) return Enchantment.DIG_SPEED;
+
+		if ( name.equals("PROT")) return Enchantment.PROTECTION_ENVIRONMENTAL;
+		if ( name.equals("PROTECTION")) return Enchantment.PROTECTION_ENVIRONMENTAL;
 		return null;
 	}
 	

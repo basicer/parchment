@@ -1,5 +1,6 @@
 package com.basicer.parchment.parameters;
 
+import java.awt.dnd.InvalidDnDOperationException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.basicer.parchment.*;
+import com.basicer.parchment.tcl.Expr;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -381,6 +383,7 @@ public abstract class Parameter implements Iterable<Parameter> {
 		//if ( true ) return this;
 		if ( this instanceof IntegerParameter ) return this;
 		if ( this instanceof DoubleParameter ) return this;
+		if ( this instanceof VectorParameter ) return this;
 		String s = this.asString();
 		Long l = asLong();
 
@@ -401,6 +404,15 @@ public abstract class Parameter implements Iterable<Parameter> {
 			return this;
 		}
 	}
+
+	public boolean canComputeBinaryOperator(Expr.Operator op, Parameter rhs) {
+		return false;
+	}
+
+	public Parameter computeBinaryOperator(Expr.Operator op, Parameter rhs) {
+		return null;
+	}
+
 
 	private class SingleIterator<T> implements Iterator<T> {
 
