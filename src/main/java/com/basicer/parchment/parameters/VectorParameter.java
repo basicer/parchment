@@ -5,7 +5,6 @@ import com.basicer.parchment.Debug;
 import com.basicer.parchment.FizzleException;
 import com.basicer.parchment.TCLEngine;
 import com.basicer.parchment.tcl.Expr;
-import com.sun.javaws.exceptions.InvalidArgumentException;
 import org.bukkit.util.Vector;
 
 import java.io.PushbackReader;
