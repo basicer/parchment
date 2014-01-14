@@ -21,7 +21,7 @@ public class TCLUnitTestSuite extends TestCase {
 	TestResult	result;
 
 	public String getName() {
-		return this.getClass().getName() + " : " + result.name + " - " + result.description;
+		return result.name + " - " + result.description;
 	}
 
 	public TCLUnitTestSuite(TestResult tr) {
