@@ -76,6 +76,7 @@ public class ParchmentPluginLite extends JavaPlugin {
 		Parameter.RegisterParamaterType(EntityParameter.class);
 
 		Parameter.RegisterParamaterType(LocationParameter.class);
+		Parameter.RegisterParamaterType(VectorParameter.class);
 		Parameter.RegisterParamaterType(MaterialParameter.class);
 		Parameter.RegisterParamaterType(ServerParameter.class);
 		Parameter.RegisterParamaterType(WorldParameter.class);
