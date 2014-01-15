@@ -48,15 +48,18 @@ public class ThreadManager {
 		public boolean doWork() {
 			boolean out = true;
 			int i = 0;
-			long timeout = System.currentTimeMillis() + 100;
+			long timeout = System.currentTimeMillis() + 5;
 			while ( true ) {
 				if ( System.currentTimeMillis() > timeout ) break;
 				out = this.engine.step(true);
 				EvaluationResult deepest = this.engine.getDeepestEvaluationResult();
 				if ( deepest != null && deepest instanceof EvaluationResult.BranchEvaluationResult ) {
 					Long when = ((EvaluationResult.BranchEvaluationResult)deepest).getScheduleAfter();
-					if ( when != null ) nextTimeSlice = when;
-					return true;
+					if ( when != null ) {
+						nextTimeSlice = when;
+						return true;
+					}
+
 				}
 				if ( out == false ) break;
 			}
