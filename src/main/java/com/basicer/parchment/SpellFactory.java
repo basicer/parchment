@@ -3,6 +3,7 @@ package com.basicer.parchment;
 import java.util.*;
 
 import com.basicer.parchment.base.*;
+import com.basicer.parchment.extra.IMenu;
 import com.basicer.parchment.spells.*;
 import com.basicer.parchment.tcl.*;
 import com.basicer.parchment.tcl.Error;
@@ -106,6 +107,8 @@ public class SpellFactory {
 		addBuiltinCommand(WGRegion.class);
 		addBuiltinCommand(Command.class);
 		addBuiltinCommand(Bungee.class);
+
+		addBuiltinCommand(IMenu.class);
 
 		addBuiltinCommand(Repeat.class);
 		

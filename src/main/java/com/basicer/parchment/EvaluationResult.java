@@ -71,7 +71,17 @@ public class EvaluationResult {
 			this(toRun, ctx, evalCallback);
 			scheduleAfter = when;
 		}
-		
+
+		public BranchEvaluationResult(String toRun, Context ctx, EvalCallback evalCallback, final long delay ) {
+			this(toRun, ctx, evalCallback);
+			scheduleAfter = new Callable<Long>() {
+				@Override
+				public Long call() throws Exception {
+					return System.currentTimeMillis() + delay;
+				}
+			};
+		}
+
 		@Override
 		public Parameter getValue() {
 			throw new RuntimeException("You've done something wrong");
