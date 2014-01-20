@@ -81,13 +81,23 @@ public abstract class TCLCommand {
 				String str  = params[ptr].asString(ctx);
 
 				if ( str.startsWith("-") ) { //TODO: TCL might want us to check the spot
-					if ( flags.contains(str + "=")  ) {
-						++ptr;
-						put.put(str.substring(1), params[ptr]);
-						++ptr; --i; continue;
-					} else if ( flags.contains(str) ) {
-						put.put(str.substring(1), Parameter.from(true));
-						++ptr; --i; continue;
+
+					String flag = null;
+					for ( String f : flags ) {
+						if ( f.startsWith(str) ) {
+							if ( flag != null ) { flag = null; break; }
+							flag = f;
+						}
+					}
+					if ( flag != null ) {
+						if ( flag.endsWith("=")  ) {
+							++ptr;
+							put.put(flag.substring(1, flag.length() - 1), params[ptr]);
+							++ptr; --i; continue;
+						} else {
+							put.put(flag.substring(1), Parameter.from(true));
+							++ptr; --i; continue;
+						}
 					}
 				}
 			}
