@@ -43,10 +43,10 @@ public class ParchmentCommandExecutor implements CommandExecutor {
 		}
 
 		@Override
-		public Prompt acceptInput(ConversationContext arg0, String arg1) {
+		public Prompt acceptInput(final ConversationContext arg0, String arg1) {
 
 			if ( arg1.startsWith("/") ) arg1 = arg1.substring(1);
-			if ( arg1.equals("exit") || arg1.equals("quit") ) return null;
+			if ( arg1.equals("exit") || arg1.equals("quit") || arg1.equals("stop") ) return null;
 
 			Parameter r = null;
 			buffer.append(arg1);
@@ -55,14 +55,22 @@ public class ParchmentCommandExecutor implements CommandExecutor {
 			String test = buffer.toString();
 			if ( TCLUtils.isCompleteStatement(test) ) {
 				buffer = new StringBuilder();
-				try { r = TCLUtils.evaluate(test, ctx); }
-				catch ( Exception ex ) {
 
-				} catch ( Error ex ) {
+				ThreadManager.instance().submitWork(new BranchEvaluationResult(test, ctx, new EvaluationResult.EvalCallback() {
 
-				}
-				if ( r != null ) ctx.put("ans", r);
-				else ctx.put("ans", Parameter.from(""));
+					public EvaluationResult result(EvaluationResult e) {
+						if ( e.getCode() == Code.ERROR ) {
+							arg0.getForWhom().sendRawMessage(ChatColor.RED + "Error: " + e.getValue().asString());
+						}
+
+						if ( e.getValue() != null ) ctx.put("ans", e.getValue());
+						else ctx.put("ans", Parameter.from(""));
+
+						return EvaluationResult.OK;
+					}
+
+				}));	
+
 			}
 			return this;
 		}
