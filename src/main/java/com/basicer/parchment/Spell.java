@@ -158,11 +158,16 @@ public abstract class Spell extends TCLCommand {
 	protected List<Class<? extends Parameter>> getAffectors() {
 		List<Class<? extends Parameter>> list = new ArrayList<Class<? extends Parameter>>();
 		for ( Method m : this.getClass().getMethods() ) {
-			if ( !m.getName().equals("affect") ) continue;
+			if ( m.getName().equals("affectNull") )  {
+				list.add(null);
+				continue;
+			} else if ( !m.getName().equals("affect") ) continue;
 			Class[] types = m.getParameterTypes();
 			list.add(types[0]);
 		}
-		
+
+
+
 		return list;
 	}
 	
@@ -187,42 +192,56 @@ public abstract class Spell extends TCLCommand {
 		} else {
 			out = new ArrayList<Parameter>();
 		}
-		if ( targets == null ) s.fizzle("Not target, but applying affector.");
-		Parameter save = ctx.get("target");
+
 		ParameterPtr result;
-		targetloop:
-		for ( Parameter t : targets ) {
-			for ( Class<? extends Parameter> c : list ) {
-				ctx.setTarget(t);
-				result = s.tryAffect(c, t, ctx);
-				if ( result != null ) {					
-					// Combine returned lists into one large list.
-					if ( result.getValue() != null ) {
+		boolean did_something = false;
+		if ( targets == null ) {
+			result = s.tryAffect(null, null, ctx);
+			if ( result != null ) {
+				did_something = true;
+				out.add(result.getValue());
+			}
+		} else {
+			Parameter save = ctx.get("target");
+
+
+			targetloop:
+			for ( Parameter t : targets ) {
+				for ( Class<? extends Parameter> c : list ) {
+					ctx.setTarget(t);
+					result = s.tryAffect(c, t, ctx);
+					if ( result != null ) {
+						did_something = true;
+						// Combine returned lists into one large list.
+						if ( result.getValue() != null ) {
+							for ( Parameter rr : result.getValue() ) {
+								out.add(rr);
+							}
+						}
+						continue targetloop;
+					}
+				}
+
+				for ( Class<? extends Parameter> c : list ) {
+					Parameter casted = t.cast(c, ctx);
+					if ( casted == null ) continue;
+					ctx.setTarget(casted);
+					result = s.tryAffect(c, casted, ctx);
+					if ( result != null ) {
+						did_something = true;
+						// Combine returned lists into one large list.
 						for ( Parameter rr : result.getValue() ) {
 							out.add(rr);
-						}				
+						}
+						continue targetloop;
 					}
-					continue targetloop;
 				}
 			}
-			
-			for ( Class<? extends Parameter> c : list ) {
-				Parameter casted = t.cast(c, ctx);
-				if ( casted == null ) continue;
-				ctx.setTarget(casted);
-				result = s.tryAffect(c, casted, ctx);
-				if ( result != null ) {
-					// Combine returned lists into one large list.
-					for ( Parameter rr : result.getValue() ) {
-						out.add(rr);
-					}
-					continue targetloop;
-				}	
-			}
+
+			if ( save != null ) ctx.put("target", save);
 		}
 
-		if ( save != null ) ctx.put("target", save);
-
+		if (!did_something) fizzle("Command doesn't have affector for current target");
 		if ( out.size() == 0 ) return null;
 		else if ( out.size() == 1 ) return out.iterator().next();
 		else return Parameter.createList(out.toArray(new Parameter[0]));
@@ -320,13 +339,24 @@ public abstract class Spell extends TCLCommand {
 
 	
 	protected <T extends Parameter> ParameterPtr tryAffect(Class<T> type, Parameter t, Context ctx) {
-		if ( !type.isInstance(t) ) return null;
-		if ( !this.canAffect(type) ) return null;
-		Class[] types = new Class[] { type, Context.class };
+		String name;
+		Class[] types;
+
+		if ( type == null ) {
+			name = "affectNull";
+			types = new Class[] { Context.class };
+			if ( !this.canAffect(null) ) return null;
+		} else {
+			if ( !type.isInstance(t) ) return null;
+			if ( !this.canAffect(type) ) return null;
+			name = "affect";
+			types =  new Class[] { type, Context.class };
+		}
+
 		try {
 			//Debug.trace.println("INVOKE " + t.getClass() + " bread inside " + this.getClass().getSimpleName());
-			Method m = this.getClass().getMethod("affect", types);
-			Parameter p = (Parameter) m.invoke(this, t, ctx);
+			Method m = this.getClass().getMethod(name, types);
+			Parameter p = type == null ? (Parameter) m.invoke(this, ctx) : (Parameter) m.invoke(this, t, ctx);
 			ParameterPtr o = new ParameterPtr();
 			o.setValue(p);
 			return o;

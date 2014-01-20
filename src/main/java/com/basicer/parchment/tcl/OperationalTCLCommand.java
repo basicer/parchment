@@ -44,10 +44,10 @@ public abstract class OperationalTCLCommand extends TCLCommand {
 
 	public static <U,TT extends Parameter> Parameter operationalDispatch(TCLCommand command, Class<U> type, TT target, Context ctx, Queue<Parameter> args) {
 
-		if ( target == null ) throw new FizzleException("No target.");
-		Object o = target.getUnderlyingValue();
+
+		Object o = ( target == null ) ? null : target.getUnderlyingValue();
 		
-		if ( !type.isInstance(o) ) throw new FizzleException("Target mismatch");
+		if ( o != null && !type.isInstance(o) ) throw new FizzleException("Target mismatch");
 	
 		if ( args.size() < 1 ) return target;
 	
@@ -77,7 +77,8 @@ public abstract class OperationalTCLCommand extends TCLCommand {
 						if ( ex.getTargetException() instanceof  FizzleException ) throw (FizzleException)ex.getTargetException();
 						throw ex;
 					}
-					
+
+
 					target = (TT)Parameter.from(ni);
 					out = target;
 					continue;
@@ -88,15 +89,15 @@ public abstract class OperationalTCLCommand extends TCLCommand {
 				} catch (IllegalArgumentException e) {
 					throw new RuntimeException(e);
 				} catch (InvocationTargetException e) {
-					throw new RuntimeException(e);
+					throw new RuntimeException(e.getTargetException());
 				}
 			}
 
-
+			if ( target == null ) throw new FizzleException("No target.");
 			out = invokeMapped(command, op, args, ctx, target).getValue();
 			if ( out != null ) {
 				Object ov = out.getUnderlyingValue();
-				if ( type.isInstance(ov) ) {
+				if ( ov != null && type.isInstance(ov) ) {
 					Debug.trace("Obj now " + ov);
 					target = (TT) Parameter.from(ov);
 				}

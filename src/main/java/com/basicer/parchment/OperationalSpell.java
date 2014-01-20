@@ -21,9 +21,17 @@ public class OperationalSpell<T extends Parameter> extends Spell {
 		if ( args.size() > 0 ) {
 			
 		}
-		return OperationalTCLCommand.operationalDispatch(this, target.getUnderlyingType(), target, ctx, args);
+		return OperationalTCLCommand.operationalDispatch(this, target == null ? null : target.getUnderlyingType(), target, ctx, args);
 	}
-	
+
+	protected Parameter doaffect(T target, Context ctx, Class<?> type) {
+		Queue<Parameter> args = new LinkedList<Parameter>(ctx.getArgs());
+
+		if ( args.size() > 0 ) {
+
+		}
+		return OperationalTCLCommand.operationalDispatch(this, type, target, ctx, args);
+	}
 
 	
 	public String getHelpText() {
