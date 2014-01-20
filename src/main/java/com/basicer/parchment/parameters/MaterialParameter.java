@@ -38,7 +38,7 @@ public class MaterialParameter extends Parameter {
 		m = org.bukkit.Material.matchMaterial(name);
 		if ( m != null ) return m;
 
-		name = name.replace("diamond", "d").replace("iron", "i").replace("stone", "s");
+		name = name.replace("diamond", "d").replace("iron", "i").replace("stone", "s").replace("leather","l");
 		name = name.replace("chestplate", "chest").replace("leggings", "pants");
 		name = name.replace("pickaxe", "pick");
 		name = name.toLowerCase().replaceAll("[._ ]*", "");
@@ -73,7 +73,12 @@ public class MaterialParameter extends Parameter {
 		if ( name.equals("ichest") ) 	return Material.IRON_CHESTPLATE;
 		if ( name.equals("ihelm") ) 	return Material.IRON_HELMET;
 		if ( name.equals("iboots") ) 	return Material.IRON_BOOTS;
-		
+
+		if ( name.equals("lpants") ) 	return Material.LEATHER_LEGGINGS;
+		if ( name.equals("lchest") ) 	return Material.LEATHER_CHESTPLATE;
+		if ( name.equals("lhelm") ) 	return Material.LEATHER_HELMET;
+		if ( name.equals("lboots") ) 	return Material.LEATHER_BOOTS;
+
 		
 		if ( name.equals("ssword") ) 	return Material.STONE_SWORD;
 		if ( name.equals("shoe") ) 		return Material.STONE_HOE;

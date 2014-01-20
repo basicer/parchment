@@ -30,7 +30,7 @@ public class IMenu extends TCLCommand {
 	public String getName() { return "imenu"; }
 
 	@Override
-	public String[] getArguments() { return new String[] { "-empty=", "-size=", "-title=", "-list", "player", "args" }; }
+	public String[] getArguments() { return new String[] { "-empty=", "-size=", "-timeout=", "-title=", "-list", "player", "args" }; }
 
 	public class MenuListener implements Listener {
 		private org.bukkit.entity.Player player;
@@ -60,7 +60,6 @@ public class IMenu extends TCLCommand {
 	@Override
 	public EvaluationResult extendedExecute(Context ctx, TCLEngine e) {
 		PlayerParameter pp = ctx.get("player").cast(PlayerParameter.class);
-
 
 		final Player p = pp.asPlayer(ctx);
 		final MenuListener listener = new MenuListener(p);
@@ -94,6 +93,8 @@ public class IMenu extends TCLCommand {
 			contents[i++] = lst.next().as(ItemStack.class, ctx);
 		}
 
+		final int timeout = ctx.has("timeout") ? (int)(ctx.get("timeout").asDouble(ctx) * 1000) : 0;
+		final long start = System.currentTimeMillis();
 
 		inv.setContents(contents);
 		p.openInventory(inv);
@@ -102,8 +103,12 @@ public class IMenu extends TCLCommand {
 		EvaluationResult.BranchEvaluationResult result = new EvaluationResult.BranchEvaluationResult(null, null, new EvaluationResult.EvalCallback() {
 			public EvaluationResult result(EvaluationResult last) {
 			EvaluationResult.EvalCallback rerun = this;
+			if ( timeout > 0 && (System.currentTimeMillis() - start) > timeout ) {
+				p.closeInventory();
+				return new EvaluationResult(Parameter.from("timeout"), EvaluationResult.Code.ERROR);
+			}
 			if ( listener.value == null ) return new EvaluationResult.BranchEvaluationResult(null, null, rerun, 100);
-				if ( listener.value == -1 ) return new EvaluationResult(StringParameter.from("closed"));
+				if ( listener.value == -1 ) return new EvaluationResult(StringParameter.from("closed"), EvaluationResult.Code.ERROR);
 				return new EvaluationResult(ItemParameter.from(contents[listener.value.intValue()]));
 
 			}
