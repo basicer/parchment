@@ -117,6 +117,7 @@ public class SpellFactory {
 		addBuiltinSpell(Entity.class);
 		addBuiltinSpell(LEntity.class);
 		addBuiltinSpell(Player.class);
+		addBuiltinSpell(Firework.class);
 		addBuiltinSpell(Server.class);
 		addBuiltinSpell(World.class);
 

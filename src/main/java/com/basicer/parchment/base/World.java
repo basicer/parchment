@@ -89,6 +89,7 @@ public class World extends OperationalSpell<WorldParameter> {
 	}
 
 	public static Parameter strikeLightningOperation(org.bukkit.World world, Context ctx, LocationParameter where) {
+		if ( where == null ) fizzle("strikeLightning operation requests a parameter, where");
 		world.strikeLightning(where.asLocation(ctx));
 		return WorldParameter.from(world);
 	}
