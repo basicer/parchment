@@ -60,14 +60,7 @@ public class Info extends OperationalTCLCommand {
 	}
 
 	public Parameter completeOperation(Parameter dummy, Context ctx, StringParameter string) {
-		PushbackReader pr = new PushbackReader(new StringReader(string.toString()));
-		try {
-
-			TCLEngine.parseLine(pr, null);
-		} catch ( FizzleException ex ) {
-			return IntegerParameter.from(0);
-		}
-		return IntegerParameter.from(1);
+		return IntegerParameter.from(TCLUtils.isCompleteStatement(string.asString(ctx)) ? 1 : 0);
 	}
 
 	public Parameter hostnameOperation(Parameter dummy, Context ctx) {

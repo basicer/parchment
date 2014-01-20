@@ -3,6 +3,7 @@ name: Parchment
 main: com.basicer.parchment.bukkit.ParchmentPlugin
 version:  ${project.version} ${timestamp}
 author: basicer
+website: http://dev.bukkit.org/server-mods/parchment/
 softdepend: [ProtocolLib, Spout, Vault, DisguiseCraft]
 commands:
   parchment:

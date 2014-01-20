@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.basicer.parchment.EvaluationResult.Code;
+import com.basicer.parchment.parameters.IntegerParameter;
 import com.basicer.parchment.parameters.Parameter;
 import com.basicer.parchment.parameters.ParameterAccumulator;
 import com.basicer.parchment.tcl.Set;
@@ -441,6 +442,17 @@ public class TCLUtils {
 			return null;
 		}
 		return b.toString();
+
+	}
+
+	public static boolean isCompleteStatement(String pr) {
+
+		try {
+			TCLEngine.parseLine(new PushbackReader(new StringReader(pr), 2), null);
+		} catch ( FizzleException ex ) {
+			return false;
+		}
+		return true;
 
 	}
 	

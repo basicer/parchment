@@ -1,11 +1,9 @@
 import java.io.*;
 
+import com.basicer.parchment.*;
 import com.basicer.parchment.parameters.DictionaryParameter;
 
-import com.basicer.parchment.Context;
 import com.basicer.parchment.EvaluationResult.Code;
-import com.basicer.parchment.SpellFactory;
-import com.basicer.parchment.TCLEngine;
 import com.basicer.parchment.parameters.Parameter;
 
 
@@ -40,12 +38,18 @@ public class REPL {
 				b.append(line);
 				b.append("\n");
 			}
-			
-			execute(b.toString(), commandctx);
+
+			c.printf("-> %s\n", execute(b.toString(), commandctx));
 		} else {
-			
-			while ( (line = c.readLine("TCL> ")) != null ) {
-				c.printf("-> %s\n", execute(line, commandctx));
+			StringBuilder buffer = new StringBuilder();
+			while ( (line = c.readLine(buffer.length() == 0 ? "TCL> " : "---> ")) != null ) {
+				buffer.append(line);
+				buffer.append("\n");
+				String test = buffer.toString();
+				if ( TCLUtils.isCompleteStatement(test) ) {
+					buffer = new StringBuilder();
+					c.printf("-> %s\n", execute(test, commandctx));
+				}
 			}
 		}
 
@@ -65,7 +69,7 @@ public class REPL {
 		//ctx.setSource("command");
 		
 		TCLEngine x = new TCLEngine(s, pctx);
-		while (x.step()) { System.out.println("STEP");	}
+		while (x.step()) { Debug.trace("STEP");	}
 		if (x.getCode() != Code.OK ) {
 			System.out.println("|" + x.getCode() + "| " + x.getResult());
 		}

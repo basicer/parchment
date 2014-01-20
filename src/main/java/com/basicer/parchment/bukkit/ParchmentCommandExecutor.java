@@ -31,7 +31,55 @@ public class ParchmentCommandExecutor implements CommandExecutor {
 		this.plugin = plugin;
 		commandctx = new Context(); 
 	}
-	
+
+	private static class ScriptModePrompt implements Prompt {
+		private ParchmentPluginLite plugin = null;
+		private Context ctx = null;
+		private StringBuilder buffer;
+		public ScriptModePrompt(ParchmentPluginLite plugin, Context ctx) {
+			this.plugin = plugin;
+			this.buffer = new StringBuilder();
+			this.ctx = ctx;
+		}
+
+		@Override
+		public Prompt acceptInput(ConversationContext arg0, String arg1) {
+
+			if ( arg1.startsWith("/") ) arg1 = arg1.substring(1);
+			if ( arg1.equals("exit") || arg1.equals("quit") ) return null;
+
+			Parameter r = null;
+			buffer.append(arg1);
+			buffer.append("\n");
+
+			String test = buffer.toString();
+			if ( TCLUtils.isCompleteStatement(test) ) {
+				buffer = new StringBuilder();
+				try { r = TCLUtils.evaluate(test, ctx); }
+				catch ( Exception ex ) {
+
+				} catch ( Error ex ) {
+
+				}
+				if ( r != null ) ctx.put("ans", r);
+				else ctx.put("ans", Parameter.from(""));
+			}
+			return this;
+		}
+
+		@Override
+		public boolean blocksForInput(ConversationContext arg0) {
+			return true;
+		}
+
+		@Override
+		public String getPromptText(ConversationContext arg0) {
+			if ( buffer.length() > 0 ) return "--->";
+			return "TCL>";
+		}
+
+	}
+
 	public boolean onCommand(final CommandSender sender, Command cmd, String label, String[] args) {
 
 		if (!sender.isOp())
@@ -55,33 +103,7 @@ public class ParchmentCommandExecutor implements CommandExecutor {
 			if (!(sender instanceof Player)) return false;
 			final Player p = (Player) sender;
 			
-			p.beginConversation(new Conversation(plugin, p, new Prompt() {
-
-				public Prompt acceptInput(ConversationContext arg0, String arg1) {
-
-					if ( arg1.startsWith("/") ) arg1 = arg1.substring(1);
-					if ( arg1.equals("exit") ) return null;
-					Parameter r = null;
-					try { r = TCLUtils.evaluate(arg1, ctx); }
-					catch ( Exception ex ) {
-						
-					} catch ( Error ex ) {
-						
-					}
-					if ( r != null ) ctx.put("ans", r);
-					else ctx.put("ans", Parameter.from(""));
-					return this;
-				}
-
-				public boolean blocksForInput(ConversationContext arg0) {
-					return true;
-				}
-
-				public String getPromptText(ConversationContext arg0) {
-					return "TCL>";
-				}
-				
-			}));
+			p.beginConversation(new Conversation(plugin, p, new ScriptModePrompt(plugin, ctx)));
 			return true;
 		}
 		

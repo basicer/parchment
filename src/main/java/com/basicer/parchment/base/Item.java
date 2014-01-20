@@ -4,8 +4,11 @@ import java.lang.reflect.UndeclaredThrowableException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
+import com.basicer.parchment.FizzleException;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -42,6 +45,32 @@ import com.basicer.parchment.unsafe.ProxyFactory;
 
 public class Item extends OperationalSpell<ItemParameter>  {
 
+	private static Pattern itemString = Pattern.compile("((?:diamond |d |iron |i |gold |g |stone |s )?[a-z_]+)(?::([0-9]+))?(?: ?x([0-9]+))?( .+)?");
+	private static Pattern itemStringEnchant = Pattern.compile("([a-zA-Z]+):? ?(\\d+)?");
+
+	public static ItemStack createItemstackFromString(String s) {
+		Matcher m = itemString.matcher(s);
+		if ( !m.matches() ) throw new FizzleException("Couldn't parse item description");
+		Material mat = StringParameter.from(m.group(1)).cast(MaterialParameter.class, null).asMaterial(null);
+		if ( mat == null ) fizzle(s + " is not a material.");
+		org.bukkit.inventory.ItemStack isc = new org.bukkit.inventory.ItemStack(mat);
+		if (m.group(2) != null ) {
+			isc.setDurability(Integer.decode(m.group(2)).shortValue());
+		}
+
+		if (m.group(3) != null ) {
+			isc.setAmount(Integer.decode(m.group(3)).intValue());
+		}
+
+		if (m.group(4) != null ) {
+			Matcher em = itemStringEnchant.matcher(m.group(4));
+			while ( em.find() ) {
+				EnchantmentInfo ei = ParseEnchantment(em.group(0));
+				isc.addEnchantment(ei.enchantment, ei.level);
+			}
+		}
+		return isc;
+	}
 
 	@Override
 	public String[] getAliases() { return new String[] {"i"}; }
@@ -50,9 +79,11 @@ public class Item extends OperationalSpell<ItemParameter>  {
 		return super.doaffect(target, ctx);
 	}
 	
-	public static ItemStack create(Context ctx, MaterialParameter type) {
-		Material mtype = Material.AIR;
-		if ( type != null ) mtype = type.asMaterial(ctx);
+	public static ItemStack create(Context ctx, Parameter type) {
+
+
+		ItemStack mtype = new ItemStack(Material.AIR);
+		if ( type != null ) mtype = Item.createItemstackFromString(type.asString(ctx));
 		org.bukkit.inventory.ItemStack isc = new org.bukkit.inventory.ItemStack(mtype);
 		return isc;
 		
@@ -191,20 +222,20 @@ public class Item extends OperationalSpell<ItemParameter>  {
 	@Operation(desc = "Enchant the target item(s) with given enchantment name and level.  If no level is specified, the maximum is used.  Unnatural enchantments will return an error." )
 	public static Parameter safeEnchantOperation(ItemStack itm, Context ctx, StringParameter name, Parameter level) {
 		if ( name != null ) {
-			Enchantment enc = ParseEnchantment(name.asString());
+			EnchantmentInfo enc = ParseEnchantment(name.asString());
 			
 			if ( enc == null ) fizzle("Unknwon enchantment: " + name.asString());
 			
-			if ( level == null ) level = Parameter.from(enc.getStartLevel());
-			else if ( level.asString().equals("max") ) level = Parameter.from(enc.getMaxLevel());
+			if ( level == null ) level = Parameter.from(enc.level);
+			else if ( level.asString().equals("max") ) level = Parameter.from(enc.enchantment.getMaxLevel());
 			
 			if ( level.asInteger() == 0 ) {
-				itm.removeEnchantment(enc);
+				itm.removeEnchantment(enc.enchantment);
 			} else {
 				try {
-					itm.addEnchantment(enc, level.asInteger());
+					itm.addEnchantment(enc.enchantment, level.asInteger());
 				} catch ( IllegalArgumentException ex ) {
-					fizzle(enc.getName() + " : " + ex.getMessage());
+					fizzle(enc.enchantment.getName() + " : " + ex.getMessage());
 				}
 			}
 		}
@@ -216,18 +247,18 @@ public class Item extends OperationalSpell<ItemParameter>  {
 	@Operation(desc = "Enchant the target item(s) with given enchantment name and level.  If no level is specified, the maximum is used.  Unnatural enchantments are okay." )
 	public static Parameter enchantOperation(ItemStack itm, Context ctx, StringParameter name, Parameter level) {
 		if ( name != null ) {
-			Enchantment enc = ParseEnchantment(name.asString());
+			EnchantmentInfo enc = ParseEnchantment(name.asString());
 			
 			if ( enc == null ) fizzle("Unknown enchantment: " + name.asString());
 			
-			if ( level == null ) level = Parameter.from(enc.getStartLevel());
-			else if ( level.asString().equals("max") ) level = Parameter.from(enc.getMaxLevel());
+			if ( level == null ) level = Parameter.from(enc.level);
+			else if ( level.asString().equals("max") ) level = Parameter.from(enc.enchantment.getMaxLevel());
 			else if ( level.asString().equals("remove") ) level = Parameter.from(0);
 			
 			if ( level.asInteger() == 0 ) {
-				itm.removeEnchantment(enc);
+				itm.removeEnchantment(enc.enchantment);
 			} else {
-				itm.addUnsafeEnchantment(enc, level.asInteger());
+				itm.addUnsafeEnchantment(enc.enchantment, level.asInteger());
 			}
 		}
 		
@@ -397,8 +428,29 @@ public class Item extends OperationalSpell<ItemParameter>  {
 		}
 		
 	}
-	
-	public static Enchantment ParseEnchantment(String name) {
+
+	public static class EnchantmentInfo {
+		public EnchantmentInfo(Enchantment e) {
+			this.enchantment = e;
+			this.level = e.getStartLevel();
+		}
+		public Enchantment enchantment;
+		public int level;
+	}
+
+	private static Pattern enchantmentFormat = Pattern.compile("^([a-zA-Z]+) ?:?([0-9]+)?");
+	public static EnchantmentInfo ParseEnchantment(String name) {
+		Matcher m = enchantmentFormat.matcher(name);
+		if ( !m.matches() ) fizzle("Couldn't parse enchantment: " + name);
+		Enchantment e = ParseEnchantmentName(m.group(1));
+		EnchantmentInfo result = new EnchantmentInfo(e);
+		if( m.group(2) != null ) {
+			result.level = Integer.decode(m.group(2));
+		}
+		return result;
+
+	}
+	public static Enchantment ParseEnchantmentName(String name) {
 		name = name.toUpperCase();
 		Enchantment enc = Enchantment.getByName(name);
 		if ( enc != null ) return enc;

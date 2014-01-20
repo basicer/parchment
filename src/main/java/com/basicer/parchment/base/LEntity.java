@@ -198,9 +198,7 @@ public class LEntity extends OperationalSpell<EntityParameter>  {
 			return Parameter.from(lent);
 		}
 
-		Material mat = what.cast(MaterialParameter.class, ctx).asMaterial(ctx);
-		if ( mat == null ) fizzle(what.asString() + " is not a material.");
-		org.bukkit.inventory.ItemStack isc = new org.bukkit.inventory.ItemStack(mat);
+		ItemStack isc = Item.createItemstackFromString(what.asString(ctx));
 		Item.equipNaturally(lent, isc);
 
 		return Parameter.from(lent);
