@@ -66,7 +66,7 @@ public class Item extends OperationalSpell<ItemParameter>  {
 			Matcher em = itemStringEnchant.matcher(m.group(4));
 			while ( em.find() ) {
 				EnchantmentInfo ei = ParseEnchantment(em.group(0));
-				isc.addEnchantment(ei.enchantment, ei.level);
+				isc.addUnsafeEnchantment(ei.enchantment, ei.level);
 			}
 		}
 		return isc;
