@@ -13,6 +13,7 @@ import com.basicer.parchment.TCLCommand;
 import com.basicer.parchment.TCLEngine;
 import com.basicer.parchment.TCLUtils;
 import com.basicer.parchment.annotations.Operation;
+import com.basicer.parchment.base.Server;
 import com.basicer.parchment.parameters.*;
 import com.comphenix.protocol.reflect.FuzzyReflection;
 
@@ -118,10 +119,10 @@ public class Expr extends TCLCommand {
 		return com.basicer.parchment.tcl.List.encode(out.asString(), true);
 	}
 
-	private static final Pattern fx_pattern = Pattern.compile("([a-z][a-z0-9]*)\\(([^()]*)\\)");
+	private static final Pattern fx_pattern = Pattern.compile("([a-z][a-z0-9]*)\\s*\\(([^()]*)\\)");
 	public static Parameter eval(String expr, Context ctx, TCLEngine e) {
 		Debug.info("in Considering %s", expr);
-		final String exprSymbols = "-+*/%=<>^&|!";
+		final String exprSymbols = "-+*/%=<>^&|!~";
 
 		final Matcher matcher = fx_pattern.matcher(expr);
 
@@ -140,16 +141,23 @@ public class Expr extends TCLCommand {
 		Queue<Parameter> tokens = new LinkedList<Parameter>();
 
 		boolean operator = false;
+
+		top:
 		do {
 			try {
 				ParameterAccumulator read = null;
-				if ( operator ) {
+				int r;
+				do {
+					r = s.read();
+					if ( r < 0 ) break top;
+				} while (Character.isWhitespace((char) r) );
+				s.unread(r);
 
+				char cr = (char) r;
+				if ( operator || cr == '-' || cr == '~' || cr == '!' ) {
 
 					do {
-						int r = s.read();
-						if ( r < 0 ) break;
-						if ( Character.isWhitespace((char) r) ) continue;
+						r = s.read();
 						if ( exprSymbols.indexOf((char) r) == -1 ) {
 							s.unread(r);
 							break;
@@ -159,12 +167,17 @@ public class Expr extends TCLCommand {
 					} while ( true );
 					operator = false;
 				} else {
+
 					read = TCLUtils.parseWord(s, ctx, false, exprSymbols);
 					operator = true;
 				}
 				if ( read == null ) break;
-				//System.out.println("--> " + read.toString() );
-				tokens.add(read.cheatyResolveOrFizzle());
+				System.err.println("--> " + read.toString() );
+				try {
+					tokens.add(read.cheatyResolveOrFizzle());
+				} catch ( Exception ex ) {
+					throw new FizzleException(ex.getMessage());
+				}
 			} catch (IOException ex) {
 				break;
 			}
@@ -172,16 +185,33 @@ public class Expr extends TCLCommand {
 		} while ( true );
 
 
-		Parameter p = parse(tokens, tokens.poll(), 0);
+
 		try {
+			Parameter p = parse(tokens, pullTokenAndPerhapsDoUnary(tokens), 0);
 			if ( p == null ) throw new FizzleException("Null during expr");
+			return p;
 		} catch ( Exception ex ) {
 			throw new FizzleException(ex.getMessage());
 		}
-		return p;
+
 
 	}
-	
+
+	private static Parameter pullTokenAndPerhapsDoUnary(Queue<Parameter> tokens) {
+		Parameter rhs = tokens.poll();
+
+		switch ( rhs.asString() ) {
+			case "!": return BooleanParameter.from(!tokens.poll().asBoolean());
+			case "~":
+				Parameter rv = tokens.poll();
+				org.bukkit.Bukkit.getServer().broadcastMessage("RV:" + rv == null ? "null" : rv.asString());
+				return IntegerParameter.from(~rv.asInteger());
+
+			case "-": return IntegerParameter.from(evaluate(IntegerParameter.from(0), rhs, tokens.poll()));
+		}
+
+		return rhs;
+	}
 	
 	//TODO: Doesn't handle ()'s
 	public static Parameter parse(Queue<Parameter> tokens, Parameter lhs, int min) {
@@ -195,7 +225,7 @@ public class Expr extends TCLCommand {
 			if ( getTokenPrecedence(op) < min ) return lhs;
 			tokens.poll();
 			
-			Parameter rhs = tokens.poll();
+			Parameter rhs = pullTokenAndPerhapsDoUnary(tokens);
 			
 			while ( true ) {
 				Parameter lookahead = tokens.peek();
@@ -261,7 +291,7 @@ public class Expr extends TCLCommand {
 			if ( op == Operator.NOT_EQUAL ) return Parameter.from(!testEquality(lhs,rhs) ? 1 : 0);
 			if ( op == Operator.EQUAL ) return Parameter.from(testEquality(lhs,rhs) ? 1 : 0);
 
-			if ( !isNumeric(lhs) || !isNumeric(rhs) ) throw new FizzleException("can't use non-numeric string as operand of \"" + op + "\"");
+			if ( !isNumeric(lhs) || !isNumeric(rhs) ) throw new FizzleException("can't use non-numeric string as operand of \"" + op.text + "\"");
 			if ( op == Operator.PLUS ) return Parameter.from(lhs.asDouble() + rhs.asDouble());
 			if ( op == Operator.MINUS ) return Parameter.from(lhs.asDouble() - rhs.asDouble());
 
@@ -269,7 +299,7 @@ public class Expr extends TCLCommand {
 			if ( op == Operator.DIVIDE ) return Parameter.from(lhs.asDouble() / rhs.asDouble());
 			if (op == Operator.POW ) return Parameter.from(Math.pow(lhs.asDouble(), rhs.asDouble()));
 
-			if ( !hasIntPrecision(lhs) || !hasIntPrecision(rhs) ) throw new FizzleException("can't use floating-point value as operand of \"" + op + "\"");
+			if ( !hasIntPrecision(lhs) || !hasIntPrecision(rhs) ) throw new FizzleException("can't use floating-point value as operand of \"" + op.text + "\"");
 			if ( op == Operator.MOD ) return Parameter.from(lhs.asInteger() % rhs.asInteger());
 			if ( op == Operator.LSHIFT ) return Parameter.from(lhs.asLong() << rhs.asLong());
 			if ( op == Operator.RSHIFT ) return Parameter.from(lhs.asLong() >> rhs.asLong());
@@ -333,6 +363,17 @@ public class Expr extends TCLCommand {
 		checkArgumentSize("rand", args,0);
 		if ( randomNumberGenerator == null ) randomNumberGenerator = new Random();
 		return Parameter.from(randomNumberGenerator.nextDouble());
+	}
+
+	private static Parameter vecFunc(ArrayList<Parameter> args) {
+		checkArgumentSize("vec", args, 3);
+
+
+		return Parameter.from(new org.bukkit.util.Vector(
+				args.get(0).asDouble().doubleValue(),
+				args.get(1).asDouble().doubleValue(),
+				args.get(2).asDouble().doubleValue()
+		));
 	}
 
 	private static Parameter srandFunc(ArrayList<Parameter> args) {
@@ -482,6 +523,25 @@ public class Expr extends TCLCommand {
 		double value1 = args.get(0).asDouble();
 		double value2 = args.get(1).asDouble();
 		return DoubleParameter.from(value1 % value2);
+	}
+
+	private static Parameter maxFunc(ArrayList<Parameter> args) {
+		Parameter best = args.get(0);
+		for ( int i = 1; i < args.size(); ++i ) {
+			if ( compare(best,args.get(i)) < 0 ) best = args.get(i);
+		}
+		System.err.println(best.toString());
+		return best;
+	}
+
+	private static Parameter minFunc(ArrayList<Parameter> args) {
+		Parameter best = args.get(0);
+		for ( int i = 1; i < args.size(); ++i ) {
+			if ( args.get(i) == null ) continue;
+			if ( compare(best,args.get(i)) > 0 ) best = args.get(i);
+		}
+		System.err.println(best.toString());
+		return best;
 	}
 
 }
