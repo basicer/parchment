@@ -20,7 +20,8 @@ public class Context {
 	private SpellFactory spellfactory;
 	private Map<String, ParameterPtr> variables;
 	private Map<String, TCLCommand> procs;
-	
+	private boolean act_as_root = false;
+
 	public Context() { 
 		variables = new HashMap<String, ParameterPtr>();
 		procs = new HashMap<String, TCLCommand>();
@@ -258,7 +259,18 @@ public class Context {
 	private void setRaw(String var, ParameterPtr p) {
 		variables.put(var, p);
 	}
-	
+
+	public int getDepth() {
+		if ( this.act_as_root ) return 0;
+		int i = 1;
+		Context ctx = this.parent;
+		while ( !ctx.act_as_root && ctx != null ) {
+			++i;
+			ctx = ctx.parent;
+		}
+		return i;
+	}
+
 	static class ParameterPtr {
 		public ParameterPtr(Parameter val) {
 			this.val = val;
