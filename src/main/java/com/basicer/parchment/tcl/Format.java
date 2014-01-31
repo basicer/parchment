@@ -193,7 +193,7 @@ public class Format extends TCLCommand {
 				try {
 					val = String.format(sf + formatc, d);
 				} catch ( Exception ex ) {
-					throw new RuntimeException("Coudlnt hack it " + width + " '" + sf + formatc + "' " + d + ": " + ex.toString());
+					throw new RuntimeException("Java formatting exception " + width + " '" + sf + formatc + "' " + d + ": " + ex.toString());
 				}
 				if ( formatc == 'g' ) {
 

@@ -107,13 +107,14 @@ public class Command extends OperationalTCLCommand {
 		SimpleCommandMap map = getServerCommandMap(Bukkit.getServer());
 		final String tcl_code = body.asString(ctx);
 
-
+		final Context ctxx_up = new Context();
+		ctxx_up.setSpellFactory(ctx.getSpellFactory());
 		CommandExecutor ex = new CommandExecutor() {
 			public boolean onCommand(final CommandSender sender, org.bukkit.command.Command command, String s, String[] strings) {
 				Debug.info("Running code + " + tcl_code);
-				final Context ctxx = new Context();
+				final Context ctxx = ctxx_up.createSubContext();
 				ctxx.setCaster(Parameter.from(sender));
-				ctxx.setSpellFactory(ctx.getSpellFactory());
+
 				ArrayList<Parameter> args = new ArrayList<Parameter>();
 				for ( String arg : strings ) {
 					args.add(Parameter.from(arg));
