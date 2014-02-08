@@ -172,7 +172,7 @@ public class Expr extends TCLCommand {
 					operator = true;
 				}
 				if ( read == null ) break;
-				System.err.println("--> " + read.toString() );
+				//System.err.println("--> " + read.toString() );
 				try {
 					tokens.add(read.cheatyResolveOrFizzle());
 				} catch ( Exception ex ) {
