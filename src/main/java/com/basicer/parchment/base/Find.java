@@ -20,7 +20,9 @@ import java.util.List;
  */
 public class Find extends TCLCommand {
 	@Override
-	public String[] getArguments() { return new String[] { "-type=", "-at=", "-dist=", "-limit=" }; }
+	public String[] getArguments() { return new String[] { "-type=", "-at=", "-dist=", "-limit=", "-one" }; }
+
+	public String getDescription() { return "Find things in loaded chunks"; }
 
 	public enum SearchTypes { ENTITY, PLAYER, MOB, BLOCK };
 
@@ -45,7 +47,12 @@ public class Find extends TCLCommand {
 
 		final Double dist = fetchArguementOrFizzle("dist", Double.class, ctx);
 		Location xwhere = fetchArguementOrFizzle("at", Location.class, ctx);
-		Integer limit = fetchArguementOrFizzle("fetch", Integer.class, ctx);
+		Integer limit = fetchArguementOrFizzle("limit", Integer.class, ctx);
+
+		if ( ctx.has("one") ) {
+			if ( limit != null ) return EvaluationResult.makeError("Cant specify both -one and -limit");
+			limit = 1;
+		}
 
 		if ( dist != null && xwhere == null ) xwhere = ctx.getCaster().as(Location.class);
 
@@ -97,6 +104,7 @@ public class Find extends TCLCommand {
 					for ( org.bukkit.entity.Entity ee : w.getEntities() ) {
 						if ( !entityFilter.evaluate(ee) ) continue;
 						result.add(EntityParameter.from(ee));
+						if ( limit != null && limit <= result.size() ) break;
 					}
 				}
 				break;
@@ -104,6 +112,7 @@ public class Find extends TCLCommand {
 				for ( Player p : Bukkit.getServer().getOnlinePlayers() ) {
 					if ( !entityFilter.evaluate(p) ) continue;
 					result.add(PlayerParameter.from(p));
+					if ( limit != null && limit <= result.size() ) break;
 				}
 			case BLOCK:
 				Location nwhere = where.clone();
@@ -119,11 +128,14 @@ public class Find extends TCLCommand {
 							Block b = c.getBlock(x,y,z);
 							if ( !blockFilter.evaluate(b) ) continue;
 							result.add(BlockParameter.from(b));
+							if ( limit != null && limit <= result.size() ) break;
 						}
 					}
 
 				}
 		}
+
+		if ( ctx.has("one") ) return new EvaluationResult(result.get(0));
 		return new EvaluationResult(ListParameter.from(result));
 	}
 

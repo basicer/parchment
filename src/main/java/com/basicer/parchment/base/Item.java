@@ -16,6 +16,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Vector;
@@ -267,13 +268,31 @@ public class Item extends OperationalSpell<ItemParameter>  {
 	}
 	
 	@Operation(desc = "Put the target item(s) into the given players inventory.  Defaults to caster if no player given." )
-	public static Parameter giveOperation(ItemStack itm, Context ctx, PlayerParameter to) {
-		if ( to == null ) to = ctx.getCaster().cast(PlayerParameter.class);
-		if ( to == null ) fizzle("You must pick someone to give the item to.");
-		to.asPlayer(ctx).getInventory().addItem(itm);
+	public static Parameter giveOperation(ItemStack itm, Context ctx, Parameter to) {
+		LivingEntity le = null;
+		if ( to != null ) {
+			le = to.as(LivingEntity.class);
+			if ( le == null ) {
+				PlayerParameter pp = to.cast(PlayerParameter.class);
+				if ( pp != null ) le = pp.asLivingEntity(ctx);
+			}
+		} else{
+			le = ctx.getCaster().as(LivingEntity.class);
+		}
+
+		if ( le == null ) fizzle("You must pick someone to give the item to.");
+
+		if ( (le instanceof  InventoryHolder) ) {
+			((InventoryHolder) le).getInventory().addItem(itm);
+
+		} else {
+			equipNaturally(le, itm);
+		}
+
+
 		return Parameter.from(itm);
 	}
-	
+
 	@Operation(desc = "Offer a **copy** of target item(s) to given player by showing them the chest UI." )
 	public static Parameter offerOperation(ItemStack itm, Context ctx, PlayerParameter to) {
 		if ( to == null ) to = ctx.getCaster().cast(PlayerParameter.class);

@@ -190,7 +190,26 @@ public class Player extends OperationalSpell<PlayerParameter> {
 		return Parameter.from(pent.getPlayerListName());
 	}
 
-	
+
+
+	public static Parameter giveOperation(org.bukkit.entity.Player pent, Context ctx, Parameter set) {
+
+		ItemStack is = null;
+		if ( set != null ) {
+			if ( set instanceof ItemParameter) {
+				is = ((ItemParameter) set).asItemStack(ctx);
+			} else if ( set instanceof MaterialParameter ) {
+				is = new ItemStack(((MaterialParameter) set).asMaterial(ctx), 1);
+			} else {
+				is = Item.createItemstackFromString(set.asString(ctx));
+			}
+		}
+
+		if ( is == null ) fizzle("Couldn't convert give input to an item");
+		pent.getInventory().addItem(is);
+		return PlayerParameter.from(pent);
+	}
+
 	
 	public static Parameter opOperation(org.bukkit.entity.Player pent, Context ctx, BooleanParameter v) {
 		if ( v != null ) pent.setOp(v.asBoolean(ctx));

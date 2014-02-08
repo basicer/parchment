@@ -63,7 +63,14 @@ public class Block extends OperationalSpell<BlockParameter> {
 	public static Parameter powerOperation(org.bukkit.block.Block block, Context ctx) {
 		return Parameter.from(block.getBlockPower());
 	}
-	
+
+	public static Parameter midOperation(org.bukkit.block.Block block, Context ctx) {
+		Location l = block.getLocation();
+		l.add(0.5, 0, 0.5);
+		return LocationParameter.from(l);
+	}
+
+
 	public static Parameter dataOperation(org.bukkit.block.Block block, Context ctx, IntegerParameter data) {
 		if ( data != null ) {
 			block.setData(data.asInteger().byteValue());
