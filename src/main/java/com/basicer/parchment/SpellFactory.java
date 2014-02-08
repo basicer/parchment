@@ -103,6 +103,7 @@ public class SpellFactory {
 		addBuiltinCommand(PCommand.class);
 		addBuiltinCommand(Color.class);
 		addBuiltinCommand(Bind.class);
+		addBuiltinCommand(Find.class);
 
 		addBuiltinCommand(WGRegion.class);
 		addBuiltinCommand(Command.class);
