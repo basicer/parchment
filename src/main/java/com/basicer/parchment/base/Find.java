@@ -135,7 +135,10 @@ public class Find extends TCLCommand {
 				}
 		}
 
-		if ( ctx.has("one") ) return new EvaluationResult(result.get(0));
+		if ( ctx.has("one")  ) {
+			if ( result.size() > 0 ) return new EvaluationResult(result.get(0));
+			else return EvaluationResult.OK;
+		}
 		return new EvaluationResult(ListParameter.from(result));
 	}
 
@@ -143,7 +146,7 @@ public class Find extends TCLCommand {
 		if ( !ctx.has(id) ) return null;
 		Parameter v = ctx.get(id);
 		T val = v.as(clazz, ctx);
-		if ( val == null ) throw new FizzleException("Expcted type " + clazz.getSimpleName() + " for " + id + " if specified.");
+		if ( val == null ) throw new FizzleException("Expected type " + clazz.getSimpleName() + " for " + id + " if specified.");
 		return val;
 	}
 

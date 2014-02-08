@@ -47,10 +47,16 @@ public class Server extends OperationalSpell<ServerParameter> {
 
 	public static Parameter playersOperation(org.bukkit.Server server, Context ctx) {
 		ArrayList<Parameter> players = new ArrayList<Parameter>();
-		for ( org.bukkit.entity.Player p : server.getOnlinePlayers() ) players.add(Parameter.from(p));
+		for ( org.bukkit.entity.Player p : server.getOnlinePlayers() ) players.add(PlayerParameter.from(p));
 		return ListParameter.from(players);
 	}
 
+
+	public static Parameter worldsOperation(org.bukkit.Server server, Context ctx) {
+		ArrayList<Parameter> worlds = new ArrayList<Parameter>();
+		for ( org.bukkit.World p : server.getWorlds() ) worlds.add(WorldParameter.from(p));
+		return ListParameter.from(worlds);
+	}
 
 	@Operation(desc = "Send some string to all connected players.")
 	public static Parameter broadcastOperation(org.bukkit.Server server, Context ctx, StringParameter what) {
