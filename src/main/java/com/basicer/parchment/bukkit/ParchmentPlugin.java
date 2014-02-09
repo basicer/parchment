@@ -20,6 +20,7 @@ import java.util.logging.Logger;
 
 import com.basicer.parchment.*;
 
+import com.basicer.parchment.base.Server;
 import com.basicer.parchment.parameters.*;
 
 import org.bukkit.Bukkit;
@@ -50,6 +51,7 @@ import com.comphenix.protocol.ProtocolManager;
 public class ParchmentPlugin extends ParchmentPluginLite implements PluginMessageListener {
 
 	protected GlobalListener	listener;
+	protected GlobalListenerHeavy	listenerHeavy;
 
 	public static ParchmentPlugin getInstance() {
 		return (ParchmentPlugin)Bukkit.getPluginManager().getPlugin("Parchment");
@@ -65,6 +67,7 @@ public class ParchmentPlugin extends ParchmentPluginLite implements PluginMessag
 	public void onEnable() {
 		super.onEnable();
 		listener = new GlobalListener(this);
+		//listenerHeavy = new GlobalListenerHeavy(this);
 
 		PluginManager pm = this.getServer().getPluginManager();
 		pm.registerEvents(new ParchmentEventListener(this), this);
@@ -121,6 +124,7 @@ public class ParchmentPlugin extends ParchmentPluginLite implements PluginMessag
 		loader.run();
 		loader.runTaskTimer(this, 100, 100);
 		pm.registerEvents(listener, this);
+		if ( listenerHeavy != null ) pm.registerEvents(listenerHeavy, this);
 	}
 
 
@@ -170,6 +174,7 @@ public class ParchmentPlugin extends ParchmentPluginLite implements PluginMessag
 
 	public void handleEvent(Event e) {
 		//Bukkit.getLogger().info(e.getEventName() + " : " + e.toString());
+
 
 		String binding = e.getEventName();
 		if ( !binding.endsWith("Event") ) {

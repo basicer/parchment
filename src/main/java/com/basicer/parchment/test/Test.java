@@ -6,7 +6,6 @@ import java.util.List;
 import com.basicer.parchment.tcl.StringCmd;
 
 import com.basicer.parchment.Context;
-import com.basicer.parchment.Debug;
 import com.basicer.parchment.EvaluationResult;
 import com.basicer.parchment.TCLCommand;
 import com.basicer.parchment.TCLEngine;
@@ -16,12 +15,13 @@ public class Test extends TCLCommand {
 
 	@Override
 	public String[] getArguments() {
-		return new String[] { "name", "description", "args" };
+		return new String[] { "-ignore", "name", "description", "args" };
 	}
 
 	public static class TestResult {
 		public String		name;
 		public String		description;
+		public String		setup;
 		public String		body;
 		public String		match;
 		public Parameter	expected;
@@ -31,7 +31,6 @@ public class Test extends TCLCommand {
 		public int			resultCode;
 
 		public String		why;
-
 	}
 
 	public static List<TestResult>	tests;
@@ -45,6 +44,7 @@ public class Test extends TCLCommand {
 		test.name = ctx.get("name").asString();
 		test.description = ctx.get("description").asString();
 		test.body = null;
+		test.setup = null;
 		test.expected = null;
 		test.expectedCode = 0;
 
@@ -72,6 +72,8 @@ public class Test extends TCLCommand {
 
 				if (action.equals("-body"))
 					test.body = value.asString();
+				if (action.equals("-setup"))
+					test.setup = value.asString();
 				else if (action.equals("-result"))
 					test.expected = value;
 				else if (action.equals("-match"))
@@ -86,11 +88,11 @@ public class Test extends TCLCommand {
 		}
 		if (test.body == null) test.why = "All tests need a body.";
 		else if (test.body == null) test.why = "All tests need a result.";
-		else if (test.expected.asString() == null) test.why = "Result wasen't a string.";
+		else if (test.expected.asString() == null) test.why = "Result wasn't a string.";
 
 		if ( constraint != null ) {
 				String cs = constraint.asString();
-			test.name += "(" + cs + ")";
+			test.name += " (" + cs + ")";
 				if ( !TestConstraint.getConstraint(cs) ) {
 					return EvaluationResult.OK;
 				}
@@ -100,15 +102,26 @@ public class Test extends TCLCommand {
 		try {
 			//Context ctxx = ctx.up(1).mergeAndCopyAsGlobal();
 			Context ctxx = ctx.up(1);
-			TCLEngine ngn = new TCLEngine(test.body, ctxx);
+
 			long time = System.currentTimeMillis();
+			if ( test.setup != null ) {
+				TCLEngine ngnsetup = new TCLEngine(test.setup, ctxx);
+
+				while (ngnsetup.step()) {
+					if ( System.currentTimeMillis() - time > 1000 ) {
+						testResult = EvaluationResult.makeError("Test time limit reached....");
+						break;
+					}
+				}
+			}
+
+			TCLEngine ngn = new TCLEngine(test.body, ctxx);
 			while (ngn.step()) {
 				if ( System.currentTimeMillis() - time > 1000 ) {
 					testResult = EvaluationResult.makeError("Test time limit reached....");
 					break;
 				}
 			}
-			;
 
 			testResult = new EvaluationResult(ngn.getResult(), ngn.getCode());
 
@@ -140,18 +153,22 @@ public class Test extends TCLCommand {
 				test.why = String.format("Expected some return value (%s) but got a real null.",
 						test.expected.asString());
 			} if ( test.match != null ) {
-				if ( test.match.equals("exact")) {
-					if ( !( test.expected.asString().equals(test.result.asString()) ) ) {
-						test.why = String.format("Expected '%s' got '%s'", test.expected.toString(), test.result.toString());
-					}
-				} else if ( test.match.equals("glob") ) {
-					if ( !test.expected.asString().equals("*") ) {
-						if ( !StringCmd.GlobMatch(test.result.asString(), test.expected.asString()) ) {
-							test.why = "\"" + test.expected.asString() + "\" doesn't match \"" + test.result.asString() + "\"";
+				if ( test.result != null && test.expected != null ) {
+					if ( test.match.equals("exact")) {
+						if ( !( test.expected.asString().equals(test.result.asString()) ) ) {
+							test.why = String.format("Expected '%s' got '%s'", test.expected.toString(), test.result.toString());
 						}
+					} else if ( test.match.equals("glob") ) {
+						if ( !test.expected.asString().equals("*") ) {
+							if ( !StringCmd.GlobMatch(test.result.asString(), test.expected.asString()) ) {
+								test.why = "\"" + test.expected.asString() + "\" doesn't match \"" + test.result.asString() + "\"";
+							}
+						}
+					} else {
+						test.why = "Unknown match type";
 					}
 				} else {
-					test.why = "Unknown match type";
+					test.why = "Null return from engine during excution";
 				}
 			}
 		}

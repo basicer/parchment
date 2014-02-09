@@ -71,6 +71,7 @@ public class SpellFactory {
 
 		addBuiltinCommand(Array.class);
 		addBuiltinCommand(List.class);
+		addBuiltinCommand(Dict.class);
 		
 		addBuiltinCommand(StringCmd.class);
 		
@@ -103,6 +104,7 @@ public class SpellFactory {
 		addBuiltinCommand(PCommand.class);
 		addBuiltinCommand(Color.class);
 		addBuiltinCommand(Bind.class);
+		addBuiltinCommand(Metadata.class);
 		addBuiltinCommand(Find.class);
 
 		addBuiltinCommand(WGRegion.class);

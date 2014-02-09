@@ -49,7 +49,15 @@ public class ParchmentPluginLite extends JavaPlugin {
 
 	public static ParchmentPluginLite instance() { return (ParchmentPluginLite)Bukkit.getServer().getPluginManager().getPlugin("Parchment"); }
 
+
+	@Override
+	public void onDisable() {
+		super.onDisable();
+	}
+
+	@Override
 	public void onEnable() {
+		super.onEnable();
 		this.saveDefaultConfig();
 		spellfactory = new SpellFactory();
 

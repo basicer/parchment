@@ -17,17 +17,12 @@ import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import org.apache.http.HttpException;
-import org.apache.http.HttpResponse;
-import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
-import org.apache.http.impl.nio.client.HttpAsyncClients;
+import org.apache.http.*;
+import org.apache.http.impl.nio.client.*;
 import org.apache.http.nio.IOControl;
-import org.apache.http.nio.client.methods.AsyncCharConsumer;
-import org.apache.http.nio.client.methods.HttpAsyncMethods;
-import org.apache.http.protocol.HttpContext;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
+import org.apache.http.nio.client.methods.*;
+import org.apache.http.protocol.*;
+import org.json.simple.*;
 
 public class Http extends TCLCommand {
 
@@ -50,6 +45,7 @@ public class Http extends TCLCommand {
 		} catch ( MalformedURLException muex ) {
 			return new EvaluationResult(Parameter.from("malformed url: " + muex.getMessage()), EvaluationResult.Code.ERROR);
 		}
+
 
 		final CloseableHttpAsyncClient httpclient = HttpAsyncClients.createDefault();
 		final long start = System.currentTimeMillis();

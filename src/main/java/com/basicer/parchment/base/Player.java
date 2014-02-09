@@ -160,21 +160,44 @@ public class Player extends OperationalSpell<PlayerParameter> {
 		pent.chat(text.asString(ctx));
 		return Parameter.from(pent);
 	}
-	
+
+	@Operation(desc = "Get or set a players bed spawn point.")
+	public static Parameter bedSpawnOperation(org.bukkit.entity.Player pent, Context ctx, LocationParameter set) {
+		if ( set != null ) {
+			pent.setBedSpawnLocation(set.asLocation(ctx), true);
+		}
+		return Parameter.from(pent.getBedSpawnLocation());
+	}
+
 	@Operation(aliases = {"fly"})
 	public static Parameter flightOperation(org.bukkit.entity.Player pent, Context ctx, BooleanParameter on) {
 		if ( on == null ) return Parameter.from(pent.getAllowFlight());
 		pent.setAllowFlight(on.asBoolean());
 		return Parameter.from(pent.getAllowFlight());
 	}
+
+	@Operation(aliases = {"flying"})
+	public static Parameter isflyingOperation(org.bukkit.entity.Player pent, Context ctx, BooleanParameter on) {
+		if ( on == null ) return Parameter.from(pent.isFlying());
+		boolean onb = on.asBoolean();
+		if ( onb && !pent.getAllowFlight() ) fizzle("Can't make player fly if flight is not allowed.");
+		pent.setFlying(onb);
+		return Parameter.from(pent.isFlying());
+	}
 	
-	public static Parameter flySpeedOperation(org.bukkit.entity.Player pent, Context ctx, DoubleParameter v) {
-		if ( v != null ) pent.setFlySpeed(v.asDouble().floatValue());
+	public static Parameter flySpeedOperation(org.bukkit.entity.Player pent, Context ctx, Parameter v) {
+		if ( v != null ) {
+			if ( v.asString(ctx).equals("default") ) pent.setFlySpeed(0.1f);
+			else pent.setFlySpeed(v.asDouble().floatValue());
+		}
 		return Parameter.from(pent.getFlySpeed());
 	}
 
-	public static Parameter walkSpeedOperation(org.bukkit.entity.Player pent, Context ctx, DoubleParameter v) {
-		if ( v != null ) pent.setWalkSpeed(v.asDouble().floatValue());
+	public static Parameter walkSpeedOperation(org.bukkit.entity.Player pent, Context ctx, Parameter v) {
+		if ( v != null ) {
+			if ( v.asString(ctx).equals("default") ) pent.setWalkSpeed(0.2f);
+			else pent.setWalkSpeed(v.asDouble().floatValue());
+		}
 		return Parameter.from(pent.getWalkSpeed());
 	}
 

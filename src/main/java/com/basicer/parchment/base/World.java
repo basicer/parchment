@@ -3,10 +3,7 @@ package com.basicer.parchment.base;
 import java.util.List;
 import java.util.ArrayList;
 
-import org.bukkit.Effect;
-import org.bukkit.Location;
-import org.bukkit.Sound;
-import org.bukkit.TreeType;
+import org.bukkit.*;
 import org.bukkit.entity.EntityType;
 
 
@@ -14,6 +11,7 @@ import com.basicer.parchment.Context;
 import com.basicer.parchment.OperationalSpell;
 import com.basicer.parchment.annotations.Operation;
 import com.basicer.parchment.parameters.*;
+import org.bukkit.inventory.ItemStack;
 
 
 public class World extends OperationalSpell<WorldParameter> {
@@ -29,8 +27,13 @@ public class World extends OperationalSpell<WorldParameter> {
 		org.bukkit.World w = target.asWorld(ctx);
 		return this.doaffect(target, ctx);
  	}
-	
 
+	public static org.bukkit.World create(Context ctx, StringParameter name) {
+
+		WorldCreator wc = new WorldCreator(name.asString());
+		return Bukkit.createWorld(wc);
+
+	}
 
 	public static Parameter growtreeOperation(org.bukkit.World world, Context ctx, LocationParameter where, StringParameter type) {
 		TreeType t = TreeType.TREE;			
@@ -80,6 +83,7 @@ public class World extends OperationalSpell<WorldParameter> {
 			Location l = where.asLocation(ctx);
 			world.setSpawnLocation(l.getBlockX(), l.getBlockY(), l.getBlockZ());
 		}
+
 		return Parameter.from(world.getSpawnLocation());
 	}
 
@@ -99,8 +103,26 @@ public class World extends OperationalSpell<WorldParameter> {
 		return BooleanParameter.from(world.isAutoSave());
 	}
 
+	public static Parameter stormOperation(org.bukkit.World world, Context ctx, BooleanParameter set) {
+		if ( set != null ) world.setStorm(set.asBoolean(ctx));
+		return BooleanParameter.from(world.hasStorm());
+	}
+
+	public static Parameter thunderingOperation(org.bukkit.World world, Context ctx, BooleanParameter set) {
+		if ( set != null ) world.setThundering(set.asBoolean(ctx));
+		return BooleanParameter.from(world.isThundering());
+	}
+
+	@Operation(aliases = {"nchunks"})
+	public static Parameter loadedChunkCountOperation(org.bukkit.World world, Context ctx) {
+		return IntegerParameter.from(world.getLoadedChunks().length);
+	}
 
 
+	public static Parameter unloadOperation(org.bukkit.World world, Context ctx) {
+		Bukkit.unloadWorld(world, true);
+		return Parameter.EmptyString;
+	}
 
 	@Override
 	public DefaultTargetType getDefaultTargetType(Context ctx, String source) {

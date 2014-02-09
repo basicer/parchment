@@ -67,7 +67,8 @@ public class TCLEngine {
 
 			if ( !(result instanceof EvaluationResult.BranchEvaluationResult) && result.getCode() == Code.ERROR ) {
 				if ( result.getRefrencedCode() == null ) result.setRefrencedCode(last_ran_code);
-				String s = result.getValue().asString() + "\n    while executing\n\"" + result.getRefrencedCode() + "\"";
+				String rv = result.getValue() == null ? "null" : result.getValue().asString();
+				String s = rv + "\n    while executing\n\"" + result.getRefrencedCode() + "\"";
 				ctx.top().put("errorInfo", StringParameter.from(s));
 			}
 

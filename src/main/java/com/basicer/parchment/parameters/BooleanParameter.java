@@ -37,6 +37,7 @@ public class BooleanParameter extends Parameter {
 		return self;
 	}
 
-	
+
+
 
 }

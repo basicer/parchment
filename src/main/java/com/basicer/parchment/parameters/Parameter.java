@@ -19,6 +19,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.metadata.MetadataValue;
 
 
 public abstract class Parameter implements Iterable<Parameter> {
@@ -95,6 +96,7 @@ public abstract class Parameter implements Iterable<Parameter> {
 		RegisterParamaterType(DelegateParameter.class);
 		RegisterParamaterType(IntegerParameter.class);
 		RegisterParamaterType(DoubleParameter.class);
+		RegisterParamaterType(BooleanParameter.class);
 	}
 
 	

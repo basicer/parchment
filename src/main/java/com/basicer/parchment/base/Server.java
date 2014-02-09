@@ -8,6 +8,7 @@ import com.basicer.parchment.OperationalSpell;
 import com.basicer.parchment.Spell;
 import com.basicer.parchment.annotations.Operation;
 import com.basicer.parchment.parameters.*;
+import org.bukkit.Bukkit;
 
 import java.util.ArrayList;
 
@@ -56,6 +57,13 @@ public class Server extends OperationalSpell<ServerParameter> {
 		ArrayList<Parameter> worlds = new ArrayList<Parameter>();
 		for ( org.bukkit.World p : server.getWorlds() ) worlds.add(WorldParameter.from(p));
 		return ListParameter.from(worlds);
+	}
+
+	@Operation(aliases = {"nchunks"})
+	public static Parameter loadedChunkCountOperation(org.bukkit.Server server, Context ctx) {
+		int count = 0;
+		for ( org.bukkit.World w : server.getWorlds() ) count += w.getLoadedChunks().length;
+		return IntegerParameter.from(count);
 	}
 
 	@Operation(desc = "Send some string to all connected players.")

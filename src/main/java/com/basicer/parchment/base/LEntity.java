@@ -7,7 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.basicer.parchment.annotations.Operation;
-import com.sun.org.apache.xerces.internal.impl.xpath.regex.Match;
+import com.basicer.parchment.parameters.*;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
@@ -28,17 +28,6 @@ import com.basicer.parchment.Context;
 import com.basicer.parchment.OperationalSpell;
 import com.basicer.parchment.Spell;
 import com.basicer.parchment.Spell.DefaultTargetType;
-import com.basicer.parchment.parameters.BlockParameter;
-import com.basicer.parchment.parameters.DoubleParameter;
-import com.basicer.parchment.parameters.EntityParameter;
-import com.basicer.parchment.parameters.IntegerParameter;
-import com.basicer.parchment.parameters.ItemParameter;
-import com.basicer.parchment.parameters.LivingEntityParameter;
-import com.basicer.parchment.parameters.LocationParameter;
-import com.basicer.parchment.parameters.MaterialParameter;
-import com.basicer.parchment.parameters.Parameter;
-import com.basicer.parchment.parameters.PlayerParameter;
-import com.basicer.parchment.parameters.StringParameter;
 
 public class LEntity extends OperationalSpell<EntityParameter>  {
 
@@ -103,9 +92,6 @@ public class LEntity extends OperationalSpell<EntityParameter>  {
 				return PotionEffectType.getByName(name.toUpperCase());
 		}
 
-
-
-
 	}
 
 	@Operation(aliases={"apot"})
@@ -142,15 +128,20 @@ public class LEntity extends OperationalSpell<EntityParameter>  {
 		if ( set != null ) {
 			if ( set instanceof ItemParameter) {
 				pent.setItemInHand(((ItemParameter) set).asItemStack(ctx));
+			} else if ( set instanceof MaterialParameter ) {
+				pent.setItemInHand(new ItemStack(((MaterialParameter) set).asMaterial(ctx), 1));
+
 			} else {
-				MaterialParameter m = set.cast(MaterialParameter.class);
-				if ( m == null ) fizzle(set.asString() + " is not a valid arguement for hold");
-				pent.setItemInHand(new ItemStack(m.asMaterial(ctx), 1));
+				ItemStack s = Item.createItemstackFromString(set.asString(ctx));
+				pent.setItemInHand(s);
 			}
 		}
 		
 		return Parameter.from(pent.getItemInHand());
 	}
+
+
+
 
 	@Operation(aliases={"hp"})
 	public static Parameter healthOperation(org.bukkit.entity.LivingEntity le, Context ctx, DoubleParameter set) {
@@ -158,7 +149,7 @@ public class LEntity extends OperationalSpell<EntityParameter>  {
 		return Parameter.from(le.getHealth());
 	}
 
-	@Operation(aliases={"fhp"}, desc="Set's entities HP, raising its max hp if nessessiary.")
+	@Operation(aliases={"fhp"}, desc="Set's entities HP, raising its max hp if necessary.")
 	public static Parameter forceHealthOperation(org.bukkit.entity.LivingEntity le, Context ctx, DoubleParameter set) {
 
 		if (set != null) {
@@ -166,13 +157,27 @@ public class LEntity extends OperationalSpell<EntityParameter>  {
 			if ( le.getMaxHealth() < nhp ) le.setMaxHealth(nhp);
 			le.setHealth(nhp);
 		}
+
 		return Parameter.from(le.getHealth());
+	}
+
+	@Operation(aliases={"canpickupitems"})
+	public static Parameter pickupItemsOperation(org.bukkit.entity.LivingEntity le, Context ctx, BooleanParameter set) {
+		if ( set != null ) {
+			le.setCanPickupItems(set.asBoolean(ctx));
+		}
+		return BooleanParameter.from(le.getCanPickupItems());
 	}
 
 	@Operation(aliases={"maxhp"})
 	public static Parameter maxHealthOperation(org.bukkit.entity.LivingEntity le, Context ctx, DoubleParameter set) {
 		if (set != null) le.setMaxHealth(set.asDouble(ctx));
 		return Parameter.from(le.getMaxHealth());
+	}
+
+	@Operation(aliases={"cansee"})
+	public static Parameter hasLineOfSightOperation(org.bukkit.entity.LivingEntity le, Context ctx, EntityParameter other) {
+		return BooleanParameter.from(le.hasLineOfSight(other.asEntity(ctx)));
 	}
 
 	@Operation()
@@ -192,8 +197,9 @@ public class LEntity extends OperationalSpell<EntityParameter>  {
 		return Parameter.from(c.getTarget());
 	}
 
+
 	public static Parameter equipOperation(org.bukkit.entity.LivingEntity lent, Context ctx, Parameter what) {
-		if ( what instanceof  ItemParameter ) {
+		if ( what instanceof ItemParameter ) {
 			Item.equipNaturally(lent, ((ItemParameter) what).asItemStack(ctx));
 			return Parameter.from(lent);
 		}

@@ -42,7 +42,7 @@ public class PlayerParameter extends LivingEntityParameter {
 		Server s = Bukkit.getServer();
 		if ( s == null ) return null;
 
-		Player p = s.getPlayer(from.asString());
+		Player p = s.getPlayerExact(from.asString());
 		if ( p == null ) return null;
 		return new PlayerParameter(p);
 	}
