@@ -29,10 +29,10 @@ public class Incr extends TCLCommand {
 			current = Set.access(varName, false, null, ctxu);
 		} catch ( FizzleException ex ) { //TODO: Is there a cleaner way?
 			//Incr on an empty variable starts it at one.
-			return new EvaluationResult(Set.access(varName, true, Parameter.from(1), ctxu));
+			return EvaluationResult.makeOkay(Set.access(varName, true, Parameter.from(1), ctxu));
 		}
 		if ( current.asInteger() == null ) return EvaluationResult.makeError("expected integer but got \"" + current.asString() + "\""); 
-		return new EvaluationResult(Set.access(varName, true, Parameter.from(current.asLong() + amount), ctxu));
+		return EvaluationResult.makeOkay(Set.access(varName, true, Parameter.from(current.asLong() + amount), ctxu));
 		
 		
 	}

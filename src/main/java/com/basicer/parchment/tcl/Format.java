@@ -221,7 +221,7 @@ public class Format extends TCLCommand {
 		m.appendTail(result);
 
 		// TODO Auto-generated method stub
-		return new EvaluationResult(Parameter.from(result.toString()));
+		return EvaluationResult.makeOkay(Parameter.from(result.toString()));
 	}
 
 }

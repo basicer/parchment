@@ -52,7 +52,7 @@ public class With extends TCLCommand {
 						if ( doit ) results.add(er.getValue());
 					}
 					if ( targets.size() < 1 || er.getCode() == EvaluationResult.Code.BREAK ) {
-						if ( each_c ) return new EvaluationResult(ListParameter.from(results), EvaluationResult.Code.OK);
+						if ( each_c ) return EvaluationResult.makeOkay(ListParameter.from(results));
 						else return er;
 					}
 				}

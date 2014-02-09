@@ -35,11 +35,11 @@ public class LSearch extends TCLCommand {
 		if ( !all ) {
 			for ( int i = 0; i < list.length(); ++i) {
 				if ( list.index(i).asString(ctx).equals(searchs) ) {
-					if ( inline ) return new EvaluationResult(list.index(i));
-					return new EvaluationResult(Parameter.from(i));
+					if ( inline ) return EvaluationResult.makeOkay(list.index(i));
+					return EvaluationResult.makeOkay(Parameter.from(i));
 				}
 			}
-			return new EvaluationResult(Parameter.from(-1));
+			return EvaluationResult.makeOkay(Parameter.from(-1));
 		} else { //All
 			return null;
 		}

@@ -4,13 +4,10 @@ import com.basicer.parchment.*;
 import com.basicer.parchment.bukkit.ParchmentPluginLite;
 import com.basicer.parchment.parameters.*;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.*;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.metadata.Metadatable;
 import org.bukkit.plugin.Plugin;
-
-import java.util.List;
 
 /**
  * Created by basicer on 2/8/14.
@@ -42,7 +39,7 @@ public class Metadata extends TCLCommand {
 		} if ( ctx.get("value") != null ) {
 			Parameter value = ctx.get("value");
 			target.setMetadata(name, new FixedMetadataValue(p, value));
-			return new EvaluationResult(value);
+			return EvaluationResult.makeOkay(value);
 		}
 
 		if ( ctx.has("all") ) {
@@ -50,12 +47,12 @@ public class Metadata extends TCLCommand {
 			for ( MetadataValue v : target.getMetadata(name) ) {
 				dict.writeIndex(v.getOwningPlugin().getName(), fixUpMetadataValue(v));
 			}
-			return new EvaluationResult(dict);
+			return EvaluationResult.makeOkay(dict);
 		}
 
 		for ( MetadataValue v : target.getMetadata(name) ) {
 			System.out.println(v.toString());
-			if ( v.getOwningPlugin().equals(p) ) return new EvaluationResult(fixUpMetadataValue(v));
+			if ( v.getOwningPlugin().equals(p) ) return EvaluationResult.makeOkay(fixUpMetadataValue(v));
 		}
 
 		return EvaluationResult.OK;

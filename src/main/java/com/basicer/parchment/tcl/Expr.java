@@ -12,15 +12,11 @@ import com.basicer.parchment.FizzleException;
 import com.basicer.parchment.TCLCommand;
 import com.basicer.parchment.TCLEngine;
 import com.basicer.parchment.TCLUtils;
-import com.basicer.parchment.annotations.Operation;
-import com.basicer.parchment.base.Server;
 import com.basicer.parchment.parameters.*;
-import com.comphenix.protocol.reflect.FuzzyReflection;
 
 import java.io.PushbackReader;
 import java.io.StringReader;
 import java.util.LinkedList;
-import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -72,7 +68,7 @@ public class Expr extends TCLCommand {
 		String expr = Concat.doConcat(ctx.getArgs()).asString(ctx);
 
 		try {
-			return new EvaluationResult(eval(expr, ctx.up(1), e));
+			return EvaluationResult.makeOkay(eval(expr, ctx.up(1), e));
 		} catch (FizzleException fex ) {
 			throw fex;
 		} catch ( RuntimeException ex ) {

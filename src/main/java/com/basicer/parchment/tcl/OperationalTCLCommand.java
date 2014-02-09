@@ -153,7 +153,7 @@ public abstract class OperationalTCLCommand extends TCLCommand {
 		try {
 			Object o = m.invoke(command, method_args);
 			if ( o == null ) return EvaluationResult.OK;
-			else if ( o instanceof Parameter ) return new EvaluationResult((Parameter) o, EvaluationResult.Code.OK);
+			else if ( o instanceof Parameter ) return EvaluationResult.makeOkay((Parameter) o);
 			else if ( o instanceof EvaluationResult ) return (EvaluationResult) o;
 			else return null;
 			

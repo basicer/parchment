@@ -162,7 +162,7 @@ public class ScriptedSpell extends TargetedCommand {
 					public EvaluationResult extendedExecute(Context ctx, TCLEngine e) {
 						Debug.info("Wow you used super");
 						Debug.info("Your super context was:" + ctx.toString());
-						return new EvaluationResult(closure_s.applyAffectors(closure_s, ctx2));
+						return EvaluationResult.makeOkay(closure_s.applyAffectors(closure_s, ctx2));
 					}
 				});
 			}
@@ -181,7 +181,7 @@ public class ScriptedSpell extends TargetedCommand {
 
 
 		} else {
-			return new EvaluationResult(super.cast(ctx));
+			return EvaluationResult.makeOkay(super.cast(ctx));
 		}
 		
 	}

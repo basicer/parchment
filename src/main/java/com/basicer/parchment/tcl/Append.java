@@ -29,7 +29,7 @@ public class Append extends TCLCommand {
 			current += p.asString();
 		}
 		
-		return new EvaluationResult(Set.access(varName, true, Parameter.from(current), ctxu));
+		return EvaluationResult.makeOkay(Set.access(varName, true, Parameter.from(current), ctxu));
 		
 		
 	}

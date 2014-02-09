@@ -3,7 +3,6 @@ package com.basicer.parchment.tcl;
 import com.basicer.parchment.Context;
 import com.basicer.parchment.EvaluationResult;
 import com.basicer.parchment.TCLCommand;
-import com.basicer.parchment.EvaluationResult.Code;
 import com.basicer.parchment.TCLEngine;
 import com.basicer.parchment.parameters.Parameter;
 
@@ -17,11 +16,11 @@ public class Type extends TCLCommand {
 		
 		if ( type != null ) {
 			Parameter out = what.castByString(type.asString(), ctx);
-			if ( out == null ) return new EvaluationResult(Parameter.from(""));
-			return new EvaluationResult(out);
+			if ( out == null ) return EvaluationResult.makeOkay(Parameter.from(""));
+			return EvaluationResult.makeOkay(out);
 		}
 		
-		return new EvaluationResult(Parameter.from(what.getClass().getSimpleName()));
+		return EvaluationResult.makeOkay(Parameter.from(what.getClass().getSimpleName()));
 		
 		
 	}

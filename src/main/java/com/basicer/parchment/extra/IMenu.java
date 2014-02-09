@@ -4,7 +4,6 @@ import com.basicer.parchment.*;
 import com.basicer.parchment.bukkit.ParchmentPluginLite;
 import com.basicer.parchment.parameters.*;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
@@ -13,7 +12,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Iterator;
 
@@ -102,11 +100,11 @@ public class IMenu extends TCLCommand {
 			EvaluationResult.EvalCallback rerun = this;
 			if ( timeout > 0 && (System.currentTimeMillis() - start) > timeout ) {
 				p.closeInventory();
-				return new EvaluationResult(Parameter.from("timeout"), EvaluationResult.Code.ERROR);
+				return EvaluationResult.makeError(Parameter.from("timeout"));
 			}
 			if ( listener.value == null ) return new BranchEvaluationResult(null, null, rerun, 100);
-				if ( listener.value == -1 ) return new EvaluationResult(StringParameter.from("closed"), EvaluationResult.Code.ERROR);
-				return new EvaluationResult(ItemParameter.from(contents[listener.value.intValue()]));
+				if ( listener.value == -1 ) return EvaluationResult.makeError("cloased");
+				return EvaluationResult.makeOkay(ItemParameter.from(contents[listener.value.intValue()]));
 
 			}
 		});

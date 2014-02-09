@@ -171,7 +171,7 @@ public class Bungee extends OperationalTCLCommand implements PluginMessageListen
 							while ( (s = in.readUTF()) != null ) strings.add(s);
 						} catch ( IOException ex ) {  }
 
-						return new EvaluationResult(creator.createResult(strings), EvaluationResult.Code.OK);
+						return EvaluationResult.makeOkay(creator.createResult(strings));
 					default:
 						throw new FizzleException("WTF, Wrong State?");
 				}

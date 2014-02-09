@@ -36,7 +36,7 @@ public class Join extends TCLCommand {
 			++i;
 		}
 
-		return new EvaluationResult(Parameter.from(b.toString()));
+		return EvaluationResult.makeOkay(Parameter.from(b.toString()));
 		
 		
 	}

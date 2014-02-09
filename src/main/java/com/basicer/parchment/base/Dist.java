@@ -6,10 +6,6 @@ import com.basicer.parchment.TCLCommand;
 import com.basicer.parchment.TCLEngine;
 import com.basicer.parchment.parameters.Parameter;
 import com.basicer.parchment.parameters.VectorParameter;
-import org.bukkit.util.Vector;
-
-
-
 
 
 /**
@@ -27,7 +23,7 @@ public class Dist extends TCLCommand {
 
 	@Override
 	public EvaluationResult extendedExecute(Context ctx, TCLEngine engine) {
-		return new EvaluationResult(execute(ctx));
+		return EvaluationResult.makeOkay(execute(ctx));
 	}
 
 	public Parameter execute(Context ctx) {

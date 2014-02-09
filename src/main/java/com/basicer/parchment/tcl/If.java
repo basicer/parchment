@@ -38,7 +38,7 @@ public class If extends TCLCommand {
 		} else if (ctx.get("elseCode") != null) {
 			return EvaluationResult.makeError("Use else noise word in an if/else statement");
 		} else {
-			return new EvaluationResult(Parameter.from(""));
+			return EvaluationResult.makeOkay(Parameter.from(""));
 		}
 
 	}

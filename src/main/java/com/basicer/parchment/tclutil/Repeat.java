@@ -40,7 +40,7 @@ public class Repeat extends TCLCommand {
 				if ( --ctl.value <= 0 ) return er;
 
 				if ( er.getCode() == Code.ERROR ) return er;
-				else if ( er.getCode() == Code.BREAK ) return new EvaluationResult(Parameter.EmptyString);
+				else if ( er.getCode() == Code.BREAK ) return EvaluationResult.makeOkay(Parameter.EmptyString);
 				else if ( er.getCode() == Code.RETURN ) return er;
 
 				return new BranchEvaluationResult(body, evalctx, this);

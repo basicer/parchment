@@ -1,13 +1,10 @@
 package com.basicer.parchment;
 
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-
-import com.basicer.parchment.EvaluationResult.Code;
 import com.basicer.parchment.parameters.Parameter;
 
 public class EvaluationResult {
+
 	public enum Code { OK, ERROR, RETURN, BREAK, CONTINUE; }
 	private Parameter value;
 	private Code code = Code.OK;
@@ -24,13 +21,13 @@ public class EvaluationResult {
 
 	public static final EvaluationResult OK = new EvaluationResult();
 	
-	public EvaluationResult() {
+	EvaluationResult() {
 		this.value = Parameter.EmptyString;
 		this.code = Code.OK;		
 	}
-	public EvaluationResult(Parameter value) {
-		this.value = value;
-		this.code = Code.OK;
+
+	public static EvaluationResult makeOkay(Parameter value) {
+		return new EvaluationResult(value, Code.OK);
 	}
 	
 	public EvaluationResult(Parameter value, Code code) {
@@ -49,8 +46,12 @@ public class EvaluationResult {
 	public static EvaluationResult makeError(String string) {
 		return new EvaluationResult(Parameter.from(string), Code.ERROR);
 	}
-	
-	
+
+	public static EvaluationResult makeError(Parameter val) {
+		return new EvaluationResult(val, Code.ERROR);
+	}
+
+
 	public static interface EvalCallback {
 		public EvaluationResult result(EvaluationResult last);
 	}

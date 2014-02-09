@@ -16,7 +16,7 @@ public class While extends TCLCommand {
 	public EvaluationResult extendedExecute(final Context ctx, final TCLEngine engine) {
 		final Parameter expr = ctx.get("test");
 		final Context evalctx = ctx.up(1);
-		EvaluationResult result = new EvaluationResult(Parameter.from(""));
+		EvaluationResult result = EvaluationResult.makeOkay(Parameter.from(""));
 		int rounds = 0;
 
 		return new BranchEvaluationResult(null, null, new EvaluationResult.EvalCallback() {

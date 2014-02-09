@@ -86,7 +86,7 @@ public class Set extends TCLCommand {
 
 		Parameter val = ctx.get("newValue");
 		Context ctxu = ctx.up(1);
-		return new EvaluationResult(access(ctx.get("varName").asString(), val != null,  val, ctxu));
+		return EvaluationResult.makeOkay(access(ctx.get("varName").asString(), val != null, val, ctxu));
 				
 	}
 

@@ -36,7 +36,7 @@ public class LAppend extends TCLCommand {
 		}
 
 		Set.access(varname, true, list, ctx.up(1));
-		return new EvaluationResult(list);
+		return EvaluationResult.makeOkay(list);
 	}
 
 }

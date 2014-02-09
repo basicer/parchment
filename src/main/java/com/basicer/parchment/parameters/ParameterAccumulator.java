@@ -1,7 +1,6 @@
 package com.basicer.parchment.parameters;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import com.basicer.parchment.Context;
 import com.basicer.parchment.EvaluationResult;
@@ -35,7 +34,7 @@ public class ParameterAccumulator {
 	}
 
 	public ParameterAccumulator(Parameter p) {
-		resolved = new EvaluationResult(p);
+		resolved = EvaluationResult.makeOkay(p);
 	}
 
 	public void append(Type type, String data, Context ctx) {
@@ -65,11 +64,11 @@ public class ParameterAccumulator {
 
 	private EvaluationResult resolveOne(Entry e) {
 		if ( e.type == Type.STRING )
-			return new EvaluationResult(Parameter.from(e.data));
+			return EvaluationResult.makeOkay(Parameter.from(e.data));
 		else if ( e.type == Type.VARIABLE ) {
 			try {
 				Parameter p = Set.access(e.data, false, null, e.ctx);
-				return new EvaluationResult(p);
+				return EvaluationResult.makeOkay(p);
 			} catch (FizzleException ex) {
 				return EvaluationResult.makeError(ex.getMessage());
 			}
@@ -126,7 +125,7 @@ public class ParameterAccumulator {
 		}
 
 		if ( ++progress_step >= entries.size() ) {
-			resolved = new EvaluationResult(Parameter.from(progress.toString()));
+			resolved = EvaluationResult.makeOkay(Parameter.from(progress.toString()));
 			return;
 		}
 		EvaluationResult er = resolveOne(entries.get(progress_step));

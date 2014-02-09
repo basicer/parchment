@@ -31,7 +31,7 @@ public class LShuffle extends TCLCommand {
 	@Override
 	public EvaluationResult extendedExecute(Context ctx, TCLEngine e) {
 		Parameter list = ctx.get("list").cast(ListParameter.class);
-		if ( list == null ) return new EvaluationResult(ctx.get("list"));
+		if ( list == null ) return EvaluationResult.makeOkay(ctx.get("list"));
 		LinkedList<Parameter> canidates = new LinkedList<Parameter>();
 		for ( Parameter p : list ) {
 			canidates.add(p);
@@ -43,6 +43,6 @@ public class LShuffle extends TCLCommand {
 			out.add(canidates.remove(idx));
 		}
 
-		return new EvaluationResult(ListParameter.from(out));
+		return EvaluationResult.makeOkay(ListParameter.from(out));
 	}
 }

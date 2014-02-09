@@ -2,7 +2,6 @@ package com.basicer.parchment.tcl;
 
 import com.basicer.parchment.*;
 import com.basicer.parchment.EvaluationResult.EvalCallback;
-import com.basicer.parchment.EvaluationResult.Code;
 import com.basicer.parchment.parameters.DictionaryParameter;
 import com.basicer.parchment.parameters.IntegerParameter;
 import com.basicer.parchment.parameters.Parameter;
@@ -27,7 +26,7 @@ public class Catch extends TCLCommand {
 					opts.writeIndex("-code", IntegerParameter.from(last.getCode().ordinal()));
 					Set.access( ctx.get("optionsVarName").asString(), true, opts, ctx.up(1));
 				}
-				return new EvaluationResult(Parameter.from(last.getCode().ordinal()));
+				return EvaluationResult.makeOkay(Parameter.from(last.getCode().ordinal()));
 			}
 			
 			

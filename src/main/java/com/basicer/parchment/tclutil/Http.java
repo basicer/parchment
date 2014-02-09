@@ -40,7 +40,7 @@ public class Http extends TCLCommand {
 		try {
 			URL url = new URL(surl);
 		} catch ( MalformedURLException muex ) {
-			return new EvaluationResult(Parameter.from("malformed url: " + muex.getMessage()), EvaluationResult.Code.ERROR);
+			return EvaluationResult.makeError("malformed url: " + muex.getMessage());
 		}
 
 
@@ -100,7 +100,7 @@ public class Http extends TCLCommand {
 					} catch ( Exception ex ) {
 
 					}
-					return new EvaluationResult(Parameter.from("Timeout"), EvaluationResult.Code.ERROR);
+					return EvaluationResult.makeError(Parameter.from("Timeout"));
 				}
 				if ( !result.isDone() ) return new BranchEvaluationResult(null, null, rerun) ;
 
@@ -110,11 +110,11 @@ public class Http extends TCLCommand {
 
 				}
 				try {
-					return new EvaluationResult(result.get());
+					return EvaluationResult.makeOkay(result.get());
 				} catch (InterruptedException e1) {
-					return new EvaluationResult(Parameter.from(e1.getMessage()), EvaluationResult.Code.ERROR);
+					return EvaluationResult.makeError(e1.getMessage());
 				} catch (ExecutionException e1) {
-					return new EvaluationResult(Parameter.from(e1.getMessage()), EvaluationResult.Code.ERROR);
+					return EvaluationResult.makeError(e1.getMessage());
 				}
 
 

@@ -7,7 +7,6 @@ import java.security.NoSuchAlgorithmException;
 import com.basicer.parchment.Context;
 import com.basicer.parchment.EvaluationResult;
 import com.basicer.parchment.TCLCommand;
-import com.basicer.parchment.EvaluationResult.Code;
 import com.basicer.parchment.TCLEngine;
 import com.basicer.parchment.parameters.Parameter;
 
@@ -44,7 +43,7 @@ public class Hash extends TCLCommand {
 			hexString.append(hex);
 		}
 
-		return new EvaluationResult(Parameter.from(hexString.toString()));
+		return EvaluationResult.makeOkay(Parameter.from(hexString.toString()));
 
 	}
 

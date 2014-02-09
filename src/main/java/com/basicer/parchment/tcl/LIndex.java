@@ -27,11 +27,11 @@ public class LIndex extends TCLCommand {
 			try {
 				list = list.index(index);
 			} catch ( IndexOutOfBoundsException ex ) {
-				return new EvaluationResult(Parameter.from(""), EvaluationResult.Code.OK);
+				return EvaluationResult.OK;
 			}
 		}
 		
-		return new EvaluationResult(list);
+		return EvaluationResult.makeOkay(list);
 	}
 
 }

@@ -19,7 +19,7 @@ public class PutS extends TCLCommand {
 			return EvaluationResult.OK;
 		}
 		ctx.sendDebugMessage(s.asString());
-		return new EvaluationResult(s);
+		return EvaluationResult.makeOkay(s);
 	}
 	
 	

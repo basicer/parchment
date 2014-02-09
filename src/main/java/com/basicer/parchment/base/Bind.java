@@ -18,7 +18,7 @@ public class Bind extends TCLCommand {
 	
 	@Override
 	public EvaluationResult extendedExecute(Context ctx, TCLEngine engine) {
-		return new EvaluationResult(execute(ctx));
+		return EvaluationResult.makeOkay(execute(ctx));
 	}
 		
 	public Parameter execute(Context ctx) {

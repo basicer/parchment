@@ -21,7 +21,7 @@ public class List extends TCLCommand {
 		ArrayList<Parameter> parts = ctx.getArgs();
 		ListParameter list = ListParameter.from(ctx.getArgs());
 		
-		return new EvaluationResult(list);
+		return EvaluationResult.makeOkay(list);
 		
 		
 	}

@@ -15,7 +15,7 @@ public class Error extends TCLCommand {
 
 	@Override
 	public EvaluationResult extendedExecute(Context c2, TCLEngine e) {
-		return new EvaluationResult(c2.get("info"), EvaluationResult.Code.ERROR);
+		return EvaluationResult.makeError(c2.get("info"));
 	}
 	
 	

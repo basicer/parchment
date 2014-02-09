@@ -23,10 +23,10 @@ public class For extends TCLCommand {
 				final EvaluationResult.EvalCallback again = this;
 				Parameter ok = Expr.eval(expr.asString(), evalctx, e);
 				if ( ok == null ) throw new RuntimeException("Invalid expression: " + expr.asString());
-				if ( !ok.asBoolean() ) return new EvaluationResult(Parameter.EmptyString);
+				if ( !ok.asBoolean() ) return EvaluationResult.makeOkay(Parameter.EmptyString);
 				return new BranchEvaluationResult(ctx.get("command").asString(), evalctx, new EvaluationResult.EvalCallback(){
 					public EvaluationResult result(EvaluationResult er) {
-						if ( er.getCode() == Code.BREAK ) return new EvaluationResult(Parameter.EmptyString);
+						if ( er.getCode() == Code.BREAK ) return EvaluationResult.makeOkay(Parameter.EmptyString);
 						if ( er.getCode() == Code.RETURN ) return er;
 						return new BranchEvaluationResult(ctx.get("next").asString(), evalctx, again);
 					}

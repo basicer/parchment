@@ -15,7 +15,7 @@ public class Concat extends TCLCommand {
 	public EvaluationResult extendedExecute(Context ctx, TCLEngine e) {
 		
 		Parameter out = doConcat(ctx.getArgs());
-		return new EvaluationResult(out);
+		return EvaluationResult.makeOkay(out);
 	}
 
 	public static Parameter doConcat(ArrayList<Parameter> in){

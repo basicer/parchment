@@ -148,7 +148,7 @@ public abstract class TargetedCommand extends TCLCommand {
 			Debug.trace("EXEC " + getName() + ":" + name + " with target " + 
 					(targets == null ? "null" : targets.toString()));
 			if ( !name.equals("cast") ) fizzle("Can only use cast binding on this spell.");
-			return new EvaluationResult(this.cast(ctx));
+			return EvaluationResult.makeOkay(this.cast(ctx));
 		} catch ( FizzleException fizzle ) {
 			//ctx.sendDebugMessage("The spell fizzles: " + fizzle.getMessage());
 			return EvaluationResult.makeError(fizzle.getMessage());

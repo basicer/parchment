@@ -7,7 +7,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.*;
 import org.bukkit.entity.Player;
@@ -136,10 +135,10 @@ public class Find extends TCLCommand {
 		}
 
 		if ( ctx.has("one")  ) {
-			if ( result.size() > 0 ) return new EvaluationResult(result.get(0));
+			if ( result.size() > 0 ) return EvaluationResult.makeOkay(result.get(0));
 			else return EvaluationResult.OK;
 		}
-		return new EvaluationResult(ListParameter.from(result));
+		return EvaluationResult.makeOkay(ListParameter.from(result));
 	}
 
 	private <T> T fetchArguementOrFizzle(String id, Class<T> clazz, Context ctx) {

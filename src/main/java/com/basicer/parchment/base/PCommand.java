@@ -2,7 +2,6 @@ package com.basicer.parchment.base;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.basicer.parchment.Context;
@@ -26,7 +25,7 @@ public class PCommand extends TCLCommand {
 		//boolean okay = s.dispatchCommand(sender, cmd.asString());
 		boolean okay = p.performCommand(cmd.asString(ctx));
 		
-		return new EvaluationResult(Parameter.from(okay ? "true" : "false"));
+		return EvaluationResult.makeOkay(Parameter.from(okay ? "true" : "false"));
 	}
 
 }

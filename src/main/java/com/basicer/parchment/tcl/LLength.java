@@ -6,12 +6,6 @@ import com.basicer.parchment.TCLCommand;
 import com.basicer.parchment.TCLEngine;
 import com.basicer.parchment.parameters.ListParameter;
 import com.basicer.parchment.parameters.Parameter;
-import com.basicer.parchment.parameters.ParameterAccumulator;
-import com.basicer.parchment.parameters.StringParameter;
-
-import java.io.PushbackReader;
-import java.io.StringReader;
-import java.util.ArrayList;
 
 public class LLength extends TCLCommand {
 
@@ -26,8 +20,8 @@ public class LLength extends TCLCommand {
 	public EvaluationResult extendedExecute(Context ctx, TCLEngine e) {
         Parameter in = ctx.get("list");
         ListParameter list = in.cast(ListParameter.class);
-		if ( list == null ) return new EvaluationResult(Parameter.from(1));
-		return new EvaluationResult(Parameter.from(list.length()));
+		if ( list == null ) return EvaluationResult.makeOkay(Parameter.from(1));
+		return EvaluationResult.makeOkay(Parameter.from(list.length()));
 	}
 
 }
