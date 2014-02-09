@@ -103,7 +103,7 @@ public class TCLUnitTestSuite extends TestCase {
 				commandctx.put("tcl_platform", platform);
 
 
-				SpellFactory spellfactory = new SpellFactory();
+				CommandFactory spellfactory = new CommandFactory();
 				spellfactory.loadTCLOnly();
 				commandctx.setSpellFactory(spellfactory);
 

@@ -1,10 +1,6 @@
 package com.basicer.parchment.tcl;
 
-import com.basicer.parchment.Context;
-import com.basicer.parchment.EvaluationResult;
-import com.basicer.parchment.TCLCommand;
-import com.basicer.parchment.TCLEngine;
-import com.basicer.parchment.TCLUtils;
+import com.basicer.parchment.*;
 import com.basicer.parchment.parameters.Parameter;
 
 public class If extends TCLCommand {
@@ -22,7 +18,7 @@ public class If extends TCLCommand {
 		if (ok == null)
 			throw new RuntimeException("Invalid expression: " + expr.asString());
 		if (ok.asBoolean()) {
-			return new EvaluationResult.BranchEvaluationResult(ctx.get("body").asString(), evalctx,
+			return new BranchEvaluationResult(ctx.get("body").asString(), evalctx,
 					new EvaluationResult.EvalCallback() {
 						public EvaluationResult result(EvaluationResult er) {
 							return er; // No processing of result needed
@@ -31,14 +27,14 @@ public class If extends TCLCommand {
 		} else if (ctx.get("else") != null) {
 			String code = ctx.get("elseCode").asString();
 			if (code.length() > 0) {
-				return new EvaluationResult.BranchEvaluationResult(ctx.get("elseCode").asString(), evalctx,
+				return new BranchEvaluationResult(ctx.get("elseCode").asString(), evalctx,
 						new EvaluationResult.EvalCallback() {
 							public EvaluationResult result(EvaluationResult er) {
 								return er; // No processing of result needed
 							}
 						});
 			} else
-				return new EvaluationResult(Parameter.from(""));
+				return EvaluationResult.OK;
 		} else if (ctx.get("elseCode") != null) {
 			return EvaluationResult.makeError("Use else noise word in an if/else statement");
 		} else {

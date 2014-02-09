@@ -59,7 +59,7 @@ public class ParchmentEventListener implements Listener {
 			for ( String part : parts ) args.add(Parameter.from(part));
 
 
-			ThreadManager.instance().submitWork(new EvaluationResult.BranchEvaluationResult(null, ctx, new EvaluationResult.EvalCallback() {
+			ThreadManager.instance().submitWork(new BranchEvaluationResult(null, ctx, new EvaluationResult.EvalCallback() {
 
 				public EvaluationResult result(EvaluationResult e) {
 					return s.executeBinding("command:" + binding, ctx, null, args);
@@ -165,8 +165,8 @@ public class ParchmentEventListener implements Listener {
 		Debug.info("Execute binding %s", binding);
 		EvaluationResult r = scmd.executeBinding(binding, ctx, null);
 
-		if ( r instanceof EvaluationResult.BranchEvaluationResult ) {
-			TCLEngine ngn = new TCLEngine((EvaluationResult.BranchEvaluationResult)r);
+		if ( r instanceof BranchEvaluationResult ) {
+			TCLEngine ngn = new TCLEngine((BranchEvaluationResult)r);
 			try {
 				while (ngn.step() ) {}
 

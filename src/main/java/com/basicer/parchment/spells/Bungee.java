@@ -150,15 +150,15 @@ public class Bungee extends OperationalTCLCommand implements PluginMessageListen
 	private EvaluationResult genericQuery(final Player p, final byte[] odata, final ResultCreator creator) {
 		final Holder<Integer> state = new Holder<Integer>();
 		state.value = 0;
-		return new EvaluationResult.BranchEvaluationResult(null, null, new EvaluationResult.EvalCallback() {
+		return new BranchEvaluationResult(null, null, new EvaluationResult.EvalCallback() {
 			public EvaluationResult result(EvaluationResult last) {
 				switch ( state.value.intValue() ) {
 					case 0:
-						if ( waiting ) return new EvaluationResult.BranchEvaluationResult(null, null, this);
+						if ( waiting ) return new BranchEvaluationResult(null, null, this);
 						waiting = false;
 						state.value = 1;
 						p.sendPluginMessage(ParchmentPluginLite.instance(), channel, odata);
-						return new EvaluationResult.BranchEvaluationResult(null, null, this);
+						return new BranchEvaluationResult(null, null, this);
 					case 1:
 						if ( data == null ) return last;
 						DataInputStream in = new DataInputStream(new ByteArrayInputStream(data));

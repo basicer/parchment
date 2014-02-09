@@ -5,7 +5,7 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.concurrent.Callable;
 
-import com.basicer.parchment.EvaluationResult.BranchEvaluationResult;
+import com.basicer.parchment.EvaluationResult;
 import com.basicer.parchment.EvaluationResult.EvalCallback;
 import com.basicer.parchment.bukkit.ParchmentPluginLite;
 import com.basicer.parchment.tcl.Eval;
@@ -53,8 +53,8 @@ public class ThreadManager {
 				if ( System.currentTimeMillis() > timeout ) break;
 				out = this.engine.step(true);
 				EvaluationResult deepest = this.engine.getDeepestEvaluationResult();
-				if ( deepest != null && deepest instanceof EvaluationResult.BranchEvaluationResult ) {
-					Long when = ((EvaluationResult.BranchEvaluationResult)deepest).getScheduleAfter();
+				if ( deepest != null && deepest instanceof BranchEvaluationResult ) {
+					Long when = ((BranchEvaluationResult)deepest).getScheduleAfter();
 					if ( when != null ) {
 						nextTimeSlice = when;
 						return true;

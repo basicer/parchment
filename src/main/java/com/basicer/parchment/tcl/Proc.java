@@ -1,12 +1,7 @@
 package com.basicer.parchment.tcl;
 
-import com.basicer.parchment.Context;
-import com.basicer.parchment.Debug;
-import com.basicer.parchment.EvaluationResult;
+import com.basicer.parchment.*;
 import com.basicer.parchment.EvaluationResult.Code;
-import com.basicer.parchment.TCLCommand;
-import com.basicer.parchment.TCLEngine;
-import com.basicer.parchment.TCLUtils;
 import com.basicer.parchment.parameters.Parameter;
 
 public class Proc extends TCLCommand {
@@ -48,7 +43,7 @@ public class Proc extends TCLCommand {
 
 			@Override
 			public EvaluationResult extendedExecute(Context ctx, TCLEngine engine) {
-				return new EvaluationResult.BranchEvaluationResult(bodystr, ctx, new EvaluationResult.EvalCallback() {
+				return new BranchEvaluationResult(bodystr, ctx, new EvaluationResult.EvalCallback() {
 					public EvaluationResult result(EvaluationResult r) {
 						if (r == null)
 							return EvaluationResult.OK;

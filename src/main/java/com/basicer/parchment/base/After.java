@@ -2,13 +2,7 @@ package com.basicer.parchment.base;
 
 import java.util.concurrent.Callable;
 
-import com.basicer.parchment.Context;
-import com.basicer.parchment.Debug;
-import com.basicer.parchment.EvaluationResult;
-import com.basicer.parchment.ScriptedSpell;
-import com.basicer.parchment.TCLCommand;
-import com.basicer.parchment.TCLEngine;
-import com.basicer.parchment.ThreadManager;
+import com.basicer.parchment.*;
 import com.basicer.parchment.parameters.DelegateParameter;
 import com.basicer.parchment.parameters.Parameter;
 
@@ -35,9 +29,9 @@ public class After extends TCLCommand {
 		if ( d == null ) return EvaluationResult.makeError("delay should be a number");
 		if ( code == null ) {
 			
-			return new EvaluationResult.BranchEvaluationResult(null, ctx, null, whenfunc);
+			return new BranchEvaluationResult(null, ctx, null, whenfunc);
 		}
-		ThreadManager.instance().submitWork(new EvaluationResult.BranchEvaluationResult(code.asString(ctx), ctx.up(1).mergeAndCopyAsGlobal(), null, whenfunc));
+		ThreadManager.instance().submitWork(new BranchEvaluationResult(code.asString(ctx), ctx.up(1).mergeAndCopyAsGlobal(), null, whenfunc));
 		return EvaluationResult.OK;
 	}
 	

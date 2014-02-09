@@ -120,7 +120,7 @@ public class Command extends OperationalTCLCommand {
 					args.add(Parameter.from(arg));
 				}
 				ctxx.put("args", ListParameter.from(args));
-				ThreadManager.instance().submitWork(new EvaluationResult.BranchEvaluationResult(tcl_code, ctxx, new EvaluationResult.EvalCallback() {
+				ThreadManager.instance().submitWork(new BranchEvaluationResult(tcl_code, ctxx, new EvaluationResult.EvalCallback() {
 
 					public EvaluationResult result(EvaluationResult e) {
 						if ( e.getCode() == EvaluationResult.Code.ERROR ) {

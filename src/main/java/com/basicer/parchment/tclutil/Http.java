@@ -1,9 +1,6 @@
 package com.basicer.parchment.tclutil;
 
-import com.basicer.parchment.Context;
-import com.basicer.parchment.EvaluationResult;
-import com.basicer.parchment.TCLCommand;
-import com.basicer.parchment.TCLEngine;
+import com.basicer.parchment.*;
 import com.basicer.parchment.parameters.DictionaryParameter;
 import com.basicer.parchment.parameters.ListParameter;
 import com.basicer.parchment.parameters.Parameter;
@@ -94,7 +91,7 @@ public class Http extends TCLCommand {
 		}, null);
 
 
-		return new EvaluationResult.BranchEvaluationResult(null, null, new EvaluationResult.EvalCallback() {
+		return new BranchEvaluationResult(null, null, new EvaluationResult.EvalCallback() {
 			public EvaluationResult result(EvaluationResult last) {
 				EvaluationResult.EvalCallback rerun = this;
 				if ( timeout > 0 && (System.currentTimeMillis() - start) > timeout ) {
@@ -105,7 +102,7 @@ public class Http extends TCLCommand {
 					}
 					return new EvaluationResult(Parameter.from("Timeout"), EvaluationResult.Code.ERROR);
 				}
-				if ( !result.isDone() ) return new EvaluationResult.BranchEvaluationResult(null, null, rerun) ;
+				if ( !result.isDone() ) return new BranchEvaluationResult(null, null, rerun) ;
 
 				try {
 					httpclient.close();

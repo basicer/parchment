@@ -37,10 +37,10 @@ public class With extends TCLCommand {
 		final boolean each_c = each;
 		final boolean merge_c = ctx.get("merge") != null;
 		final LinkedList<Parameter> results = new LinkedList<Parameter>();
-		return new EvaluationResult.BranchEvaluationResult(null, null, new EvaluationResult.EvalCallback() {
+		return new BranchEvaluationResult(null, null, new EvaluationResult.EvalCallback() {
 
 			public EvaluationResult result(EvaluationResult er) {
-				if ( !(er instanceof EvaluationResult.BranchEvaluationResult) ) {
+				if ( !(er instanceof BranchEvaluationResult) ) {
 
 					if ( er.getValue() != null && er.getCode() == EvaluationResult.Code.RETURN ) {
 						boolean doit = true;
@@ -59,7 +59,7 @@ public class With extends TCLCommand {
 				final EvaluationResult.EvalCallback again = this;
 				ctx.setTarget(targets.poll());
 				Debug.info("Target now" + ctx.getTarget().toString());
-				return new EvaluationResult.BranchEvaluationResult(ctx.get("code").asString(), ctx, again);
+				return new BranchEvaluationResult(ctx.get("code").asString(), ctx, again);
 				}
 
 			}

@@ -1,12 +1,8 @@
 package com.basicer.parchment.tcl;
 
-import com.basicer.parchment.Context;
-import com.basicer.parchment.EvaluationResult;
+import com.basicer.parchment.*;
 import com.basicer.parchment.EvaluationResult.Code;
 import com.basicer.parchment.EvaluationResult.EvalCallback;
-import com.basicer.parchment.TCLCommand;
-import com.basicer.parchment.TCLEngine;
-import com.basicer.parchment.TCLUtils;
 import com.basicer.parchment.parameters.Parameter;
 
 public class While extends TCLCommand {
@@ -23,12 +19,12 @@ public class While extends TCLCommand {
 		EvaluationResult result = new EvaluationResult(Parameter.from(""));
 		int rounds = 0;
 
-		return new EvaluationResult.BranchEvaluationResult(null, null, new EvaluationResult.EvalCallback() {
+		return new BranchEvaluationResult(null, null, new EvaluationResult.EvalCallback() {
 			int	rounds	= 0;
 
 			public EvaluationResult result(EvaluationResult er) {
 				final EvalCallback again = this;
-				if ( er instanceof EvaluationResult.BranchEvaluationResult ) {
+				if ( er instanceof BranchEvaluationResult ) {
 					//First time though
 				} else {
 					if (er.getCode() == Code.BREAK) return EvaluationResult.OK;
@@ -41,7 +37,7 @@ public class While extends TCLCommand {
 				if (ok.asBooleanStrict(ctx)) {
 					// result = engine.evaluate(ctx.get("body").asString(),
 					// evalctx);
-					return new EvaluationResult.BranchEvaluationResult(ctx.get("command").asString(), evalctx, again);
+					return new BranchEvaluationResult(ctx.get("command").asString(), evalctx, again);
 				} else {
 					return EvaluationResult.OK;
 				}

@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import com.basicer.parchment.EvaluationResult.BranchEvaluationResult;
 import com.basicer.parchment.EvaluationResult.Code;
 import com.basicer.parchment.bukkit.ParchmentPlugin;
 import com.basicer.parchment.parameters.ParameterAccumulator;
@@ -65,7 +64,7 @@ public class TCLEngine {
 			result = sub.getEvaluationResult();
 			sub = null;
 
-			if ( !(result instanceof EvaluationResult.BranchEvaluationResult) && result.getCode() == Code.ERROR ) {
+			if ( !(result instanceof BranchEvaluationResult) && result.getCode() == Code.ERROR ) {
 				if ( result.getRefrencedCode() == null ) result.setRefrencedCode(last_ran_code);
 				String rv = result.getValue() == null ? "null" : result.getValue().asString();
 				String s = rv + "\n    while executing\n\"" + result.getRefrencedCode() + "\"";
@@ -87,9 +86,9 @@ public class TCLEngine {
 			return true;
 		}
 
-		if ( result instanceof EvaluationResult.BranchEvaluationResult ) {
+		if ( result instanceof BranchEvaluationResult ) {
 			
-			EvaluationResult.BranchEvaluationResult br = (EvaluationResult.BranchEvaluationResult) result;
+			BranchEvaluationResult br = (BranchEvaluationResult) result;
 			Long when = br.getScheduleAfter();
 			if ( when != null && when > System.currentTimeMillis() && allow_sleeping ) return true;
 			if ( br.getToRun() != null ) {
@@ -200,9 +199,9 @@ public class TCLEngine {
 	 * ctx.sendDebugMessage("[P] " + p.toString()); // }
 	 * 
 	 * result = evaluate(pargs, ctx); while (result instanceof
-	 * EvaluationResult.BranchEvaluationResult) {
-	 * EvaluationResult.BranchEvaluationResult br =
-	 * (EvaluationResult.BranchEvaluationResult) result; result = evaluate(br);
+	 * EvaluationResult.com.basicer.parchment.BranchEvaluationResult) {
+	 * EvaluationResult.com.basicer.parchment.BranchEvaluationResult br =
+	 * (EvaluationResult.com.basicer.parchment.BranchEvaluationResult) result; result = evaluate(br);
 	 * } if (result.getCode() != Code.OK) return result; //
 	 * ctx.sendDebugMessage("[R] " + result.toString()); } return result; }
 	 */

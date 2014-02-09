@@ -2,12 +2,8 @@ package com.basicer.parchment.tcl;
 
 
 
-import com.basicer.parchment.Context;
-import com.basicer.parchment.EvaluationResult;
+import com.basicer.parchment.*;
 import com.basicer.parchment.EvaluationResult.Code;
-import com.basicer.parchment.TCLCommand;
-import com.basicer.parchment.TCLEngine;
-import com.basicer.parchment.TCLUtils;
 import com.basicer.parchment.parameters.Parameter;
 
 public class For extends TCLCommand {
@@ -21,18 +17,18 @@ public class For extends TCLCommand {
 		final Context evalctx = ctx.up(1);
 		
 		
-		return new EvaluationResult.BranchEvaluationResult(ctx.get("start").asString(), evalctx, new EvaluationResult.EvalCallback() {
+		return new BranchEvaluationResult(ctx.get("start").asString(), evalctx, new EvaluationResult.EvalCallback() {
 			
 			public EvaluationResult result(EvaluationResult last) {
 				final EvaluationResult.EvalCallback again = this;
 				Parameter ok = Expr.eval(expr.asString(), evalctx, e);
 				if ( ok == null ) throw new RuntimeException("Invalid expression: " + expr.asString());
 				if ( !ok.asBoolean() ) return new EvaluationResult(Parameter.EmptyString);
-				return new EvaluationResult.BranchEvaluationResult(ctx.get("command").asString(), evalctx, new EvaluationResult.EvalCallback(){
+				return new BranchEvaluationResult(ctx.get("command").asString(), evalctx, new EvaluationResult.EvalCallback(){
 					public EvaluationResult result(EvaluationResult er) {
 						if ( er.getCode() == Code.BREAK ) return new EvaluationResult(Parameter.EmptyString);
 						if ( er.getCode() == Code.RETURN ) return er;
-						return new EvaluationResult.BranchEvaluationResult(ctx.get("next").asString(), evalctx, again);						
+						return new BranchEvaluationResult(ctx.get("next").asString(), evalctx, again);
 					}
 				});
 

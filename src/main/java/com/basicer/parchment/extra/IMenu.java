@@ -1,9 +1,6 @@
 package com.basicer.parchment.extra;
 
-import com.basicer.parchment.Context;
-import com.basicer.parchment.EvaluationResult;
-import com.basicer.parchment.TCLCommand;
-import com.basicer.parchment.TCLEngine;
+import com.basicer.parchment.*;
 import com.basicer.parchment.bukkit.ParchmentPluginLite;
 import com.basicer.parchment.parameters.*;
 import org.bukkit.Bukkit;
@@ -100,14 +97,14 @@ public class IMenu extends TCLCommand {
 		p.openInventory(inv);
 		Bukkit.getServer().getPluginManager().registerEvents(listener, ParchmentPluginLite.instance() );
 
-		EvaluationResult.BranchEvaluationResult result = new EvaluationResult.BranchEvaluationResult(null, null, new EvaluationResult.EvalCallback() {
+		BranchEvaluationResult result = new BranchEvaluationResult(null, null, new EvaluationResult.EvalCallback() {
 			public EvaluationResult result(EvaluationResult last) {
 			EvaluationResult.EvalCallback rerun = this;
 			if ( timeout > 0 && (System.currentTimeMillis() - start) > timeout ) {
 				p.closeInventory();
 				return new EvaluationResult(Parameter.from("timeout"), EvaluationResult.Code.ERROR);
 			}
-			if ( listener.value == null ) return new EvaluationResult.BranchEvaluationResult(null, null, rerun, 100);
+			if ( listener.value == null ) return new BranchEvaluationResult(null, null, rerun, 100);
 				if ( listener.value == -1 ) return new EvaluationResult(StringParameter.from("closed"), EvaluationResult.Code.ERROR);
 				return new EvaluationResult(ItemParameter.from(contents[listener.value.intValue()]));
 

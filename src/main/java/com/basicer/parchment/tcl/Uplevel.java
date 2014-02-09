@@ -1,10 +1,6 @@
 package com.basicer.parchment.tcl;
 
-import com.basicer.parchment.Context;
-import com.basicer.parchment.EvaluationResult;
-import com.basicer.parchment.TCLCommand;
-import com.basicer.parchment.TCLEngine;
-import com.basicer.parchment.TCLUtils;
+import com.basicer.parchment.*;
 import com.basicer.parchment.parameters.Parameter;
 
 public class Uplevel extends TCLCommand {
@@ -22,7 +18,7 @@ public class Uplevel extends TCLCommand {
 		Context ectx = ctx.up(level.asInteger());
 		if (ectx == null)
 			return EvaluationResult.makeError("Invalid level given to uplevel");
-		return new EvaluationResult.BranchEvaluationResult(expr.asString(), ectx, new EvaluationResult.EvalCallback() {
+		return new BranchEvaluationResult(expr.asString(), ectx, new EvaluationResult.EvalCallback() {
 			public EvaluationResult result(EvaluationResult er) {
 				return er; // No processing of result needed
 			}

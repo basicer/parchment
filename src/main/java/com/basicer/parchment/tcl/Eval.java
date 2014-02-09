@@ -2,11 +2,7 @@ package com.basicer.parchment.tcl;
 
 
 
-import com.basicer.parchment.Context;
-import com.basicer.parchment.EvaluationResult;
-import com.basicer.parchment.TCLCommand;
-import com.basicer.parchment.TCLEngine;
-import com.basicer.parchment.TCLUtils;
+import com.basicer.parchment.*;
 import com.basicer.parchment.EvaluationResult.EvalCallback;
 import com.basicer.parchment.parameters.Parameter;
 
@@ -24,7 +20,7 @@ public class Eval extends TCLCommand {
 		System.err.println(expr.asString());
 		
 		
-		return new EvaluationResult.BranchEvaluationResult(torun, ctx.up(1), new EvalCallback() {
+		return new BranchEvaluationResult(torun, ctx.up(1), new EvalCallback() {
 			public EvaluationResult result(EvaluationResult last) {
 				return last;
 			}

@@ -18,7 +18,6 @@ import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.Prompt;
 import org.bukkit.entity.Player;
 
-import com.basicer.parchment.EvaluationResult.BranchEvaluationResult;
 import com.basicer.parchment.EvaluationResult.Code;
 import com.basicer.parchment.parameters.Parameter;
 

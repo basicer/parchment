@@ -29,7 +29,7 @@ public class Repeat extends TCLCommand {
 			evalctx.put("i", IntegerParameter.from(1));
 		}
 		ctl.value = times;
-		return new EvaluationResult.BranchEvaluationResult(body, evalctx, new EvaluationResult.EvalCallback(){
+		return new BranchEvaluationResult(body, evalctx, new EvaluationResult.EvalCallback(){
 			public EvaluationResult result(EvaluationResult er) {
 				if ( target ) {
 					Parameter newtarget = er.getValue();
@@ -43,7 +43,7 @@ public class Repeat extends TCLCommand {
 				else if ( er.getCode() == Code.BREAK ) return new EvaluationResult(Parameter.EmptyString);
 				else if ( er.getCode() == Code.RETURN ) return er;
 
-				return new EvaluationResult.BranchEvaluationResult(body, evalctx, this);
+				return new BranchEvaluationResult(body, evalctx, this);
 			}
 		});
 

@@ -1,11 +1,7 @@
 package com.basicer.parchment.tcl;
 
-import com.basicer.parchment.Context;
-import com.basicer.parchment.Debug;
-import com.basicer.parchment.EvaluationResult;
+import com.basicer.parchment.*;
 import com.basicer.parchment.EvaluationResult.EvalCallback;
-import com.basicer.parchment.TCLCommand;
-import com.basicer.parchment.TCLEngine;
 import com.basicer.parchment.EvaluationResult.Code;
 import com.basicer.parchment.parameters.DictionaryParameter;
 import com.basicer.parchment.parameters.IntegerParameter;
@@ -20,7 +16,7 @@ public class Catch extends TCLCommand {
 		final Parameter code = ctx.get("script");
 
 		
-		return new EvaluationResult.BranchEvaluationResult(code.asString(), ctx.up(1), new EvalCallback() {
+		return new BranchEvaluationResult(code.asString(), ctx.up(1), new EvalCallback() {
 			public EvaluationResult result(EvaluationResult last) {
 				if ( ctx.get("messageVarName") != null ) {
 					Set.access( ctx.get("messageVarName").asString(), true, last.getValue(), ctx.up(1));
