@@ -9,6 +9,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.*;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -19,7 +20,7 @@ import java.util.List;
  */
 public class Find extends TCLCommand {
 	@Override
-	public String[] getArguments() { return new String[] { "-type=", "-at=", "-dist=", "-limit=", "-one" }; }
+	public String[] getArguments() { return new String[] { "-type=", "-at=", "-dist=", "-limit=", "-name=", "-metadata=", "-one" }; }
 
 	public String getDescription() { return "Find things in loaded chunks"; }
 
@@ -44,6 +45,8 @@ public class Find extends TCLCommand {
 
 		if ( t == null ) return EvaluationResult.makeError("Don't know how to search for " + ctx.get("type").asString());
 
+		final String name = fetchArguementOrFizzle("name", String.class, ctx);
+		final String metadata = fetchArguementOrFizzle("metadata", String.class, ctx);
 		final Double dist = fetchArguementOrFizzle("dist", Double.class, ctx);
 		Location xwhere = fetchArguementOrFizzle("at", Location.class, ctx);
 		Integer limit = fetchArguementOrFizzle("limit", Integer.class, ctx);
@@ -70,6 +73,8 @@ public class Find extends TCLCommand {
 			public boolean evaluate(org.bukkit.entity.Entity input) {
 				if ( input == null ) return false;
 				if ( et != null && !input.getType().equals(et) ) return false;
+				if ( metadata != null && !input.hasMetadata(metadata) ) return false;
+				if ( name != null && !nameForEntity(input).equals(name) ) return false;
 				if ( type == SearchTypes.MOB && !(input instanceof Monster) ) return false;
 				if ( where != null ) {
 					if ( !where.getWorld().equals(input.getWorld())) return false;
@@ -84,6 +89,7 @@ public class Find extends TCLCommand {
 			public boolean evaluate(org.bukkit.block.Block input) {
 				if ( input == null ) return false;
 				if ( bt != null && !input.getType().equals(bt) ) return false;
+				if ( metadata != null && !input.hasMetadata(metadata) ) return false;
 				if ( where != null ) {
 					if ( !where.getWorld().equals(input.getWorld())) return false;
 					if ( input.getLocation().distance(where) > dist ) return false;
@@ -139,6 +145,15 @@ public class Find extends TCLCommand {
 			else return EvaluationResult.OK;
 		}
 		return EvaluationResult.makeOkay(ListParameter.from(result));
+	}
+
+	private String nameForEntity(Entity input) {
+		if ( input instanceof Player ) return ((Player) input).getName();
+		if ( input instanceof LivingEntity ) {
+			LivingEntity le = (LivingEntity) input;
+			if ( le.getCustomName() != null ) return le.getCustomName();
+		}
+		return input.getType().name();
 	}
 
 	private <T> T fetchArguementOrFizzle(String id, Class<T> clazz, Context ctx) {

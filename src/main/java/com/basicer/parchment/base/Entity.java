@@ -162,6 +162,7 @@ public class Entity extends OperationalTargetedCommand<EntityParameter> {
 		return Parameter.from(ent.getLocation());
 	}
 
+
 	@Operation(aliases = {"pos", "loc"}, desc = "Returns the entities position as a Location.")
 	public static Parameter locationOperation(org.bukkit.entity.Entity ent, Context ctx) {
 		return Parameter.from(ent.getLocation());
@@ -198,6 +199,12 @@ public class Entity extends OperationalTargetedCommand<EntityParameter> {
 		return Parameter.EmptyString;
 	}
 
+	public static Parameter uuidOperation(org.bukkit.entity.Entity ent, Context ctx) {
+
+		return StringParameter.from(ent.getUniqueId().toString());
+	}
+
+
 	public static Parameter pickupdelayOperation(org.bukkit.entity.Entity ent, Context ctx, IntegerParameter ticks) {
 		
 		if (!(ent instanceof org.bukkit.entity.Item)) fizzle("Entity needs to be an Item Entity is " + ent.getClass().getSimpleName());
@@ -207,5 +214,9 @@ public class Entity extends OperationalTargetedCommand<EntityParameter> {
 		}
 		return Parameter.from(i.getPickupDelay());
 	}
-	
+
+	public static Parameter setPassengerOperation(org.bukkit.entity.Entity e, Context ctx, EntityParameter other) {
+		return BooleanParameter.from(e.setPassenger(other.asEntity(ctx)));
+	}
+
 }

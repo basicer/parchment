@@ -94,61 +94,7 @@ public class Player extends OperationalTargetedCommand<PlayerParameter> {
 		return Parameter.from(pent);
 	}
 
-	private enum ThingsThatCanBeShot { Arrow, Egg, EnderPearl, Fireball, Fish, LargeFireball, SmallFireball, Snowball, ThrownExpBottle, ThrownPotion, WitherSkull }
 
-	@Operation(argnames = {"what"}, desc = "Shoots the named projectile, like an arrow.  Returns the new entity.")
-	public static Parameter shootOperation(org.bukkit.entity.Player pent, Context ctx, StringParameter what) {
-		org.bukkit.entity.Entity shot = null;
-		if ( what == null ) shot = pent.launchProjectile(Arrow.class);
-		else {
-			String swhat = what.asString(ctx);
-			ThingsThatCanBeShot shootable = what.asEnum(ThingsThatCanBeShot.class);
-			if ( shootable == null ) fizzle("I don't know how to shoot: " + what.asString());
-			switch ( shootable ) {
-				case Arrow:
-					shot = pent.launchProjectile(Arrow.class);
-					break;
-				case Snowball:
-					shot = pent.launchProjectile(Snowball.class);
-					break;
-				case Fireball:
-					shot = pent.launchProjectile(Fireball.class);
-					break;
-				case LargeFireball:
-					shot = pent.launchProjectile(LargeFireball.class);
-					break;
-				case SmallFireball:
-					shot = pent.launchProjectile(SmallFireball.class);
-					break;
-				case EnderPearl:
-					shot = pent.launchProjectile(EnderPearl.class);
-					break;
-				case Egg:
-					shot = pent.launchProjectile(Egg.class);
-					break;
-				case WitherSkull:
-					shot = pent.launchProjectile(WitherSkull.class);
-					break;
-			}
-		}
-		/*
-		Fireball s = pent.launchProjectile(Fireball.class);
-		s.setVelocity(s.getVelocity().multiply(6));
-		//Spawn the Firework, get the FireworkMeta.
-		Firework fw = (Firework) s.getWorld().spawnEntity(s.getLocation(), EntityType.FIREWORK);
-		FireworkMeta fwm = fw.getFireworkMeta();
-
-
-
-		FireworkEffect effect = FireworkEffect.builder().flicker(true).withColor(Color.BLUE).withFade(Color.RED).with(FireworkEffect.Type.BALL).trail(true).build();
-		fwm.addEffect(effect);
-		//fwm.setPower(0);
-		fw.setFireworkMeta(fwm);
-		//fw.setVelocity(s.getVelocity());
-		//s.remove();
-		*/
-		return Parameter.from(shot);
-	}
 
 
 

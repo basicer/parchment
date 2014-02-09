@@ -7,8 +7,7 @@ import com.basicer.parchment.OperationalTargetedCommand;
 import com.basicer.parchment.annotations.Operation;
 import com.basicer.parchment.parameters.*;
 import org.bukkit.Location;
-import org.bukkit.entity.Creature;
-import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.*;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
@@ -164,8 +163,17 @@ public class LEntity extends OperationalTargetedCommand<EntityParameter> {
 
 	@Operation(aliases={"cansee"})
 	public static Parameter hasLineOfSightOperation(org.bukkit.entity.LivingEntity le, Context ctx, EntityParameter other) {
-		return BooleanParameter.from(le.hasLineOfSight(other.asEntity(ctx)));
+		org.bukkit.entity.Entity e = other.asEntity(ctx);
+		return BooleanParameter.from(le.hasLineOfSight(e));
 	}
+
+
+
+	public static Parameter leashToOperation(org.bukkit.entity.LivingEntity le, Context ctx, EntityParameter other) {
+		return BooleanParameter.from(le.setLeashHolder(other.asEntity(ctx)));
+	}
+
+
 
 	@Operation()
 	public static Parameter killOperation(org.bukkit.entity.LivingEntity le, Context ctx) {
@@ -196,6 +204,50 @@ public class LEntity extends OperationalTargetedCommand<EntityParameter> {
 
 		return Parameter.from(lent);
 
+	}
+
+	private enum ThingsThatCanBeShot { Arrow, Egg, EnderPearl, Fireball, Fish, LargeFireball, SmallFireball, Snowball, ThrownExpBottle, ThrownPotion, WitherSkull }
+
+	@Operation(argnames = {"what"}, desc = "Shoots the named projectile, like an arrow.  Returns the new entity.")
+	public static Parameter shootOperation(LivingEntity lent, Context ctx, StringParameter what) {
+		org.bukkit.entity.Entity shot = null;
+		if ( what == null ) shot = lent.launchProjectile(Arrow.class);
+		else {
+			String swhat = what.asString(ctx);
+			ThingsThatCanBeShot shootable = what.asEnum(ThingsThatCanBeShot.class);
+			if ( shootable == null ) fizzle("I don't know how to shoot: " + what.asString());
+			switch ( shootable ) {
+				case Arrow:
+					shot = lent.launchProjectile(Arrow.class);
+					break;
+				case Snowball:
+					shot = lent.launchProjectile(Snowball.class);
+					break;
+				case Fireball:
+					shot = lent.launchProjectile(Fireball.class);
+					break;
+				case LargeFireball:
+					shot = lent.launchProjectile(LargeFireball.class);
+					break;
+				case SmallFireball:
+					shot = lent.launchProjectile(SmallFireball.class);
+					break;
+				case EnderPearl:
+					shot = lent.launchProjectile(EnderPearl.class);
+					break;
+				case Egg:
+					shot = lent.launchProjectile(Egg.class);
+					break;
+				case WitherSkull:
+					shot = lent.launchProjectile(WitherSkull.class);
+					break;
+			}
+		}
+		/*
+		Fireball s = pent.launchProjectile(Fireball.class);
+		s.setVelocity(s.getVelocity().multiply(6));
+		*/
+		return Parameter.from(shot);
 	}
 
 	@Operation(argnames = {"amount", "fromEntity"}, desc = "Deals `amount` damage to this entity.", aliases = {"hurt"})
