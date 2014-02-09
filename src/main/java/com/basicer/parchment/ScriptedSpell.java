@@ -1,17 +1,15 @@
 package com.basicer.parchment;
 
-import java.io.PushbackReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import com.basicer.parchment.Context.ParameterPtr;
-import com.basicer.parchment.Spell.DefaultTargetType;
 import com.basicer.parchment.parameters.Parameter;
 import com.basicer.parchment.parameters.PlayerParameter;
 
-public class ScriptedSpell extends Spell {
+public class ScriptedSpell extends TargetedCommand {
 	
 	private HashMap<String, String> triggers;
 	private String name;
@@ -44,7 +42,7 @@ public class ScriptedSpell extends Spell {
 	}
 	
 	
-	public ScriptedSpell(String name, String source, SpellFactory f) {
+	public ScriptedSpell(String name, String source, CommandFactory f) {
 		super();
 		this.name = name;
 		spellStatic.put("this", Parameter.from(this));
@@ -54,7 +52,7 @@ public class ScriptedSpell extends Spell {
 	}
 
 
-	public ScriptedSpell(String name, Reader source, SpellFactory f) {
+	public ScriptedSpell(String name, Reader source, CommandFactory f) {
 		super();
 		this.name = name;
 		spellStatic.put("this", Parameter.from(this));
@@ -129,7 +127,7 @@ public class ScriptedSpell extends Spell {
 		Debug.trace("Casting context is " + ctx.getDebuggingString());
 		if ( name == null ) return null;
 		
-		final Spell closure_s = this;
+		final TargetedCommand closure_s = this;
 		
 		DefaultTargetType tt = getDefaultTargetType(ctx,ctx.getSource());
 
@@ -155,7 +153,7 @@ public class ScriptedSpell extends Spell {
 				ctx2.putProc("super", new TCLCommand() {
 					@Override
 					public EvaluationResult extendedExecute(Context ctx, TCLEngine e) {
-						return new EvaluationResult(Spell.applyAffectors(closure_s, ctx));
+						return new EvaluationResult(TargetedCommand.applyAffectors(closure_s, ctx));
 					}
 				});
 			} else */ if ( binding.equals("cast") ) {

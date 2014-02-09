@@ -114,14 +114,14 @@ public abstract class OperationalTCLCommand extends TCLCommand {
 		Class<?> c = command.getClass();
 		//Method m = locateOperation(c, op);
 		//TODO: This only goes one level deep
-		//if ( command instanceof OperationalSpell<?> ) {
-		//	OperationalSpell<?> os = (OperationalSpell<?>) command;
+		//if ( command instanceof OperationalTargetedCommand<?> ) {
+		//	OperationalTargetedCommand<?> os = (OperationalTargetedCommand<?>) command;
 		//	if ( m == null && os.getBaseClass() != null ) m = locateOperation(os.getBaseClass(), op);
 		//}
 		
 		Class<?> tc = c;
 		Method m = locateOperation(tc, op, "Operation");
-		if ( command instanceof OperationalSpell<?> ) {
+		if ( command instanceof OperationalTargetedCommand<?>) {
 			while ( m == null ) {
 				try {
 					Method up = tc.getMethod("getBaseClass");

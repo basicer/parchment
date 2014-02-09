@@ -1,14 +1,8 @@
 package com.basicer.parchment.spells;
 
 
-import com.basicer.parchment.Context;
-import com.basicer.parchment.Debug;
-import com.basicer.parchment.EvaluationResult;
-import com.basicer.parchment.Spell;
-import com.basicer.parchment.TCLCommand;
-import com.basicer.parchment.EvaluationResult.Code;
-import com.basicer.parchment.TCLEngine;
-import com.basicer.parchment.parameters.Parameter;
+import com.basicer.parchment.*;
+import com.basicer.parchment.TargetedCommand;
 
 public class Import extends TCLCommand {
 
@@ -19,11 +13,11 @@ public class Import extends TCLCommand {
 	@Override
 	public EvaluationResult extendedExecute(Context ctx, TCLEngine e) {
 		String from = ctx.get("from").asString();
-		TCLCommand cmd = ctx.getSpellFactory().get(from);
+		TCLCommand cmd = ctx.getCommandFactory().get(from);
 		
-		if ( !(cmd instanceof Spell) ) return EvaluationResult.makeError("Cant import from TCLCommand");
+		if ( !(cmd instanceof TargetedCommand) ) return EvaluationResult.makeError("Cant import from TCLCommand");
 		
-		Spell s = (Spell) cmd;
+		TargetedCommand s = (TargetedCommand) cmd;
 		ctx.up(1).importProcs(s.getSpellContext());
 		Debug.trace("After import up is now " + ctx.up(1).getDebuggingString());
 		

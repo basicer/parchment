@@ -2,17 +2,14 @@ package com.basicer.parchment.base;
 
 
 import com.basicer.parchment.Context;
-import com.basicer.parchment.FizzleException;
-import com.basicer.parchment.OperationalSpell;
+import com.basicer.parchment.OperationalTargetedCommand;
 
-import com.basicer.parchment.Spell;
 import com.basicer.parchment.annotations.Operation;
 import com.basicer.parchment.parameters.*;
-import org.bukkit.Bukkit;
 
 import java.util.ArrayList;
 
-public class Server extends OperationalSpell<ServerParameter> {
+public class Server extends OperationalTargetedCommand<ServerParameter> {
 	
 	@Override
 	public FirstParameterTargetType getFirstParameterTargetType(Context ctx) {

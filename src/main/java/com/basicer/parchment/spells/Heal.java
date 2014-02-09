@@ -2,11 +2,11 @@ package com.basicer.parchment.spells;
 
 import org.bukkit.entity.LivingEntity;
 
-import com.basicer.parchment.Spell;
+import com.basicer.parchment.TargetedCommand;
 import com.basicer.parchment.Context;
 import com.basicer.parchment.parameters.*;
 
-public class Heal extends Spell {
+public class Heal extends TargetedCommand {
 	
 	@Override
 	public FirstParameterTargetType getFirstParameterTargetType(Context ctx) {

@@ -5,7 +5,7 @@ import com.basicer.parchment.*;
 import com.basicer.parchment.parameters.Parameter;
 
 
-public class Shoot extends Spell {
+public class Shoot extends TargetedCommand {
 	
 	@Override
 	public Parameter cast(Context ctx) {

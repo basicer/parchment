@@ -2,14 +2,9 @@ package com.basicer.parchment.tclutil;
 
 
 
-import com.basicer.parchment.Debug;
+import com.basicer.parchment.*;
 
-import com.basicer.parchment.Context;
-import com.basicer.parchment.EvaluationResult;
-import com.basicer.parchment.ScriptedSpell;
-import com.basicer.parchment.Spell;
-import com.basicer.parchment.TCLCommand;
-import com.basicer.parchment.TCLEngine;
+import com.basicer.parchment.TargetedCommand;
 import com.basicer.parchment.parameters.DelegateParameter;
 import com.basicer.parchment.parameters.Parameter;
 
@@ -28,10 +23,10 @@ public class Static extends TCLCommand {
 		DelegateParameter tt = t.cast(DelegateParameter.class);
 		if ( tt == null ) return EvaluationResult.makeError("This wasen't a delegate");
 		TCLCommand cmd = tt.asTCLCommand(ctx);
-		if ( !( cmd instanceof Spell )) return EvaluationResult.makeError("This wasent a Spell");
+		if ( !( cmd instanceof TargetedCommand)) return EvaluationResult.makeError("This wasent a TargetedCommand");
 
-		Context src = ((Spell) cmd).getSpellContext();
-		Debug.trace("This spell " + ((Spell) cmd).getName() + " ctx has:" + src.getDebuggingString());
+		Context src = ((TargetedCommand) cmd).getSpellContext();
+		Debug.trace("This spell " + ((TargetedCommand) cmd).getName() + " ctx has:" + src.getDebuggingString());
 		for ( Parameter p : ctx.getArgs() ) {
 			ctx.up(1).linkVariableFromContext(src, p.asString());
 		}

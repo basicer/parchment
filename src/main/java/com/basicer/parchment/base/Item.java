@@ -2,13 +2,13 @@ package com.basicer.parchment.base;
 
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
 import com.basicer.parchment.FizzleException;
+import com.basicer.parchment.OperationalTargetedCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -22,13 +22,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Vector;
 
 import com.basicer.parchment.Context;
-import com.basicer.parchment.OperationalSpell;
-import com.basicer.parchment.Spell;
-import com.basicer.parchment.Spell.DefaultTargetType;
 import com.basicer.parchment.annotations.Operation;
 import com.basicer.parchment.bukkit.BindingUtils;
-import com.basicer.parchment.craftbukkit.Book;
-import com.basicer.parchment.parameters.DoubleParameter;
 import com.basicer.parchment.parameters.IntegerParameter;
 import com.basicer.parchment.parameters.ItemParameter;
 import com.basicer.parchment.parameters.LivingEntityParameter;
@@ -44,7 +39,7 @@ import com.basicer.parchment.unsafe.ParchmentNBTTagList;
 import com.basicer.parchment.unsafe.ProxyFactory;
 
 
-public class Item extends OperationalSpell<ItemParameter>  {
+public class Item extends OperationalTargetedCommand<ItemParameter> {
 
 	private static Pattern itemString = Pattern.compile("((?:diamond |d |iron |i |gold |g |stone |s )?[a-z_]+)(?::([0-9]+))?(?: ?x([0-9]+))?( .+)?");
 	private static Pattern itemStringEnchant = Pattern.compile("([a-zA-Z]+):? ?(\\d+)?");

@@ -1,7 +1,7 @@
 package com.basicer.parchment.bukkit;
 
+import com.basicer.parchment.CommandFactory;
 import com.basicer.parchment.Debug;
-import com.basicer.parchment.SpellFactory;
 import com.basicer.parchment.ThreadManager;
 import com.basicer.parchment.parameters.*;
 import com.comphenix.protocol.ProtocolLibrary;
@@ -28,7 +28,7 @@ import java.io.IOException;
  */
 public class ParchmentPluginLite extends JavaPlugin {
 	protected ProtocolManager 	manager;
-	protected SpellFactory		spellfactory;
+	protected CommandFactory 	spellfactory;
 	protected BukkitRunnable 	loader;
 	protected Metrics			metrics;
 
@@ -59,7 +59,7 @@ public class ParchmentPluginLite extends JavaPlugin {
 	public void onEnable() {
 		super.onEnable();
 		this.saveDefaultConfig();
-		spellfactory = new SpellFactory();
+		spellfactory = new CommandFactory();
 
 
 		try {
@@ -124,7 +124,7 @@ public class ParchmentPluginLite extends JavaPlugin {
 		new TCLStepper().runTaskLater(this, 0);
 	}
 
-	public SpellFactory getSpellFactory() {
+	public CommandFactory getSpellFactory() {
 		return spellfactory;
 	}
 

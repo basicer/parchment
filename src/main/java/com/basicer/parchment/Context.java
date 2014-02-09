@@ -5,11 +5,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-import com.basicer.parchment.parameters.DelegateParameter;
 import com.basicer.parchment.parameters.ListParameter;
 import com.basicer.parchment.parameters.Parameter;
 
@@ -17,7 +15,7 @@ public class Context {
 	
 	private Context parent;
 	
-	private SpellFactory spellfactory;
+	private CommandFactory spellfactory;
 	private Map<String, ParameterPtr> variables;
 	private Map<String, TCLCommand> procs;
 	private boolean act_as_root = false;
@@ -87,9 +85,9 @@ public class Context {
 	}
 	
 		
-	public SpellFactory getSpellFactory() {
-		if ( spellfactory != null ) return spellfactory;
-		if ( parent != null ) return parent.getSpellFactory();
+	public CommandFactory getCommandFactory() {
+		if (spellfactory != null ) return spellfactory;
+		if ( parent != null ) return parent.getCommandFactory();
 		return null;
 		
 	}
@@ -105,7 +103,7 @@ public class Context {
 		
 	}
 	
-	public void setSpellFactory(SpellFactory val) {
+	public void setSpellFactory(CommandFactory val) {
 		spellfactory = val;
 	}
 	
@@ -339,7 +337,7 @@ public class Context {
 		for ( String s : this.procs.keySet() ) {
 			out += s + "\n";
 		}
-		out += "]\n SpellFacotry = " + spellfactory + " / " + getSpellFactory() + "\n";
+		out += "]\n SpellFacotry = " + spellfactory + " / " + getCommandFactory() + "\n";
 		if ( parent != null ) {
 			out += "\n==== Parent =====\n";
 			out += parent.getDebuggingString();

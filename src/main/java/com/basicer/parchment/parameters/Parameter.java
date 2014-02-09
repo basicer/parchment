@@ -44,7 +44,7 @@ public abstract class Parameter implements Iterable<Parameter> {
 	public final World asWorld() 			{ return asWorld(null); }
 	public final Server asServer() 			{ return asServer(null); }
 	public final ItemStack asItemStack()	{ return asItemStack(null); }
-	public final Spell asSpell() 			{ return asSpell(null); }
+	public final TargetedCommand asSpell() 			{ return asSpell(null); }
 	public final Block asBlock() 			{ return asBlock(null); }
 	public final Material asMaterial() 		{ return asMaterial(null); }
 		
@@ -58,7 +58,7 @@ public abstract class Parameter implements Iterable<Parameter> {
 	public World asWorld(Context ctx) 			{ return null; }
 	public Server asServer(Context ctx) 		{ return null; }
 	public ItemStack asItemStack(Context ctx)	{ return null; }
-	public Spell asSpell(Context ctx) 			{ return null; }
+	public TargetedCommand asSpell(Context ctx) 			{ return null; }
 	public Block asBlock(Context ctx) 			{ return null; }
 	public Material asMaterial(Context ctx)		{ return null; }
 	public Location asLocation(Context ctx, SelectionMode mode)	{ return null; }
@@ -269,7 +269,7 @@ public abstract class Parameter implements Iterable<Parameter> {
 	public static WorldParameter 	from(World w) 		{ return w == null ? null : new WorldParameter(w); }
 	public static ServerParameter 	from(Server s) 		{ return s == null ? null : new ServerParameter(s); }
 	public static ItemParameter 	from(ItemStack i) 	{ return i == null ? null : new ItemParameter(i); }
-	public static SpellParameter 	from(Spell s) 		{ return s == null ? null : new SpellParameter(s); }
+	public static SpellParameter 	from(TargetedCommand s) 		{ return s == null ? null : new SpellParameter(s); }
 	
 	
 	public static BlockParameter 	from(Block b)	    { return b == null ? null : new BlockParameter(b); }

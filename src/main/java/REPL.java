@@ -26,7 +26,7 @@ public class REPL {
 		commandctx.put("rob", Parameter.from("cool"));
 		String line = null;
 		
-		SpellFactory spellfactory = new SpellFactory();
+		CommandFactory spellfactory = new CommandFactory();
 		spellfactory.loadTCLOnly();
 		commandctx.setSpellFactory(spellfactory);
 		StringBuilder b = new StringBuilder();

@@ -1,32 +1,20 @@
 package com.basicer.parchment.base;
 
 import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
 
+import com.basicer.parchment.OperationalTargetedCommand;
 import com.basicer.parchment.parameters.*;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Creature;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
-import org.bukkit.potion.PotionEffectTypeWrapper;
 import org.bukkit.util.Vector;
 
 import com.basicer.parchment.Context;
-import com.basicer.parchment.OperationalSpell;
-import com.basicer.parchment.Spell;
-import com.basicer.parchment.Spell.DefaultTargetType;
 import com.basicer.parchment.annotations.Operation;
 
-public class Entity extends OperationalSpell<EntityParameter>  {
+public class Entity extends OperationalTargetedCommand<EntityParameter> {
 
 
 	public Parameter affect(EntityParameter target, Context ctx) {

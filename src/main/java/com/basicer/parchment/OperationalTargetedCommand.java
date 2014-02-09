@@ -8,9 +8,9 @@ import com.basicer.parchment.annotations.Operation;
 import com.basicer.parchment.parameters.Parameter;
 import com.basicer.parchment.tcl.OperationalTCLCommand;
 
-public class OperationalSpell<T extends Parameter> extends Spell {
+public class OperationalTargetedCommand<T extends Parameter> extends TargetedCommand {
 	
-	public static Class<? extends OperationalSpell<?>> getBaseClass() { return null; }
+	public static Class<? extends OperationalTargetedCommand<?>> getBaseClass() { return null; }
 	
 	@Override
 	public String[] getArguments() { return new String[] { "args" }; }

@@ -6,27 +6,24 @@ import java.util.List;
 
 import com.basicer.parchment.bukkit.ParchmentPlugin;
 import com.basicer.parchment.bukkit.ParchmentPluginLite;
-import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.*;
-import org.bukkit.Color;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 
 import com.basicer.parchment.Context;
-import com.basicer.parchment.OperationalSpell;
+import com.basicer.parchment.OperationalTargetedCommand;
 
 import com.basicer.parchment.annotations.Operation;
 import com.basicer.parchment.parameters.*;
 import org.bukkit.scoreboard.*;
 
-public class Player extends OperationalSpell<PlayerParameter> {
+public class Player extends OperationalTargetedCommand<PlayerParameter> {
 	
-	public static Class<? extends OperationalSpell<?>> getBaseClass() { return LEntity.class; }
+	public static Class<? extends OperationalTargetedCommand<?>> getBaseClass() { return LEntity.class; }
 
 	@Override
 	public String[] getAliases() { return new String[] {"p"}; }

@@ -1,16 +1,13 @@
 package com.basicer.parchment.base;
 
 import com.basicer.parchment.Context;
-import com.basicer.parchment.OperationalSpell;
+import com.basicer.parchment.OperationalTargetedCommand;
 import com.basicer.parchment.annotations.Operation;
 import com.basicer.parchment.parameters.*;
 import org.bukkit.*;
 import org.bukkit.Color;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Fireball;
-import org.bukkit.inventory.meta.FireworkEffectMeta;
 import org.bukkit.inventory.meta.FireworkMeta;
-import org.bukkit.potion.PotionEffect;
 
 import java.util.Random;
 import java.util.regex.Matcher;
@@ -19,9 +16,9 @@ import java.util.regex.Pattern;
 /**
  * Created by basicer on 1/19/14.
  */
-public class Firework extends OperationalSpell<EntityParameter> {
+public class Firework extends OperationalTargetedCommand<EntityParameter> {
 
-	public static Class<? extends OperationalSpell<?>> getBaseClass() { return Entity.class; }
+	public static Class<? extends OperationalTargetedCommand<?>> getBaseClass() { return Entity.class; }
 
 	public Parameter affect(EntityParameter target, Context ctx) {
 			return this.doaffect(target, ctx);

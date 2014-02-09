@@ -14,7 +14,6 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 
-import java.io.PushbackReader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -144,7 +143,7 @@ public class ParchmentEventListener implements Listener {
 
 		TCLCommand cmd = plugin.getSpellFactory().get(ss);
 		if ( cmd == null ) return;
-		Spell scmd = (Spell) cmd;
+		TargetedCommand scmd = (TargetedCommand) cmd;
 		ctx.setSource("item");
 		Parameter cancel = Parameter.from(e.isCancelled());
 		Debug.trace(cancel.toString());

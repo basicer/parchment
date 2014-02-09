@@ -1,6 +1,7 @@
 package com.basicer.parchment.base;
 
 import com.basicer.parchment.Debug;
+import com.basicer.parchment.OperationalTargetedCommand;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.TreeType;
@@ -12,12 +13,11 @@ import org.bukkit.entity.FallingBlock;
 
 
 import com.basicer.parchment.Context;
-import com.basicer.parchment.OperationalSpell;
 import com.basicer.parchment.annotations.Operation;
 import com.basicer.parchment.parameters.*;
 
 
-public class Block extends OperationalSpell<BlockParameter> {
+public class Block extends OperationalTargetedCommand<BlockParameter> {
 
 	@Override
 	public String[] getAliases() { return new String[] {"b"}; }

@@ -1,20 +1,18 @@
 package com.basicer.parchment.base;
 
-import java.util.List;
 import java.util.ArrayList;
 
+import com.basicer.parchment.OperationalTargetedCommand;
 import org.bukkit.*;
 import org.bukkit.entity.EntityType;
 
 
 import com.basicer.parchment.Context;
-import com.basicer.parchment.OperationalSpell;
 import com.basicer.parchment.annotations.Operation;
 import com.basicer.parchment.parameters.*;
-import org.bukkit.inventory.ItemStack;
 
 
-public class World extends OperationalSpell<WorldParameter> {
+public class World extends OperationalTargetedCommand<WorldParameter> {
 
 	@Override
 	public FirstParameterTargetType getFirstParameterTargetType(Context ctx) {

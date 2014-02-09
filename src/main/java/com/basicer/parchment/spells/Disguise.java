@@ -1,7 +1,7 @@
 package com.basicer.parchment.spells;
 
 import com.basicer.parchment.Context;
-import com.basicer.parchment.Spell;
+import com.basicer.parchment.TargetedCommand;
 import com.basicer.parchment.parameters.PlayerParameter;
 import com.basicer.parchment.parameters.Parameter;
 import org.bukkit.entity.Player;
@@ -16,7 +16,7 @@ import pgDev.bukkit.DisguiseCraft.disguise.DisguiseType;
  * Time: 11:41 PM
  * To change this template use File | Settings | File Templates.
  */
-public class Disguise extends Spell {
+public class Disguise extends TargetedCommand {
 
 	@Override
 	public boolean supportedByServer() {

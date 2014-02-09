@@ -17,7 +17,7 @@ import org.bukkit.entity.LivingEntity;
 import com.basicer.parchment.Context.ParameterPtr;
 import com.basicer.parchment.parameters.*;
 
-public abstract class Spell extends TCLCommand {
+public abstract class TargetedCommand extends TCLCommand {
 	
 	public enum DefaultTargetType { None, Self, TargetBlock, TargetPlace, World, Server };
 	public enum FirstParameterTargetType { Never, ExactMatch, FuzzyMatch, Always };
@@ -54,7 +54,7 @@ public abstract class Spell extends TCLCommand {
 
 	protected Context spellStatic;
 	
-	public Spell() {
+	public TargetedCommand() {
 		spellStatic = new Context();
 	}
 	
@@ -173,10 +173,10 @@ public abstract class Spell extends TCLCommand {
 	
 	public Parameter cast(Context ctx) {
 		//By default a casted spell applies it affector to the target.
-		return Spell.applyAffectors(this, ctx);
+		return TargetedCommand.applyAffectors(this, ctx);
 	}
 	
-	protected static Parameter applyAffectors(Spell s, Context ctx) {
+	protected static Parameter applyAffectors(TargetedCommand s, Context ctx) {
 		List<Class<? extends Parameter>> list = s.getAffectors();
 		
 		Debug.trace("TI " + s.getName() + " with target " + 

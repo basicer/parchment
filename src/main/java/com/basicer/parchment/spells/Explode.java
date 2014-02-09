@@ -1,13 +1,13 @@
 package com.basicer.parchment.spells;
 
+import com.basicer.parchment.TargetedCommand;
 import org.bukkit.Location;
 
 import com.basicer.parchment.Context;
 import com.basicer.parchment.Debug;
-import com.basicer.parchment.Spell;
 import com.basicer.parchment.parameters.Parameter;
 
-public class Explode extends Spell {
+public class Explode extends TargetedCommand {
 
 	
 	

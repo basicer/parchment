@@ -1,8 +1,6 @@
 package com.basicer.parchment.tcl;
 
 
-import java.io.PushbackReader;
-import java.io.StringReader;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -51,7 +49,7 @@ public class Info extends OperationalTCLCommand {
 
 	public Parameter commandsOperation(Parameter dummy, Context ctx, StringParameter pattern) {
 		ArrayList<Parameter> result = new ArrayList<Parameter>();
-		for ( String s : ctx.getSpellFactory().getAll().keySet() ) {
+		for ( String s : ctx.getCommandFactory().getAll().keySet() ) {
 			if ( pattern != null && !StringCmd.GlobMatch(s, pattern.asString())) continue;;
 			result.add(StringParameter.from(s));
 		}

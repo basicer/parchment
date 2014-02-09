@@ -10,14 +10,11 @@ import org.bukkit.Location;
 
 import com.basicer.parchment.*;
 import com.basicer.parchment.parameters.BlockParameter;
-import com.basicer.parchment.parameters.DoubleParameter;
-import com.basicer.parchment.parameters.IntegerParameter;
 import com.basicer.parchment.parameters.ListParameter;
 import com.basicer.parchment.parameters.LocationParameter;
 import com.basicer.parchment.parameters.Parameter;
-import com.basicer.parchment.parameters.StringParameter;
 
-public class Expand extends Spell {
+public class Expand extends TargetedCommand {
 
 	public Parameter affect(LocationParameter target, Context ctx) {
 		return expand(target, ctx);

@@ -13,7 +13,7 @@ import com.basicer.parchment.tclutil.*;
 import com.basicer.parchment.test.Test;
 import com.basicer.parchment.test.TestConstraint;
 
-public class SpellFactory {
+public class CommandFactory {
 	
 	public TCLCommand get(String name) {
 		return commands.get(name.toLowerCase());
@@ -31,7 +31,7 @@ public class SpellFactory {
 	Hashtable<String, TCLCommand> commands;
 	ArrayList<ScriptedSpell> ss_cache;
 
-	public SpellFactory() {
+	public CommandFactory() {
 		commands = new Hashtable<String,TCLCommand>();
 		ss_cache = new ArrayList<ScriptedSpell>();
 	}
@@ -146,7 +146,7 @@ public class SpellFactory {
 
 	}
 
-	public <T extends Spell> void addBuiltinSpell(Class<T> spell) {
+	public <T extends TargetedCommand> void addBuiltinSpell(Class<T> spell) {
 		try {
 			TCLCommand s = spell.newInstance();
 			if ( !s.supportedByServer() ) return;

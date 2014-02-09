@@ -108,7 +108,7 @@ public class Command extends OperationalTCLCommand {
 		final String tcl_code = body.asString(ctx);
 
 		final Context ctxx_up = new Context();
-		ctxx_up.setSpellFactory(ctx.getSpellFactory());
+		ctxx_up.setSpellFactory(ctx.getCommandFactory());
 		CommandExecutor ex = new CommandExecutor() {
 			public boolean onCommand(final CommandSender sender, org.bukkit.command.Command command, String s, String[] strings) {
 				Debug.info("Running code + " + tcl_code);
