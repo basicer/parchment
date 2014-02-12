@@ -74,7 +74,7 @@ public abstract class Parameter implements Iterable<Parameter> {
 	public Integer asInteger(Context ctx) 		{ return null; }
 
 	public final Long asLong() 			{ return asLong(null); }
-	public Long asLong(Context ctx) 		{ return asInteger(ctx).longValue(); }
+	public Long asLong(Context ctx) 		{ Integer i = asInteger(ctx); return i == null ? null : i.longValue(); }
 
 
 	public final boolean asBoolean()		{ return asBoolean(null); }
@@ -318,6 +318,9 @@ public abstract class Parameter implements Iterable<Parameter> {
 	public static Parameter from(Object o, Object... args ) {
 	
 		if ( o == null ) return null;
+		Parameter quick = quickCast(o);
+		if ( quick != null ) return  quick;
+
 		Class type = o.getClass();
 		if ( registeredTypes == null ) return null;
 		//Todo: Cache this and sort it.
@@ -341,16 +344,22 @@ public abstract class Parameter implements Iterable<Parameter> {
 		return false;
 	}
 
-	
-	public static Parameter fromObject(Object data) {
+	private static Parameter quickCast(Object data) {
 		Class datatype = data.getClass();
-		
+
 		if ( datatype == Short.class ) 			return Parameter.from(((Short)data).intValue());
 		else if ( datatype == String.class ) 	return Parameter.from(((String)data).toString());
 		else if ( datatype == Integer.class )	return Parameter.from((Integer) data);
+		else if ( datatype == Long.class )		return Parameter.from((Long) data);
 		else if ( datatype == Double.class ) 	return Parameter.from((Double) data);
 		else if ( datatype == Float.class ) 	return Parameter.from(((Float) data).doubleValue());
 		else if ( datatype == Boolean.class ) 	return Parameter.from(((Boolean) data).booleanValue());
+		return null;
+	}
+
+	public static Parameter fromObject(Object data) {
+		Parameter quick = quickCast(data);
+		if ( quick != null ) return  quick;
 		
 		return Parameter.from(data.toString());
 		 

@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.basicer.parchment.base.*;
 import com.basicer.parchment.extra.IMenu;
+import com.basicer.parchment.extra.Redis;
 import com.basicer.parchment.spells.*;
 import com.basicer.parchment.tcl.*;
 import com.basicer.parchment.tcl.Error;
@@ -98,7 +99,10 @@ public class CommandFactory {
 		addBuiltinCommand(Hash.class);
 		addBuiltinCommand(With.class);
 		addBuiltinCommand(Http.class);
-		
+		addBuiltinCommand(Redis.class);
+
+
+		addBuiltinCommand(com.basicer.parchment.extra.Map.class);
 		addBuiltinCommand(Expand.class);
 		addBuiltinCommand(SCommand.class);
 		addBuiltinCommand(PCommand.class);

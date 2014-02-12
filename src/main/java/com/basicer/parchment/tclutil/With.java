@@ -37,6 +37,12 @@ public class With extends TCLCommand {
 		final boolean each_c = each;
 		final boolean merge_c = ctx.get("merge") != null;
 		final LinkedList<Parameter> results = new LinkedList<Parameter>();
+
+		final String code = ctx.get("code").asString();
+		final Context eval_ctx = ctx.up(1).createSubContext();
+		eval_ctx.upvarAll(1);
+		eval_ctx.unset("target");
+
 		return new BranchEvaluationResult(null, null, new EvaluationResult.EvalCallback() {
 
 			public EvaluationResult result(EvaluationResult er) {
@@ -57,9 +63,9 @@ public class With extends TCLCommand {
 					}
 				}
 				final EvaluationResult.EvalCallback again = this;
-				ctx.setTarget(targets.poll());
-				Debug.info("Target now" + ctx.getTarget().toString());
-				return new BranchEvaluationResult(ctx.get("code").asString(), ctx, again);
+				eval_ctx.setTarget(targets.poll());
+				Debug.info("Target now" + eval_ctx.getTarget().toString());
+				return new BranchEvaluationResult(code, eval_ctx, again);
 				}
 
 			}

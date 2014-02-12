@@ -47,7 +47,7 @@ public abstract class OperationalTCLCommand extends TCLCommand {
 
 		Object o = ( target == null ) ? null : target.getUnderlyingValue();
 		
-		if ( o != null && !type.isInstance(o) ) throw new FizzleException("Target mismatch");
+		if ( o != null && !type.isInstance(o) ) throw new FizzleException("Target mismatch, wanted " + type.getSimpleName() + " got " + o.getClass().getSimpleName());
 	
 		if ( args.size() < 1 ) return target;
 	

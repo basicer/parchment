@@ -215,10 +215,17 @@ public class Context {
 		return out;
 	}
 
+	public void upvarAll(int level) {
+		Map<String, ParameterPtr> ovs = up(level).variables;
+		for ( String s : ovs.keySet() ) {
+			setRaw(s, ovs.get(s));
+		}
+	}
+
 	public void upvar(int level, String var) {
 		upvar(level, var, var);
-
 	}
+
 
 	public boolean upvar(int level, String var, String as) {
 		Context ctx = up(level);

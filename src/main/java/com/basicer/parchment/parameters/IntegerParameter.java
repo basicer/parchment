@@ -14,7 +14,7 @@ public class IntegerParameter extends Parameter {
 	}
 
 	@Override
-	public Class<Integer> getUnderlyingType() { return Integer.class; }
+	public Class<Long> getUnderlyingType() { return Long.class; }
 	
 	
 	public Double asDouble(Context ctx) {
@@ -48,4 +48,6 @@ public class IntegerParameter extends Parameter {
 	public int intValue() {
 		return self.intValue();
 	}
+
+
 }
