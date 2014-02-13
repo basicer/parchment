@@ -134,6 +134,10 @@ public abstract class TCLCommand {
 		return put;
 	}
 
+    public List<String> tabComplete(String[] args) {
+        return new ArrayList<String>();
+    }
+
 	private String wrongArgumentsString() {
 		StringBuilder b = new StringBuilder();
 		b.append("wrong # args: should be \"");

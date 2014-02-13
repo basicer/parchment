@@ -3,13 +3,18 @@ package com.basicer.parchment.tcl;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
 
 import com.basicer.parchment.*;
 import com.basicer.parchment.annotations.Operation;
+import com.basicer.parchment.extra.Map;
+import com.basicer.parchment.parameters.BooleanParameter;
+import com.basicer.parchment.parameters.MaterialParameter;
 import com.basicer.parchment.parameters.Parameter;
-
+import com.basicer.parchment.parameters.PlayerParameter;
+import org.bukkit.Bukkit;
 
 
 public abstract class OperationalTCLCommand extends TCLCommand {
@@ -244,6 +249,80 @@ public abstract class OperationalTCLCommand extends TCLCommand {
 		
 		return null;
 	}
+
+    public static ArrayList<String> listOperations(Class<?> c, String suffix) {
+        Method[] methods = c.getMethods();
+        ArrayList<String> result = new ArrayList<String>();
+        //TODO: This whole business needs to be cached.
+        for ( Method mc : methods ) {
+            String name = mc.getName();
+            if ( name.endsWith(suffix) ) {
+
+                result.add(name.substring(0, name.length() - suffix.length()));
+                Operation opp = mc.getAnnotation(Operation.class);
+
+                if ( opp == null ) continue;
+                if ( opp.aliases() == null ) continue;
+                for ( String s : opp.aliases() ) {
+                    result.add(s);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public java.util.List<String> tabComplete(String[] args) {
+        LinkedList<String> argsq = new LinkedList<String>(Arrays.asList(args));
+        return tabComplete(this.getClass(), argsq);
+    }
+
+    private static final java.util.List<String> EmptyList = new ArrayList<>();
+    public static java.util.List<String> tabComplete(Class c, LinkedList<String> argsq) {
+
+        if ( argsq.isEmpty() ) return EmptyList;
+        String cmd_name = argsq.poll();
+        while ( true ) {
+
+            Method m = null;
+            if ( argsq.isEmpty() ) return listOperations(c, "Operation");
+            String operation = argsq.poll();
+            if ( operation.equals("self") ) {
+                continue;
+            } else if ( operation.equals("new") || operation.equals("create") ) {
+                m = locateOperation(c, "create", "");
+            } else {
+                m = locateOperation(c, operation, "Operation");
+            }
+            if ( m == null ) return EmptyList;
+            Class[] parameterTypes = m.getParameterTypes();
+            for ( int i = 2; i < parameterTypes.length; ++i ) {
+                if ( argsq.peek() != null ) {
+                    argsq.poll();
+                } else {
+                    if ( parameterTypes[i].equals(BooleanParameter.class) ) {
+                        return Arrays.asList(new String[] { "true", "false", "on", "off"});
+                    } else if ( parameterTypes[i].equals(PlayerParameter.class) ) {
+                        ArrayList<String> names = new ArrayList<String>();
+                        for ( org.bukkit.entity.Player p : Bukkit.getOnlinePlayers() ) {
+                            names.add(p.getName());
+                        }
+                        return names;
+                    } else if ( parameterTypes[i].equals(MaterialParameter.class) ) {
+                        ArrayList<String> names = new ArrayList<String>();
+                        for (org.bukkit.Material mat : org.bukkit.Material.values()) {
+                            names.add(mat.toString());
+                        }
+                        return names;
+                    }
+                    return EmptyList; //TODO: Autocomplete method type here
+                }
+
+            }
+        }
+
+    }
 
 
 }

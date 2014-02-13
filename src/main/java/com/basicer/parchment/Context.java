@@ -1,9 +1,8 @@
 package com.basicer.parchment;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
+import com.basicer.parchment.tclutil.Hash;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -31,8 +30,16 @@ public class Context {
 		procs = new HashMap<String, TCLCommand>();
 		this.parent = parent;
 	}
-	
-	public void push() {
+
+    protected Set<String> keys()  {
+        HashSet<String> keys = new HashSet<>(variables.keySet());
+        if ( !keys.contains("target") && getTarget() != null ) keys.add("target");
+        if ( !keys.contains("caster") && getCaster() != null ) keys.add("caster");
+        return keys;
+    }
+
+
+    public void push() {
 		Context new_parent = new Context(parent);
 		Map<String, ParameterPtr> swap = new_parent.variables;
 		new_parent.variables = variables;

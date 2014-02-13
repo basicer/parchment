@@ -1,6 +1,7 @@
 package com.basicer.parchment;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -82,5 +83,12 @@ public class OperationalTargetedCommand<T extends Parameter> extends TargetedCom
 
 		return b.toString();
 	}
+
+    @Override
+    public java.util.List<String> tabComplete(String[] args) {
+        LinkedList<String> argsq = new LinkedList<String>(Arrays.asList(args));
+        //TODO: Check if first argument will be eaten as target
+        return OperationalTCLCommand.tabComplete(this.getClass(), argsq);
+    }
 	
 }

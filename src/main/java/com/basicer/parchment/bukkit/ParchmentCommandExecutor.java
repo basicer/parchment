@@ -1,10 +1,7 @@
 package com.basicer.parchment.bukkit;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 
 import com.basicer.parchment.*;
 import com.basicer.parchment.parameters.ListParameter;
@@ -13,6 +10,7 @@ import org.bukkit.Color;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.ConversationContext;
 import org.bukkit.conversations.Prompt;
@@ -21,17 +19,35 @@ import org.bukkit.entity.Player;
 import com.basicer.parchment.EvaluationResult.Code;
 import com.basicer.parchment.parameters.Parameter;
 
-public class ParchmentCommandExecutor implements CommandExecutor {
+public class ParchmentCommandExecutor implements CommandExecutor, TabCompleter {
 
 	private ParchmentPluginLite plugin;
 	private Context	commandctx;  //TODO: Replace with per player ctx
 	
 	public ParchmentCommandExecutor(ParchmentPluginLite plugin) {
 		this.plugin = plugin;
-		commandctx = new Context(); 
+		commandctx = new Context();
+        commandctx.setSpellFactory(plugin.getSpellFactory());
+
 	}
 
-	private static class ScriptModePrompt implements Prompt {
+    @Override
+    public List<String> onTabComplete(CommandSender commandSender, Command command, String label, String[] args) {
+        if ( !label.equals("tcl") ) return new ArrayList<String>();
+
+        StringBuilder b = new StringBuilder();
+        for ( String s : args ) {
+            if ( b.length() > 0 ) b.append(" ");
+            b.append(s);
+        }
+
+        List<String> list = TCLUtils.tabComplete(b.toString(), getContext(commandSender));
+        if ( list == null ) return null;
+        return list;
+
+    }
+
+    private static class ScriptModePrompt implements Prompt {
 		private ParchmentPluginLite plugin = null;
 		private Context ctx = null;
 		private StringBuilder buffer;
@@ -95,16 +111,7 @@ public class ParchmentCommandExecutor implements CommandExecutor {
 		Queue<String> qargs = new LinkedList<String>(Arrays.asList(args));
 		String action = label;
 
-		final Context ctx = commandctx.createSubContext();
-		ctx.setSpellFactory(plugin.getSpellFactory());
-		if (sender instanceof Player) {
-			Player p = (Player) sender;
-			ctx.setCaster(Parameter.from(p));
-			ctx.setWorld(Parameter.from(p.getWorld()));
-			ctx.setSource("command");
-		} else {
-			
-		}
+        final Context ctx = getContext(sender);
 		
 		if ( label.equals("scriptmode") ) {
 			if (!(sender instanceof Player)) return false;
@@ -200,7 +207,21 @@ public class ParchmentCommandExecutor implements CommandExecutor {
 		return true;
 	}
 
-	private static String WikiToMinecraft(String str) {
+    private Context getContext(CommandSender sender) {
+        final Context ctx = commandctx.createSubContext();
+        ctx.setSpellFactory(plugin.getSpellFactory());
+        if (sender instanceof Player) {
+            Player p = (Player) sender;
+            ctx.setCaster(Parameter.from(p));
+            ctx.setWorld(Parameter.from(p.getWorld()));
+            ctx.setSource("command");
+        } else {
+
+        }
+        return ctx;
+    }
+
+    private static String WikiToMinecraft(String str) {
 		str = str.replaceAll("=== (.*?) ===", "" + ChatColor.BOLD + ChatColor.LIGHT_PURPLE + "========== $1 ==========" + ChatColor.RESET);
 		str = str.replaceAll("\\[\\[(.*?)\\]\\]", "");
 		str = str.replaceAll("\\*\\*(.*?)\\*\\*", ChatColor.BOLD + "$1" + ChatColor.RESET);

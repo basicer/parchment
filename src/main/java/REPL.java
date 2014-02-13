@@ -1,4 +1,5 @@
 import java.io.*;
+import java.util.List;
 
 import com.basicer.parchment.*;
 import com.basicer.parchment.parameters.DictionaryParameter;
@@ -38,16 +39,18 @@ public class REPL {
 				b.append(line);
 				b.append("\n");
 			}
-
-			c.printf("-> %s\n", execute(b.toString(), commandctx));
+            c.printf("-> %s\n", execute(b.toString(), commandctx));
 		} else {
 			StringBuilder buffer = new StringBuilder();
 			while ( (line = c.readLine(buffer.length() == 0 ? "TCL> " : "---> ")) != null ) {
 				buffer.append(line);
 				buffer.append("\n");
 				String test = buffer.toString();
-				if ( TCLUtils.isCompleteStatement(test) ) {
+                for (String tc : TCLUtils.tabComplete(test, commandctx) ) c.printf("C %s\n", tc);
+
+                if ( TCLUtils.isCompleteStatement(test) ) {
 					buffer = new StringBuilder();
+
 					c.printf("-> %s\n", execute(test, commandctx));
 				}
 			}
