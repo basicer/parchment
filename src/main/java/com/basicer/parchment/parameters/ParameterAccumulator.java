@@ -62,16 +62,16 @@ public class ParameterAccumulator {
 		entries = new ArrayList<Entry>();
 	}
 
-    public String asString() {
-        StringBuilder b = new StringBuilder();
-        for ( Entry e : entries ) {
-            if ( b.length() > 0 ) b.append(" ");
-            if ( e.type == Type.STRING ) b.append(e.data);
-            else if ( e.type == Type.VARIABLE ) { b.append("$"); b.append(e.data); }
-            else return null;
-        }
-        return b.toString();
-    }
+	public String asString() {
+		StringBuilder b = new StringBuilder();
+		for ( Entry e : entries ) {
+			if ( b.length() > 0 ) b.append(" ");
+			if ( e.type == Type.STRING ) b.append(e.data);
+			else if ( e.type == Type.VARIABLE ) { b.append("$"); b.append(e.data); }
+			else return null;
+		}
+		return b.toString();
+	}
 
 	private EvaluationResult resolveOne(Entry e) {
 		if ( e.type == Type.STRING )
@@ -97,7 +97,7 @@ public class ParameterAccumulator {
 	public EvaluationResult getEvaluationResult() {
 		return resolved;
 	}
-	
+
 	public void resolveStep() {
 		if ( resolved != null ) return;
 
@@ -145,9 +145,9 @@ public class ParameterAccumulator {
 		}
 		if ( er.getCode() == Code.ERROR ) resolved = er;
 		progress.append(er.getValue().asString());
-		
-		
-		
+
+
+
 
 	}
 
