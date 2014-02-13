@@ -10,17 +10,17 @@ import com.basicer.parchment.parameters.Parameter;
 import com.basicer.parchment.tcl.OperationalTCLCommand;
 
 public class OperationalTargetedCommand<T extends Parameter> extends TargetedCommand {
-	
+
 	public static Class<? extends OperationalTargetedCommand<?>> getBaseClass() { return null; }
-	
+
 	@Override
 	public String[] getArguments() { return new String[] { "args" }; }
 
 	protected Parameter doaffect(T target, Context ctx) {
 		Queue<Parameter> args = new LinkedList<Parameter>(ctx.getArgs());
-	
+
 		if ( args.size() > 0 ) {
-			
+
 		}
 		return OperationalTCLCommand.operationalDispatch(this, target == null ? null : target.getUnderlyingType(), target, ctx, args);
 	}
@@ -34,21 +34,21 @@ public class OperationalTargetedCommand<T extends Parameter> extends TargetedCom
 		return OperationalTCLCommand.operationalDispatch(this, type, target, ctx, args);
 	}
 
-	
+
 	public String getHelpText() {
 		StringBuilder b = new StringBuilder();
 		b.append(getHelpHeader());
 		b.append("\n\n");
-		
+
 		b.append(getDescription());
 		b.append("\n\n");
-		
+
 		for ( Method m : getClass().getDeclaredMethods() ) {
 			if ( m.getName().endsWith("Operation") || m.getName().equals("create") ) {
 				String name = m.getName();
 				if ( name.endsWith("Operation") ) name = name.substring(0, m.getName().length() - 9 );
-				
-				
+
+
 				b.append("\n");
 				b.append("* **" + getName() + "** ");
 				if ( this.getFirstParameterTargetType(null) != FirstParameterTargetType.Never ) b.append("target? ");
@@ -79,16 +79,16 @@ public class OperationalTargetedCommand<T extends Parameter> extends TargetedCom
 				b.append("\n\n");
 			}
 		}
-		
+
 
 		return b.toString();
 	}
 
-    @Override
-    public java.util.List<String> tabComplete(String[] args) {
-        LinkedList<String> argsq = new LinkedList<String>(Arrays.asList(args));
-        //TODO: Check if first argument will be eaten as target
-        return OperationalTCLCommand.tabComplete(this.getClass(), argsq);
-    }
-	
+	@Override
+	public java.util.List<String> tabComplete(String[] args) {
+		LinkedList<String> argsq = new LinkedList<String>(Arrays.asList(args));
+		//TODO: Check if first argument will be eaten as target
+		return OperationalTCLCommand.tabComplete(this.getClass(), argsq);
+	}
+
 }

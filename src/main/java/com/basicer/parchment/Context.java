@@ -11,69 +11,69 @@ import com.basicer.parchment.parameters.ListParameter;
 import com.basicer.parchment.parameters.Parameter;
 
 public class Context {
-	
+
 	private Context parent;
-	
+
 	private CommandFactory spellfactory;
 	private Map<String, ParameterPtr> variables;
 	private Map<String, TCLCommand> procs;
 	private boolean act_as_root = false;
 
-	public Context() { 
+	public Context() {
 		variables = new HashMap<String, ParameterPtr>();
 		procs = new HashMap<String, TCLCommand>();
-		
+
 	}
-	
+
 	private Context(Context parent) {
 		variables = new HashMap<String, ParameterPtr>();
 		procs = new HashMap<String, TCLCommand>();
 		this.parent = parent;
 	}
 
-    protected Set<String> keys()  {
-        HashSet<String> keys = new HashSet<>(variables.keySet());
-        if ( !keys.contains("target") && getTarget() != null ) keys.add("target");
-        if ( !keys.contains("caster") && getCaster() != null ) keys.add("caster");
-        return keys;
-    }
+	protected Set<String> keys()  {
+		HashSet<String> keys = new HashSet<>(variables.keySet());
+		if ( !keys.contains("target") && getTarget() != null ) keys.add("target");
+		if ( !keys.contains("caster") && getCaster() != null ) keys.add("caster");
+		return keys;
+	}
 
 
-    public void push() {
+	public void push() {
 		Context new_parent = new Context(parent);
 		Map<String, ParameterPtr> swap = new_parent.variables;
 		new_parent.variables = variables;
 		variables = swap;
 	}
-	
+
 	public Parameter get(String var) {
 		ParameterPtr ptr = variables.get(var);
 		if ( ptr == null ) return null;
 		return ptr.getValue();
 	}
-	
+
 	public Parameter getRespectingGlobals(String var) {
-		
+
 		if ( var.equals("errorInfo") ) return top().get("errorInfo");
 		if ( var.equals("::errorInfo") ) return top().get("errorInfo");
-		
+
 		if ( var.equals("target") ) return getTarget();
 		if ( var.equals("caster") ) return getCaster();
 		if ( var.equals("world") ) return Parameter.from(getWorld());
 		if ( var.equals("source") ) return Parameter.from(getSource());
 		if ( var.equals("this") ) return getThis();
-		
+
 		ParameterPtr ptr = variables.get(var);
 		if ( ptr == null ) return null;
 		return ptr.getValue();
 	}
-	
+
 	public boolean hasRespectingGlobals(String var) {
 		if ( has(var) ) return true;
 		if ( getRespectingGlobals(var) != null ) return true;
 		return false;
 	}
-	
+
 	public void put(String var, Parameter value) {
 		ParameterPtr nv = getRaw(var);
 		if ( nv != null ) {
@@ -83,22 +83,22 @@ public class Context {
 			variables.put(var, nv);
 		}
 	}
-	
 
-	
+
+
 	public void pop() {
 		if ( parent == null ) throw new IllegalStateException("Can't pop base context.");
 		this.variables = parent.variables;
 	}
-	
-		
+
+
 	public CommandFactory getCommandFactory() {
 		if (spellfactory != null ) return spellfactory;
 		if ( parent != null ) return parent.getCommandFactory();
 		return null;
-		
+
 	}
-	
+
 	public TCLCommand getCommand(String name) {
 		if ( procs.containsKey(name)) return procs.get(name);
 		if ( spellfactory != null ) {
@@ -107,22 +107,22 @@ public class Context {
 		}
 		if ( parent != null ) return parent.getCommand(name);
 		return null;
-		
+
 	}
-	
+
 	public void setSpellFactory(CommandFactory val) {
 		spellfactory = val;
 	}
-	
+
 	public Parameter getThis() {
 		return resolve("this");
 	}
-	
+
 	public void setThis(Parameter parameter) {
 		put("this", parameter);
 	}
 
-	
+
 	public Parameter getCaster() {
 		return resolve("caster");
 	}
@@ -138,7 +138,7 @@ public class Context {
 	public void setTarget(Parameter target) {
 		put("target", target);
 	}
-	
+
 	public String getSource() {
 		Parameter p = resolve("source");
 		if ( p == null ) return null;
@@ -148,7 +148,7 @@ public class Context {
 	public void setSource(String source) {
 		put("source", Parameter.from(source));
 	}
-	
+
 	public World getWorld() {
 		Parameter w = resolve("world");
 		if ( w == null ) return null;
@@ -168,7 +168,7 @@ public class Context {
 		}
 		return new ArrayList<Parameter>();
 	}
-	
+
 	public void sendDebugMessage(String msg) {
 		Parameter rp = getCaster();
 		if ( rp != null ) {
@@ -179,7 +179,7 @@ public class Context {
 			Debug.info("%s", msg);
 		}
 	}
-	
+
 	public Context createSubContext() {
 		Context ctx = new Context();
 		ctx.parent = this;
@@ -195,7 +195,7 @@ public class Context {
 		return ctx;
 	}
 	 */
-	
+
 	public Context copyAndMergeProcs(Context whereProcsAre) {
 		Context ctx = new Context();
 		ctx.variables = variables;
@@ -204,14 +204,14 @@ public class Context {
 		ctx.spellfactory = spellfactory;
 		ctx.importProcs(whereProcsAre);
 		return ctx;
-		
+
 	}
-	
+
 	public void importProcs(Context whereProcsAre) {
 		for ( String s : whereProcsAre.procs.keySet() ) {
 			procs.put(s, whereProcsAre.getCommand(s));
 		}
-		
+
 	}
 
 	public Context up(int level) {
@@ -245,17 +245,17 @@ public class Context {
 		setRaw(as, p);
 		return true;
 	}
-	
+
 	public Parameter resolve(String var) {
 		Parameter val = get(var);
 		if ( val == null ) {
 			if ( parent != null ) return parent.resolve(var);
 			return null;
 		}
-		
+
 		return val;
 	}
-	
+
 	public <T extends Parameter> T getWithTypeOr(String var, T def) {
 		Parameter p = get(var);
 		if ( p == null ) return def;
@@ -263,11 +263,11 @@ public class Context {
 		if ( result == null ) return def;
 		return result;
 	}
-	
+
 	private ParameterPtr getRaw(String var) {
 		return variables.get(var);
 	}
-	
+
 	private void setRaw(String var, ParameterPtr p) {
 		variables.put(var, p);
 	}
@@ -304,9 +304,9 @@ public class Context {
 
 	public void setCommand(String name, TCLCommand proc) {
 		procs.put(name, proc);
-		
+
 	}
-	
+
 	public boolean hasArgs() {
 		return this.getArgs().size() > 0;
 	}
@@ -347,7 +347,7 @@ public class Context {
 			out += s + " = " + (p == null ? "null" : p.toString()) + "\n";
 		}
 		out   += "]\nProcs [\n";
-		
+
 		for ( String s : this.procs.keySet() ) {
 			out += s + "\n";
 		}
@@ -356,13 +356,13 @@ public class Context {
 			out += "\n==== Parent =====\n";
 			out += parent.getDebuggingString();
 		}
-		
+
 		return out;
 	}
 
 	public void putProc(String string, TCLCommand tclCommand) {
 		this.procs.put(string, tclCommand);
-		
+
 	}
 
 	public void unset(String name) {
@@ -379,7 +379,7 @@ public class Context {
 		if ( parent != null ) parent.writeAllStuffInto(other);
 
 		if ( spellfactory != null ) other.spellfactory = spellfactory;
-		
+
 		for ( String k : this.variables.keySet() ) {
 			other.put(k,  variables.get(k).val);
 		}
@@ -388,7 +388,7 @@ public class Context {
 			other.procs.put(k,  procs.get(k));
 		}
 
-		
+
 	}
 
 
@@ -397,5 +397,5 @@ public class Context {
 
 
 
-	
+
 }

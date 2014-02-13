@@ -23,31 +23,31 @@ public class ParchmentCommandExecutor implements CommandExecutor, TabCompleter {
 
 	private ParchmentPluginLite plugin;
 	private Context	commandctx;  //TODO: Replace with per player ctx
-	
+
 	public ParchmentCommandExecutor(ParchmentPluginLite plugin) {
 		this.plugin = plugin;
 		commandctx = new Context();
-        commandctx.setSpellFactory(plugin.getSpellFactory());
+		commandctx.setSpellFactory(plugin.getSpellFactory());
 
 	}
 
-    @Override
-    public List<String> onTabComplete(CommandSender commandSender, Command command, String label, String[] args) {
-        if ( !label.equals("tcl") ) return new ArrayList<String>();
+	@Override
+	public List<String> onTabComplete(CommandSender commandSender, Command command, String label, String[] args) {
+		if ( !label.equals("tcl") ) return new ArrayList<String>();
 
-        StringBuilder b = new StringBuilder();
-        for ( String s : args ) {
-            if ( b.length() > 0 ) b.append(" ");
-            b.append(s);
-        }
+		StringBuilder b = new StringBuilder();
+		for ( String s : args ) {
+			if ( b.length() > 0 ) b.append(" ");
+			b.append(s);
+		}
 
-        List<String> list = TCLUtils.tabComplete(b.toString(), getContext(commandSender));
-        if ( list == null ) return null;
-        return list;
+		List<String> list = TCLUtils.tabComplete(b.toString(), getContext(commandSender));
+		if ( list == null ) return null;
+		return list;
 
-    }
+	}
 
-    private static class ScriptModePrompt implements Prompt {
+	private static class ScriptModePrompt implements Prompt {
 		private ParchmentPluginLite plugin = null;
 		private Context ctx = null;
 		private StringBuilder buffer;
@@ -84,7 +84,7 @@ public class ParchmentCommandExecutor implements CommandExecutor, TabCompleter {
 						return EvaluationResult.OK;
 					}
 
-				}));	
+				}));
 
 			}
 			return this;
@@ -111,29 +111,29 @@ public class ParchmentCommandExecutor implements CommandExecutor, TabCompleter {
 		Queue<String> qargs = new LinkedList<String>(Arrays.asList(args));
 		String action = label;
 
-        final Context ctx = getContext(sender);
-		
+		final Context ctx = getContext(sender);
+
 		if ( label.equals("scriptmode") ) {
 			if (!(sender instanceof Player)) return false;
 			final Player p = (Player) sender;
-			
+
 			p.beginConversation(new Conversation(plugin, p, new ScriptModePrompt(plugin, ctx)));
 			return true;
 		}
-		
+
 		if (label.equals("parchment") || label.equals("p")) {
 			action = qargs.poll();
 		}
 
 		if (action == null) return false;
-		
+
 
 
 		if (action.equals("cast") || action.equals("c")) {
 			sender.sendMessage(ChatColor.LIGHT_PURPLE.toString() + "Warning: /cast is depricated, and will likely change function.  Use /tcl instead!");
 			action = "tcl";
 		}
-			
+
 		if (action.equals("tcl") || action.equals("t")) {
 			StringBuilder b = null;
 			while (!qargs.isEmpty()) {
@@ -151,16 +151,16 @@ public class ParchmentCommandExecutor implements CommandExecutor, TabCompleter {
 				public EvaluationResult result(EvaluationResult e) {
 					if ( e.getCode() == Code.ERROR ) {
 						sender.sendMessage(ChatColor.RED +"Error: " + e.getValue().asString());
-					}	
+					}
 
 					return EvaluationResult.OK;
 				}
-				
-			}));
-			
 
-			
-			
+			}));
+
+
+
+
 		} else if (action.equals("run")) {
 			String file = qargs.poll() + ".tcl";
 			File folder = FSUtils.findOrCreateDirectory(plugin.getDataFolder(), "runnable");
@@ -207,21 +207,21 @@ public class ParchmentCommandExecutor implements CommandExecutor, TabCompleter {
 		return true;
 	}
 
-    private Context getContext(CommandSender sender) {
-        final Context ctx = commandctx.createSubContext();
-        ctx.setSpellFactory(plugin.getSpellFactory());
-        if (sender instanceof Player) {
-            Player p = (Player) sender;
-            ctx.setCaster(Parameter.from(p));
-            ctx.setWorld(Parameter.from(p.getWorld()));
-            ctx.setSource("command");
-        } else {
+	private Context getContext(CommandSender sender) {
+		final Context ctx = commandctx.createSubContext();
+		ctx.setSpellFactory(plugin.getSpellFactory());
+		if (sender instanceof Player) {
+			Player p = (Player) sender;
+			ctx.setCaster(Parameter.from(p));
+			ctx.setWorld(Parameter.from(p.getWorld()));
+			ctx.setSource("command");
+		} else {
 
-        }
-        return ctx;
-    }
+		}
+		return ctx;
+	}
 
-    private static String WikiToMinecraft(String str) {
+	private static String WikiToMinecraft(String str) {
 		str = str.replaceAll("=== (.*?) ===", "" + ChatColor.BOLD + ChatColor.LIGHT_PURPLE + "========== $1 ==========" + ChatColor.RESET);
 		str = str.replaceAll("\\[\\[(.*?)\\]\\]", "");
 		str = str.replaceAll("\\*\\*(.*?)\\*\\*", ChatColor.BOLD + "$1" + ChatColor.RESET);
