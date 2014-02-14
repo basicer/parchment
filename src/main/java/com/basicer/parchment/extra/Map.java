@@ -2,6 +2,7 @@ package com.basicer.parchment.extra;
 
 import com.basicer.parchment.Context;
 import com.basicer.parchment.OperationalTargetedCommand;
+import com.basicer.parchment.annotations.Operation;
 import com.basicer.parchment.parameters.*;
 import net.minecraft.server.v1_7_R1.PacketPlayInArmAnimation;
 import org.bukkit.Bukkit;
@@ -52,6 +53,19 @@ public class Map extends OperationalTargetedCommand<IntegerParameter> {
 		return null;
 	}
 
+	public Graphics getMapGraphics(short id) {
+		MapView v = resolveMapView(id);
+		Image image = null;
+		CanvasMapRenderer r = findRender(v);
+		if ( r == null ) {
+			r = new CanvasMapRenderer();
+			v.addRenderer(r);
+		}
+		Graphics g = r.getGraphics();
+		if ( g == null ) fizzle("Couldn't get graphics.");
+		return g;
+	}
+
 	public Long create(Context ctx) {
 		MapView v = Bukkit.createMap(ctx.getWorld());
 		for ( MapRenderer r : v.getRenderers() ) v.removeRenderer(r);
@@ -60,12 +74,7 @@ public class Map extends OperationalTargetedCommand<IntegerParameter> {
 	}
 
 	public Parameter writeOperation(Long target, Context ctx, IntegerParameter x, IntegerParameter y, StringParameter i) {
-		MapView v = resolveMapView(target.shortValue());
-
-		CanvasMapRenderer r = findRender(v);
-		if ( r == null ) fizzle("No renderer");
-		Graphics g = r.getGraphics();
-		if ( g == null ) fizzle("No GFX");
+		Graphics g = getMapGraphics(target.shortValue());
 		g.setColor(Color.pink);
 		Font f = Font.decode("Lucida Sans Typewriter");
 		System.out.println(f);
@@ -77,14 +86,26 @@ public class Map extends OperationalTargetedCommand<IntegerParameter> {
 	public Parameter sendOperation(Long target, Context ctx, PlayerParameter who) {
 		MapView v = resolveMapView(target.shortValue());
 		System.out.println("Sending " + target);
-
+		if ( who == null ) fizzle("Must specify player to send map to");
 		who.asPlayer(ctx).sendMap(v);
 
 		return IntegerParameter.from(target);
 	}
 
-	public Parameter imgOperation(Long target, Context ctx, StringParameter i, IntegerParameter ox, IntegerParameter oy) {
+	@Operation(desc = "Burst send entire map contents to all online players.")
+	public Parameter sendAllOperation(Long target, Context ctx) {
 		MapView v = resolveMapView(target.shortValue());
+		System.out.println("Sending " + target);
+		for ( Player p : Bukkit.getServer().getOnlinePlayers() ) {
+			p.sendMap(v);
+		}
+		return IntegerParameter.from(target);
+	}
+
+
+
+	@Operation(aliases = {"img"})
+	public Parameter imageOperation(Long target, Context ctx, StringParameter i, IntegerParameter ox, IntegerParameter oy) {
 		Image image = null;
 
 		try {
@@ -94,26 +115,14 @@ public class Map extends OperationalTargetedCommand<IntegerParameter> {
 			e.printStackTrace();
 		}
 
-		CanvasMapRenderer r = findRender(v);
-		if ( r == null ) fizzle("No renderer");
-		Graphics g = r.getGraphics();
-		if ( g == null ) fizzle("No GFX");
+		Graphics g = getMapGraphics(target.shortValue());
 
 		int iox = ox == null ? 0 : ox.asInteger();
 		int ioy = oy == null ? 0 : oy.asInteger();
 		g.drawImage(image, iox, ioy, null);
-		return Parameter.from(v.getId());
+		return Parameter.from(target);
 	}
 
-	public Parameter setupOperation(Long target, Context ctx) {
-		MapView v = resolveMapView(target.shortValue());
-		if ( findRender(v) != null ) fizzle("Already setup");
-
-
-		MapRenderer r = new CanvasMapRenderer();
-		v.addRenderer(r);
-		return Parameter.from(v.getId());
-	}
 
 	public class CanvasMapRenderer extends MapRenderer {
 		private BufferedImage image;
