@@ -10,10 +10,7 @@ import java.util.Queue;
 import com.basicer.parchment.*;
 import com.basicer.parchment.annotations.Operation;
 import com.basicer.parchment.extra.Map;
-import com.basicer.parchment.parameters.BooleanParameter;
-import com.basicer.parchment.parameters.MaterialParameter;
-import com.basicer.parchment.parameters.Parameter;
-import com.basicer.parchment.parameters.PlayerParameter;
+import com.basicer.parchment.parameters.*;
 import org.bukkit.Bukkit;
 
 
@@ -312,9 +309,16 @@ public abstract class OperationalTCLCommand extends TCLCommand {
 					} else if ( parameterTypes[i].equals(MaterialParameter.class) ) {
 						ArrayList<String> names = new ArrayList<String>();
 						for (org.bukkit.Material mat : org.bukkit.Material.values()) {
-							names.add(mat.toString());
+							names.add(mat.toString().toLowerCase());
 						}
 						return names;
+					} else if ( parameterTypes[i].equals(WorldParameter.class) ) {
+						ArrayList<String> names = new ArrayList<String>();
+						for (org.bukkit.World world : Bukkit.getServer().getWorlds()) {
+							names.add(world.getName());
+						}
+						return names;
+
 					}
 					return EmptyList; //TODO: Autocomplete method type here
 				}

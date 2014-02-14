@@ -175,7 +175,7 @@ test parseOld-5.8 {array variable substitution} {
     set b $a(x y z)foo
     set b
 } 123foo
-test parseOld-5.9 {array variable substitution} {
+test parseOld-5.9 {array variable substitution} ignoreUnimplemented {
     unset -nocomplain a qqq
     set "a(x y z)" qqq
     set $a([format x]\ y [format z]) foo
@@ -350,7 +350,7 @@ test parseOld-10.13 {syntax errors} {
 # buffer for %d conversions (LAME!).  I won't leave the test out, however,
 # since MetroWerks may some day fix this.
 
-test parseOld-10.14 {syntax errors} {
+test parseOld-10.14 {syntax errors} ignoreErrorMessage {
     list [catch {eval \$x[format "%01000d" 0](} msg] $msg $::errorInfo
 } {1 {missing )} {missing )
     while executing
@@ -520,12 +520,12 @@ test parseOld-14.21 {TclWordEnd procedure} {testwordend} {
     testwordend "   \000b"
 } {b}
 
-test parseOld-15.1 {TclScriptEnd procedure} {
+test parseOld-15.1 {TclScriptEnd procedure} ignoreKnwonProblem {
     info complete {puts [
 	expr 1+1
 	#this is a comment ]}
 } {0}
-test parseOld-15.2 {TclScriptEnd procedure} {
+test parseOld-15.2 {TclScriptEnd procedure} ignoreKnwonProblem {
     info complete "abc\\\n"
 } {0}
 test parseOld-15.3 {TclScriptEnd procedure} {

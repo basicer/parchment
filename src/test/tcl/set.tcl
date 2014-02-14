@@ -252,7 +252,7 @@ test set-2.3 {set command: runtime error, errors in reading variables} {
     set a(6) 44
     list [catch {set a(18)} msg] $msg
 } {1 {can't read "a(18)": no such element in array}}
-test set-2.4 {set command: runtime error, readonly variable} -body {
+test set-2.4 {set command: runtime error, readonly variable} -constraints ignoreUnimplemented -body {
     proc readonly args {error "variable is read-only"}
     set x 123
     trace var x w readonly
@@ -264,7 +264,7 @@ test set-2.4 {set command: runtime error, readonly variable} -body {
 test set-2.5 {set command: runtime error, basic array operations} {
     list [catch {set a(other)} msg] $msg
 } {1 {can't read "a(other)": no such element in array}}
-test set-2.6 {set command: runtime error, basic array operations} {
+test set-2.6 {set command: runtime error, basic array operations} -constraints ignoreKnownDifference {
     list [catch {set a} msg] $msg
 } {1 {can't read "a": variable is array}}
 
@@ -499,7 +499,7 @@ test set-4.3 {uncompiled set command: runtime error, errors in reading variables
     $z a(6) 44
     list [catch {$z a(18)} msg] $msg
 } {1 {can't read "a(18)": no such element in array}}
-test set-4.4 {uncompiled set command: runtime error, readonly variable} -body {
+test set-4.4 {uncompiled set command: runtime error, readonly variable} -constraints ignoreUnimplemented -body {
     set z set
     proc readonly args {error "variable is read-only"}
     $z x 123
@@ -513,7 +513,7 @@ test set-4.5 {uncompiled set command: runtime error, basic array operations} {
     set z set
     list [catch {$z a(other)} msg] $msg
 } {1 {can't read "a(other)": no such element in array}}
-test set-4.6 {set command: runtime error, basic array operations} {
+test set-4.6 {set command: runtime error, basic array operations} -constraint ignoreKnownDifference {
     set z set
     list [catch {$z a} msg] $msg
 } {1 {can't read "a": variable is array}}

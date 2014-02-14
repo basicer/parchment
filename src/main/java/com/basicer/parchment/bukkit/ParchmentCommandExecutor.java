@@ -33,18 +33,20 @@ public class ParchmentCommandExecutor implements CommandExecutor, TabCompleter {
 
 	@Override
 	public List<String> onTabComplete(CommandSender commandSender, Command command, String label, String[] args) {
-		if ( !label.equals("tcl") ) return new ArrayList<String>();
+		switch ( command.getName() ) {
+			case "tcl":
+				StringBuilder b = new StringBuilder();
+				for ( String s : args ) {
+					if ( b.length() > 0 ) b.append(" ");
+					b.append(s);
+				}
 
-		StringBuilder b = new StringBuilder();
-		for ( String s : args ) {
-			if ( b.length() > 0 ) b.append(" ");
-			b.append(s);
+				List<String> list = TCLUtils.tabComplete(b.toString(), getContext(commandSender));
+				if ( list == null ) return null;
+				return list;
+			default:
+				return null;
 		}
-
-		List<String> list = TCLUtils.tabComplete(b.toString(), getContext(commandSender));
-		if ( list == null ) return null;
-		return list;
-
 	}
 
 	private static class ScriptModePrompt implements Prompt {
@@ -185,6 +187,7 @@ public class ParchmentCommandExecutor implements CommandExecutor, TabCompleter {
 				sender.sendMessage("Please specify a command you would like help with:");
 				StringBuilder b = new StringBuilder();
 				for ( TCLCommand c : this.plugin.getSpellFactory().getAll().values() ) {
+					if ( b.length() > 0 ) b.append(" ");
 					b.append(c.getName());
 					if ( b.length() > 100 ) {
 						sender.sendMessage(b.toString());

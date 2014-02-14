@@ -40,7 +40,7 @@ test eval-2.4 {error in eval'ed command} {
     catch {eval {error "test error"}} msg
     set msg
 } {test error}
-test eval-2.5 {error in eval'ed command: setting errorInfo} {
+test eval-2.5 {error in eval'ed command: setting errorInfo} ignoreErrorMessage {
     catch {eval {
 	set a 1
 	error "test error"

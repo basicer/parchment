@@ -21,6 +21,10 @@ public class For extends TCLCommand {
 			
 			public EvaluationResult result(EvaluationResult last) {
 				final EvaluationResult.EvalCallback again = this;
+
+				//Allow break in the 3rd argument.
+				if ( last != null && last.getCode() == Code.BREAK ) return EvaluationResult.makeOkay(Parameter.EmptyString);
+
 				Parameter ok = Expr.eval(expr.asString(), evalctx, e);
 				if ( ok == null ) throw new RuntimeException("Invalid expression: " + expr.asString());
 				if ( !ok.asBoolean() ) return EvaluationResult.makeOkay(Parameter.EmptyString);

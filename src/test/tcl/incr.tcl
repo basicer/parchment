@@ -175,7 +175,7 @@ test incr-1.18 {TclCompileIncrCmd: increment given, simple int} {
     set i 5
     incr i -100
 } -95
-test incr-1.19 {TclCompileIncrCmd: increment given, but erroneous} -body {
+test incr-1.19 {TclCompileIncrCmd: increment given, but erroneous} -constraints ignoreUnimplemented -body {
     set i 5
     catch {incr i [set]} -> opts
     dict get $opts -errorinfo
@@ -210,12 +210,12 @@ test incr-1.26 {TclCompileIncrCmd: runtime error, bad variable name} {
     unset -nocomplain {"foo}
     incr {"foo}
 } 1
-test incr-1.27 {TclCompileIncrCmd: runtime error, bad variable name} -body {
+test incr-1.27 {TclCompileIncrCmd: runtime error, bad variable name} -constraints ignoreErrorMessage -body {
     list [catch {incr [set]} msg] $msg $::errorInfo
 } -match glob -result {1 {wrong # args: should be "set varName ?newValue?"} {wrong # args: should be "set varName ?newValue?"
     while *ing
 "set"*}}
-test incr-1.28 {TclCompileIncrCmd: runtime error, readonly variable} -body {
+test incr-1.28 {TclCompileIncrCmd: runtime error, readonly variable} -constraints ignoreErrorMessage -body {
     set x 123
     readonly x
     list [catch {incr x 1} msg] $msg $::errorInfo
@@ -414,7 +414,7 @@ test incr-2.18 {incr command (not compiled): increment given, simple int} {
     set i 5
     $z i -100
 } -95
-test incr-2.19 {incr command (not compiled): increment given, but erroneous} -body {
+test incr-2.19 {incr command (not compiled): increment given, but erroneous} -constraints ignoreKnownProblem -body {
     set z incr
     set i 5
     catch {$z i [set]} -> opts
@@ -458,13 +458,13 @@ test incr-2.26 {incr command (not compiled): runtime error, bad variable name} -
     set z incr
     $z {"foo}
 } -result 1
-test incr-2.27 {incr command (not compiled): runtime error, bad variable name} -body {
+test incr-2.27 {incr command (not compiled): runtime error, bad variable name}  -constraints ignoreErrorMessage -body {
     set z incr
     list [catch {$z [set]} msg] $msg $::errorInfo
 } -match glob -result {1 {wrong # args: should be "set varName ?newValue?"} {wrong # args: should be "set varName ?newValue?"
     while *ing
 "set"*}}
-test incr-2.28 {incr command (not compiled): runtime error, readonly variable} -body {
+test incr-2.28 {incr command (not compiled): runtime error, readonly variable}  -constraints ignoreUnimplemented -body {
     set z incr
     set x 123
     readonly x
@@ -480,7 +480,7 @@ test incr-2.29 {incr command (not compiled): runtime error, bad variable value} 
     set x "  -  "
     $z x 1
 } -returnCodes error -result {expected integer but got "  -  "}
-test incr-2.30 {incr command (not compiled): bad increment} {
+test incr-2.30 {incr command (not compiled): bad increment} -constraints ignoreErrorMessage {
     set z incr
     set x 0
     list [catch {$z x 1a} msg] $msg $::errorInfo
@@ -488,7 +488,7 @@ test incr-2.30 {incr command (not compiled): bad increment} {
     (reading increment)
     invoked from within
 "$z x 1a"}}
-test incr-2.31 {incr command (compiled): bad increment} {
+test incr-2.31 {incr command (compiled): bad increment} -constraints ignoreErrorMessage {
     list [catch {incr x 1a} msg] $msg $::errorInfo
 } {1 {expected integer but got "1a"} {expected integer but got "1a"
     (reading increment)

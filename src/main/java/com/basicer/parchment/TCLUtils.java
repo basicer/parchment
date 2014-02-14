@@ -481,8 +481,20 @@ public class TCLUtils {
 		String extra = "";
 		while ( true ) {
 			try {
-				params = TCLEngine.parseLine(new PushbackReader(new StringReader(code), 2), null);
+				PushbackReader reader = new PushbackReader(new StringReader(code), 2);
+				while ( true ) {
+					try {
+						params = parseLine(reader, ctx, false);
+						int more = reader.read();
+						if ( more == -1 ) break;
+						reader.unread(more);
+					} catch ( IOException ex ) {
+						throw new RuntimeException(ex);
+					}
+				}
 				break;
+
+
 			} catch ( ParserException ex ) {
 				System.out.println("Ex:" + ex.toString());
 				System.out.println(ex.getText());

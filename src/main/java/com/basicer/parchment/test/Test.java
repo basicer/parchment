@@ -15,7 +15,7 @@ public class Test extends TCLCommand {
 
 	@Override
 	public String[] getArguments() {
-		return new String[] { "-ignore", "name", "description", "args" };
+		return new String[] { "name", "description", "args" };
 	}
 
 	public static class TestResult {
@@ -46,7 +46,7 @@ public class Test extends TCLCommand {
 		test.body = null;
 		test.setup = null;
 		test.expected = null;
-		test.expectedCode = 0;
+		test.expectedCode = -1;
 
 		ArrayList<Parameter> args = ctx.getArgs();
 		if (args.size() < 1) return EvaluationResult.makeError("No arguments to test.");
@@ -78,6 +78,8 @@ public class Test extends TCLCommand {
 					test.expected = value;
 				else if (action.equals("-match"))
 					test.match = value.asString();
+				else if (action.equals("-constraints"))
+					constraint = value;
 				else if (action.equals("-returnCodes")) {
 					if (value.asInteger() != null)
 						test.expectedCode = value.asEnum(EvaluationResult.Code.class).ordinal();
@@ -142,7 +144,14 @@ public class Test extends TCLCommand {
 				test.resultCode = testResult.getCode().ordinal();
 			}
 
-			if (test.resultCode != test.expectedCode) {
+			if (test.expectedCode == -1 && test.resultCode != 0 && test.resultCode != 2) { //OK or RETURN
+				String value = (testResult.getValue() == null) ? "null" : testResult.getValue().asString();
+				test.why = String.format("Expected good return code of got %d (%s)",
+						testResult.getCode().ordinal(),
+						value
+				);
+
+			} else if (test.expectedCode != -1 && test.resultCode != test.expectedCode) {
 				String value = (testResult.getValue() == null) ? "null" : testResult.getValue().asString();
 				test.why = String.format("Expected return code of %d got %d (%s)",
 						test.expectedCode,
