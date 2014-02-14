@@ -520,12 +520,12 @@ test parseOld-14.21 {TclWordEnd procedure} {testwordend} {
     testwordend "   \000b"
 } {b}
 
-test parseOld-15.1 {TclScriptEnd procedure} ignoreKnwonProblem {
+test parseOld-15.1 {TclScriptEnd procedure} ignoreKnownProblem {
     info complete {puts [
 	expr 1+1
 	#this is a comment ]}
 } {0}
-test parseOld-15.2 {TclScriptEnd procedure} ignoreKnwonProblem {
+test parseOld-15.2 {TclScriptEnd procedure} ignoreKnownProblem {
     info complete "abc\\\n"
 } {0}
 test parseOld-15.3 {TclScriptEnd procedure} {
