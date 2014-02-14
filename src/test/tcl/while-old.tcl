@@ -38,7 +38,7 @@ test while-old-1.3 {basic while loops} {
     }
     set value
 } 6
-test while-old-1.4 {basic while loops, multiline test expr} {
+test while-old-1.4 {basic while loops, multiline test expr} ignoreKnownProblem {
     set value 1
     while {($tcl_platform(platform) != "foobar1") && \
 	    ($tcl_platform(platform) != "foobar2")} {

@@ -36,4 +36,8 @@ public class TestConstraint extends TCLCommand {
 		return EvaluationResult.OK;
 	}
 
+	public static void setConstraint(String constraint, boolean value) {
+		if ( constraints == null ) constraints = new HashMap<String, Boolean>();
+		constraints.put(constraint, value);
+	}
 }

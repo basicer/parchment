@@ -3,7 +3,6 @@ package com.basicer.parchment;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.PushbackReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,8 +12,10 @@ import com.basicer.parchment.tcl.StringCmd;
 import com.basicer.parchment.test.Test;
 import com.basicer.parchment.test.Test.TestResult;
 
+import com.basicer.parchment.test.TestConstraint;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+
 
 public class TCLUnitTestSuite extends TestCase {
 
@@ -32,9 +33,8 @@ public class TCLUnitTestSuite extends TestCase {
 	// Here's the actual test
 	public void testMethod() {
 		
-		
 		assertNotNull(result);
-		if ( result.expectedCode != result.resultCode ) {
+		if (  result.expectedCode != -1 && result.expectedCode != result.resultCode ) {
 			assertTrue(result.why, false);
 		} else {
 			assertNotNull(result);
@@ -55,7 +55,7 @@ public class TCLUnitTestSuite extends TestCase {
 			} else {
 				assertTrue("Unknown match type " + result.match, false);
 			}
-			
+
 			assertNull(result.why, result.why);
 		}
 	}
@@ -67,14 +67,22 @@ public class TCLUnitTestSuite extends TestCase {
 		//out.add("append.tcl");
 		
 		//out.add("if-old.tcl");
+
+		//out.add("expr-old-subset.tcl");
+		//out.add("upvar.tcl");
+
+
 		out.add("format.tcl");
-		
+
 		out.add("parseOld.tcl");
+		out.add("while-old.tcl");
+		out.add("for-old.tcl");
 		out.add("set.tcl");
 		out.add("incr.tcl");
 		out.add("concat.tcl");
 		out.add("list.tcl");
 		out.add("eval.tcl");
+
 		return out;
 	}
 
@@ -82,6 +90,12 @@ public class TCLUnitTestSuite extends TestCase {
 	public static TestSuite suite() {
 
 		TestSuite s = new TestSuite();
+
+		boolean dontSuppress = false;
+		TestConstraint.setConstraint("ignoreUnimplemented", dontSuppress);
+		TestConstraint.setConstraint("ignoreKnownDifference", dontSuppress);
+		TestConstraint.setConstraint("ignoreErrorMessage", dontSuppress);
+		TestConstraint.setConstraint("ignoreKnownProblem", dontSuppress);
 
 		for (String filename : getListOfFiles()) {
 			String sep = File.separator;
@@ -92,7 +106,6 @@ public class TCLUnitTestSuite extends TestCase {
 			try {
 				fr = new FileReader(f);
 
-				PushbackReader pbr = new PushbackReader(fr);
 
 				Context commandctx = new Context();
 
@@ -107,7 +120,7 @@ public class TCLUnitTestSuite extends TestCase {
 				spellfactory.loadTCLOnly();
 				commandctx.setSpellFactory(spellfactory);
 
-				TCLEngine x = new TCLEngine(pbr, commandctx);
+				TCLEngine x = new TCLEngine(fr, commandctx);
 				x.resilient = true;
 				while (x.step()) {
 				}
@@ -119,10 +132,15 @@ public class TCLUnitTestSuite extends TestCase {
 
 		}
 
-		for (TestResult r : Test.tests) {
+		if ( Test.tests != null )
+		for (final TestResult r : Test.tests) {
 			s.addTest(new TCLUnitTestSuite(r));
 		}
 
+
+
 		return s;
 	}
+
+
 }

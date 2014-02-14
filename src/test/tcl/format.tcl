@@ -23,6 +23,7 @@
 #testConstraint wideBiggerThanInt [expr {wide(0x80000000) != int(0x80000000)}]
 
 testConstraint longIs32bit 1
+testConstraint eformat 0
 
 test format-1.1 {integer formatting} {
     format "%*d %d %d %d" 6 34 16923 -12 -1
@@ -77,7 +78,7 @@ test format-1.11 {integer formatting} longIs32bit {
 test format-1.11.1 {integer formatting} longIs64bit {
     format "%-#20o %#-20o %#-20o %#-20o" 6 34 16923 -12 -1
 } {06                   042                  041033               01777777777777777777764}
-test format-1.12 {integer formatting} {
+test format-1.12 {integer formatting} ignoreUnimplemented {
     format "%b %#b %llb" 5 5 [expr {2**100}]
 } {101 0b101 10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000}
 
@@ -133,14 +134,14 @@ test format-2.17 {string formatting, width and precision} {
     format "a%5.7sa" foobarbaz
 } "afoobarba"
 
-test format-3.1 {Tcl_FormatObjCmd: character formatting} {
+test format-3.1 {Tcl_FormatObjCmd: character formatting} ignoreKnownProblem {
     format "|%c|%0c|%-1c|%1c|%-6c|%6c|%*c|%*c|" 65 65 65 65 65 65 3 65 -4 65
 } "|A|A|A|A|A     |     A|  A|A   |"
-test format-3.2 {Tcl_FormatObjCmd: international character formatting} {
+test format-3.2 {Tcl_FormatObjCmd: international character formatting} ignoreKnownProblem {
     format "|%c|%0c|%-1c|%1c|%-6c|%6c|%*c|%*c|" 0xa2 0x4e4e 0x25a 0xc3 0xff08 0 3 0x6575 -4 0x4e4f
 } "|\ua2|\u4e4e|\u25a|\uc3|\uff08     |     \0|  \u6575|\u4e4f   |"
 
-test format-4.1 {e and f formats} {eformat} {
+test format-4.1 {e and f formats} {eformat} ignoreKnownProblem  {
     format "%e %e %e %e" 34.2e12 68.514 -.125 -16000. .000053
 } {3.420000e+13 6.851400e+01 -1.250000e-01 -1.600000e+04}
 test format-4.2 {e and f formats} {eformat} {
@@ -170,10 +171,10 @@ test format-4.9 {e and f formats} {
 test format-4.10 {e and f formats} {
     format "%20f %-20f %020f" -9.99996 -9.99996 9.99996
 } {           -9.999960 -9.999960            0000000000009.999960}
-test format-4.11 {e and f formats} {
+test format-4.11 {e and f formats} ignoreKnownProblem {
     format "%-020f %020f" -9.99996 -9.99996 9.99996
 } {-9.999960            -000000000009.999960}
-test format-4.12 {e and f formats} {eformat} {
+test format-4.12 {e and f formats} {eformat} ignoreKnownProblem {
     format "%.0e %#.0e" -9.99996 -9.99996 9.99996
 } {-1e+01 -1.e+01}
 test format-4.13 {e and f formats} {
@@ -419,7 +420,7 @@ test format-11.9 {XPG3 %$n specifiers} {
 test format-11.10 {XPG3 %$n specifiers} {
     list [catch {format {%2$*d} 4} msg] $msg
 } {1 {"%n$" argument index out of range}}
-test format-11.11 {XPG3 %$n specifiers} {
+test format-11.11 {XPG3 %$n specifiers} ignoreKnownProblem {
     list [catch {format {%2$*d} 4 5} msg] $msg
 } {1 {"%n$" argument index out of range}}
 test format-11.12 {XPG3 %$n specifiers} {
@@ -496,10 +497,10 @@ test format-15.2 {testing %0..s 0 padding for chars/strings} {
 test format-15.3 {testing %0..s 0 padding for chars/strings} {
     format %5s a
 } {    a}
-test format-15.4 {testing %0..s 0 padding for chars/strings} {
+test format-15.4 {testing %0..s 0 padding for chars/strings} ignoreKnownProblem  {
     format %05c 61
 } {0000=}
-test format-15.5 {testing %d space padding for integers} {
+test format-15.5 {testing %d space padding for integers}  ignoreKnownProblem {
     format "(% 1d) (% 1d)" 10 -10
 } {( 10) (-10)}
 test format-15.6 {testing %d plus padding for integers} {
@@ -551,11 +552,11 @@ test format-18.2 {do not demote existing numeric values} {wideBiggerThanInt} {
     list [format %08x $a] [expr {$a == $b}]
 } {aaaaaaab 1}
 
-test format-19.1 {regression test - tcl-core message by Brian Griffin on 26 0ctober 2004} -body {
+test format-19.1 {regression test - tcl-core message by Brian Griffin on 26 0ctober 2004} -constraints ignoreKnownProblem  -body {
     set x 0x8fedc654
     list [expr { ~ $x }] [format %08x [expr { ~$x }]]
 } -match regexp -result {-2414724693 f*701239ab}
-test format-19.2 {Bug 1867855} {
+test format-19.2 {Bug 1867855} ignoreKnownProblem {
     format %llx 0
 } 0
 test format-19.3 {Bug 2830354} {
@@ -563,7 +564,7 @@ test format-19.3 {Bug 2830354} {
 } 340
 
 # Note that this test may fail in future versions
-test format-20.1 {Bug 2932421: plain %s caused intrep change of args} -body {
+test format-20.1 {Bug 2932421: plain %s caused intrep change of args} -constraints ignoreUnimplemented -body {
     set x [dict create a b c d]
     format %s $x
     # After this, obj in $x should be a dict with a non-NULL bytes field

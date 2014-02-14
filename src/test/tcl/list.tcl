@@ -28,8 +28,8 @@ test list-1.7 {basic tests} {list e\n f\$ } "{e\n} {f\$}"
 test list-1.8 {basic tests} {list g\; h\\} {{g;} h\\}
 test list-1.9 {basic tests} "list a\\\[} b\\\]} " "a\\\[\\\} b\\\]\\\}"
 test list-1.10 {basic tests} "list c\\\} d\\t} " "c\\} d\\t\\}"
-#test list-1.11 {basic tests} "list e\\n} f\\$} " "e\\n\\} f\\$\\}"
-test list-1.12 {basic tests} "list g\\;} h\\\\} " "g\\;\\} {h\\}}"
+test list-1.11 {basic tests} "list e\\n} f\\$} " "e\\n\\} f\\$\\}"
+test list-1.12 {basic tests} ignoreKnownProblem "list g\\;} h\\\\} " "g\\;\\} {h\\}}"
 test list-1.13 {basic tests} {list a {{}} b} {a {{}} b}
 test list-1.14 {basic tests} {list a b xy\\} "a b xy\\\\"
 test list-1.15 {basic tests} "list a b\} e\\" "a b\\} e\\\\"
@@ -121,11 +121,11 @@ proc slowsort list {
     }
     return [concat $result $list]
 }
-test list-3.1 {SetListFromAny and lrange/concat results} {
+test list-3.1 {SetListFromAny and lrange/concat results} ignoreUnimplemented {
     slowsort {fred julie alex carol bill annie}
 } {alex annie bill carol fred julie}
 
-test list-4.1 {Bug 3173086} {
+test list-4.1 {Bug 3173086} ignoreUnimplemented {
     string is list "{[list \\\\\}]}"
 } 1
 

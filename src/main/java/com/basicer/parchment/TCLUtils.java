@@ -11,18 +11,29 @@ import com.basicer.parchment.EvaluationResult.Code;
 import com.basicer.parchment.parameters.IntegerParameter;
 import com.basicer.parchment.parameters.Parameter;
 import com.basicer.parchment.parameters.ParameterAccumulator;
+import com.basicer.parchment.spells.Command;
 import com.basicer.parchment.tcl.Set;
 import com.basicer.parchment.tclstrings.ErrorStrings;
 
 public class TCLUtils {
 
+	public static class ParserException extends FizzleException {
+		private String text;
+		public  ParserException(String text) {
+			super(text);
+		}
+
+		public void setText(String text) { this.text = text;}
+		public String getText() { return text; }
+	}
+
 	public static void readCurlyBraceString(PushbackReader s, StringBuilder b) throws IOException {
 		int brackets = 1;
-		if (s.read() != '{') throw new IOException("Expected {");
+		if (s.read() != '{') throw new ParserException("Expected {");
 		boolean inEscape = false;
 		while (brackets > 0) {
 			int n = s.read();
-			if (n < 0) throw new FizzleException(ErrorStrings.BraceMismatch);
+			if (n < 0) throw new ParserException(ErrorStrings.BraceMismatch);
 			char c = (char) n;
 
 			if ((c == '\n' || c == '\r') && inEscape) {
@@ -43,7 +54,7 @@ public class TCLUtils {
 				} else if (c == '\\') {
 					inEscape = true;
 					continue;
-				} 
+				}
 			} else {
 				inEscape = false;
 				b.append("\\");
@@ -56,11 +67,11 @@ public class TCLUtils {
 
 	public static void readBracketExpression(PushbackReader s, StringBuilder b) throws IOException {
 		int brackets = 1;
-		if (s.read() != '[') throw new IOException("Expected [");
+		if (s.read() != '[') throw new ParserException("Expected [");
 		boolean quotes = false;
 		while (brackets > 0) {
 			int n = s.read();
-			if (n < 0) throw new IOException("missing close-bracket");
+			if (n < 0) throw new ParserException("missing close-bracket");
 			char c = (char) n;
 
 			if ( !quotes ) {
@@ -87,10 +98,10 @@ public class TCLUtils {
 
 	public static void readArrayIndex(PushbackReader s, StringBuilder b, Context ctx) throws IOException {
 		int brackets = 1;
-		if (s.read() != '(') throw new IOException("Expected (");
+		if (s.read() != '(') throw new ParserException("Expected (");
 		while (brackets > 0) {
 			int n = s.read();
-			if (n < 0) throw new IOException("Unmathced ()'s");
+			if (n < 0) throw new ParserException("Unmathced ()'s");
 			char c = (char) n;
 
 			if (c == ')')
@@ -110,7 +121,7 @@ public class TCLUtils {
 
 	public static void readVariable(PushbackReader s, StringBuilder b) throws IOException {
 
-		if (s.read() != '$') throw new IOException("Expected $");
+		if (s.read() != '$') throw new ParserException("Expected $");
 
 		int i = 0;
 		while (true) {
@@ -118,7 +129,7 @@ public class TCLUtils {
 			if (n < 0) break;
 			char c = (char) n;
 			if (c == '{') { // TODO: The variable needs to start with this so,
-							// but checking for that is worse unit test wise.
+				// but checking for that is worse unit test wise.
 				s.unread(c);
 				readCurlyBraceString(s, b);
 				return;
@@ -134,7 +145,7 @@ public class TCLUtils {
 
 	public static void readVariableInHand(PushbackReader s, StringBuilder b) throws IOException {
 
-		if (s.read() != '$') throw new IOException("Expected $");
+		if (s.read() != '$') throw new ParserException("Expected $");
 
 		while (true) {
 			int n = s.read();
@@ -237,7 +248,9 @@ public class TCLUtils {
 						//TODO: This wount throw the correct error for something like "\\
 						if ( xcn == '\\' ) xcn = xcnn;
 						if ( !Character.isWhitespace(xcn) && (char) xcn != ';' ) {
-							if ( extraStop.indexOf(xcn) == -1 ) throw new FizzleException("extra characters after close-quote");
+							if ( extraStop.indexOf(xcn) == -1 ) {
+								throw new ParserException("extra characters after close-quote");
+							}
 						}
 						return current;
 
@@ -279,7 +292,7 @@ public class TCLUtils {
 					if ( xcn > 0 ) {
 						s.unread(xcn);
 						if ( !Character.isWhitespace(xcn) && (char) xcn != ';' ) {
-							throw new FizzleException("extra characters after close-brace");
+							throw new ParserException("extra characters after close-brace");
 						}
 					}
 				} else if ( c == '[' ) {
@@ -324,7 +337,7 @@ public class TCLUtils {
 
 		}
 
-		if ( in != '\0' ) throw new FizzleException("missing " + in);
+		if ( in != '\0' ) throw new ParserException("missing " + in);
 		if ( !current.empty() ) return current;
 		return null;
 	}
@@ -333,58 +346,58 @@ public class TCLUtils {
 		int i = r.read();
 		if (i < 0) return "\\";
 		switch ((char) i) {
-		case 'n':
-			return "\n";
-		case 'r':
-			return "\r";
-		case 'f':
-			return "\f";
-		case 'v':
-			return "" + (char) 11;
-		case 't':
-			return "\t";
-		case '\n':
-		case '\r':
-			int ns = r.read();
-			while (ns > 0 && Character.isWhitespace((char) ns))
-				ns = r.read();
-			r.unread(ns);
-			return "";
-		case 'u':
-			String hex = "";
-			;
-			for (int hi = 0; hi < 4; ++hi) {
-				int ic = r.read();
-				if ( ic < 0 ) break;
-				char c = (char)ic;
-				if (!"abcdefABCDEF0123456789".contains("" + c)) break;
-				hex += c;
+			case 'n':
+				return "\n";
+			case 'r':
+				return "\r";
+			case 'f':
+				return "\f";
+			case 'v':
+				return "" + (char) 11;
+			case 't':
+				return "\t";
+			case '\n':
+			case '\r':
+				int ns = r.read();
+				while (ns > 0 && Character.isWhitespace((char) ns))
+					ns = r.read();
+				r.unread(ns);
+				return "";
+			case 'u':
+				String hex = "";
+				;
+				for (int hi = 0; hi < 4; ++hi) {
+					int ic = r.read();
+					if ( ic < 0 ) break;
+					char c = (char)ic;
+					if (!"abcdefABCDEF0123456789".contains("" + c)) break;
+					hex += c;
 
-			}
-			if (hex.length() < 1) return "u";
-			try {
-				return "" + (char) (Integer.valueOf(hex, 16).intValue());
-			} catch (NumberFormatException ex) {
-				throw new FizzleException("Invalid unicode codepoint:" + hex);
-			}
-		case 'x':
-			String hex1 = "";
-			;
-			for (int hi = 0; hi < 2; ++hi) {
-				int ic = r.read();
-				if ( ic < 0 ) break;
-				char c = (char)ic;
-				if (!"abcdefABCDEF0123456789".contains("" + c)) { r.unread(ic); break; }
-				hex1 += c;
-			}
-			if (hex1.length() < 1) return "x";
-			try {
-				return "" + (char) (Integer.valueOf(hex1, 16).intValue());
-			} catch (NumberFormatException ex) {
-				throw new FizzleException("Invalid unicode codepoint:" + hex1);
-			}
-		default:
-			return "" + (char) i;
+				}
+				if (hex.length() < 1) return "u";
+				try {
+					return "" + (char) (Integer.valueOf(hex, 16).intValue());
+				} catch (NumberFormatException ex) {
+					throw new FizzleException("Invalid unicode codepoint:" + hex);
+				}
+			case 'x':
+				String hex1 = "";
+				;
+				for (int hi = 0; hi < 2; ++hi) {
+					int ic = r.read();
+					if ( ic < 0 ) break;
+					char c = (char)ic;
+					if (!"abcdefABCDEF0123456789".contains("" + c)) { r.unread(ic); break; }
+					hex1 += c;
+				}
+				if (hex1.length() < 1) return "x";
+				try {
+					return "" + (char) (Integer.valueOf(hex1, 16).intValue());
+				} catch (NumberFormatException ex) {
+					throw new FizzleException("Invalid unicode codepoint:" + hex1);
+				}
+			default:
+				return "" + (char) i;
 		}
 	}
 
@@ -429,6 +442,9 @@ public class TCLUtils {
 			readBracketExpression(s, b);
 		} catch (IOException e) {
 			throw new FizzleException(e.getMessage());
+		} catch ( ParserException e ) {
+			e.setText("[" + b.toString());
+			throw e;
 		}
 		return b.toString();
 
@@ -440,6 +456,9 @@ public class TCLUtils {
 			readCurlyBraceString(s, b);
 		} catch (IOException e) {
 			return null;
+		} catch ( ParserException ex ) {
+			ex.setText(b.toString());
+			throw ex;
 		}
 		return b.toString();
 
@@ -455,5 +474,77 @@ public class TCLUtils {
 		return true;
 
 	}
-	
+
+
+	public static List<String> tabComplete(String code, Context ctx) {
+		ParameterAccumulator[] params = null;
+		String extra = "";
+		while ( true ) {
+			try {
+				PushbackReader reader = new PushbackReader(new StringReader(code), 2);
+				while ( true ) {
+					try {
+						params = parseLine(reader, ctx, false);
+						int more = reader.read();
+						if ( more == -1 ) break;
+						reader.unread(more);
+					} catch ( IOException ex ) {
+						throw new RuntimeException(ex);
+					}
+				}
+				break;
+
+
+			} catch ( ParserException ex ) {
+				System.out.println("Ex:" + ex.toString());
+				System.out.println(ex.getText());
+				if ( ex.getText() == null ) break;
+				code = ex.getText();
+				if ( code.startsWith("[") ) {
+					code = code.substring(1);
+					extra = code.startsWith(" ") ? "" : "[";
+				}
+			}
+		}
+
+		int param_count = (params == null) ? 0 : params.length;
+		String match = null;
+		if ( param_count > 0 && !code.endsWith(" ") ) {
+			match = params[param_count - 1].asString();
+			if ( match != null ) match = match.toLowerCase();
+			--param_count;
+		}
+
+
+		List<String> result = new ArrayList<String>();
+		if ( match != null && match.startsWith("$") ) {
+			for ( String s : ctx.keys() ) {
+				result.add("$" + s);
+			}
+		}
+
+		if ( param_count > 0 ) extra = "";
+
+
+		if ( param_count == 0 ) result = new ArrayList<String>(ctx.getCommandFactory().getAll().keySet());
+		else {
+			TCLCommand c = ctx.getCommandFactory().get(params[0].asString());
+			if ( c == null ) return result; //Couldnt do completion
+			String[] breakdown = new String[param_count];
+			for ( int i = 0; i < breakdown.length; ++i ) {
+				breakdown[i] = params[i].asString();
+			}
+
+			result = c.tabComplete(breakdown);
+		}
+
+		List<String> lst = new ArrayList<>();
+		for ( String s : result ) {
+			if ( match == null || s.toLowerCase().startsWith(match) ) lst.add(extra + s);
+		}
+
+		return lst;
+
+	}
+
 }

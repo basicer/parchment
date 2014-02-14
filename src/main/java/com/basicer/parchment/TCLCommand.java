@@ -8,7 +8,7 @@ import com.basicer.parchment.tclstrings.Documentation;
 
 
 public abstract class TCLCommand {
-	
+
 	public String getName() { return this.getClass().getSimpleName().toLowerCase(); }
 	protected TCLCommand getThis() { return null; }
 	public String[] getArguments() { return new String[] {"args"}; }
@@ -24,14 +24,14 @@ public abstract class TCLCommand {
 			boolean required;
 			boolean	noise;
 		}
-		
+
 		String[] args = this.getArguments();
 		Context put = ctx.createSubContext();
 		boolean and_args = false;
-		
+
 		int required = 0;
 		int given = params.length - 1;
-		
+
 		ArrayList<ParamInfo> xargs = new ArrayList<ParamInfo>();
 		ArrayList<String> flags = new ArrayList<String>();
 		for ( int i = 0; i < args.length; ++i ) {
@@ -40,22 +40,22 @@ public abstract class TCLCommand {
 				and_args = true;
 				break;
 			}
-			
+
 			ParamInfo nfo = new ParamInfo();
 			nfo.required = true;
 			nfo.noise = false;
 			boolean is_flag = false;
-			
+
 			if ( name.endsWith("?") ) {
 				nfo.required = false;
 				name = name.substring(0, name.length() - 1);
-			} 
-			
+			}
+
 			if ( name.startsWith("-") ) {
 				is_flag = true;
 				nfo.required = false;
 				name = name.substring(1);
-			} 
+			}
 
 			if ( name.startsWith("'") && name.endsWith("'")) {
 				nfo.noise = true;
@@ -68,11 +68,11 @@ public abstract class TCLCommand {
 				nfo.name = name;
 				xargs.add(nfo);
 			}
-			
+
 			if ( nfo.required ) ++required;
 		}
-		
-		
+
+
 		int ptr = 1;
 		for ( int i = 0; i < xargs.size() + 1; ++i ) {
 
@@ -109,29 +109,33 @@ public abstract class TCLCommand {
 				if ( nfo.noise && !params[ptr].asString(ctx).equals(nfo.name) ) {
 					continue;
 				}
-				
+
 				put.put(nfo.name, params[ptr]);
 				if ( nfo.required ) --required;
 				--given;
 				++ptr;
-			} 			
+			}
 		}
-		
+
 		if ( required > 0 ) {
 			throw new FizzleException(wrongArgumentsString());
 		}
-		
+
 		for ( int i = 0; i < xargs.size(); ++i ) {
 			if ( !put.has(xargs.get(i).name) ) put.put(xargs.get(i).name, null);
 		}
-		
+
 		if ( and_args ) put.put("args", Parameter.createList(params, ptr, params.length - 1));
 		else if ( ptr < params.length ) { throw new FizzleException(wrongArgumentsString()); }
-			
-		
-		
+
+
+
 		if ( getThis() != null ) put.setThis(Parameter.from(getThis()));
 		return put;
+	}
+
+	public List<String> tabComplete(String[] args) {
+		return new ArrayList<String>();
 	}
 
 	private String wrongArgumentsString() {
@@ -150,24 +154,24 @@ public abstract class TCLCommand {
 		b.append("\"");
 		return b.toString();
 	}
-	
-	public String getDescription() { 
+
+	public String getDescription() {
 		String def = Documentation.getBody(getName());
 		if ( def != null ) return "[[http://www.tcl.tk/man/tcl8.6/TclCmd/contents.htm|From the TCL Documentation]]\n\n" + def;
 		return "To be written....";
-		
+
 	}
 
 	protected String getHelpHeader() {
 		StringBuilder b = new StringBuilder();
 		b.append("----\n");
 		b.append(String.format("=== %s ===\n\n", getName()));
-		
+
 		b.append("**" + getName() + "** - ");
 		for ( String s : getArguments() ) b.append( "//" + s + "// ");
 		return b.toString();
 	}
-	
+
 	public String getHelpText() {
 		StringBuilder b = new StringBuilder();
 		b.append(getHelpHeader());
@@ -178,6 +182,6 @@ public abstract class TCLCommand {
 	}
 
 	public boolean supportedByServer() { return true; }
-		
+
 	public abstract EvaluationResult extendedExecute(Context c2, TCLEngine e);
 }

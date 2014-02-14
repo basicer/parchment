@@ -21,22 +21,12 @@ public class Dict extends OperationalTCLCommand {
 	}
 
 
-	private DictionaryParameter findDictOrFizzle(Context ctx, String s) {
-		Parameter param = ctx.up(1).get(s);
-		if ( param == null ) throw new FizzleException("no such variable: " + s);
-		DictionaryParameter casted = param.cast(DictionaryParameter.class);
-		if ( casted == null ) throw  new FizzleException("variable " + s + " couldn't be casted to a dictionary");
-		return casted;
-	}
 
-
-	public Parameter sizeOperation(Parameter dummy, Context ctx, StringParameter dictname) {
-		DictionaryParameter dict = findDictOrFizzle(ctx, dictname.asString());
+	public Parameter sizeOperation(Parameter dummy, Context ctx, DictionaryParameter dict) {
 		return IntegerParameter.from(dict.size());
 	}
 
-	public Parameter getOperation(Parameter dummy, Context ctx, StringParameter dictname, java.util.List<Parameter> args) {
-		DictionaryParameter dict = findDictOrFizzle(ctx, dictname.asString());
+	public Parameter getOperation(Parameter dummy, Context ctx, DictionaryParameter dict, java.util.List<Parameter> args) {
 		Parameter result = dict;
 		for ( Parameter p : args ) {
 			result = dict.index(p.asString(ctx));
