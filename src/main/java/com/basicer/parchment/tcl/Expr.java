@@ -203,7 +203,7 @@ public class Expr extends TCLCommand {
 				org.bukkit.Bukkit.getServer().broadcastMessage("RV:" + rv == null ? "null" : rv.asString());
 				return IntegerParameter.from(~rv.asInteger());
 
-			case "-": return IntegerParameter.from(evaluate(IntegerParameter.from(0), rhs, tokens.poll()));
+			case "-": return evaluate(IntegerParameter.from(0), rhs, tokens.poll()).cast(IntegerParameter.class);
 		}
 
 		return rhs;
