@@ -318,6 +318,8 @@ public abstract class Parameter implements Iterable<Parameter> {
 	public static Parameter from(Object o, Object... args ) {
 	
 		if ( o == null ) return null;
+		if ( o instanceof Parameter ) return (Parameter)o;
+
 		Parameter quick = quickCast(o);
 		if ( quick != null ) return  quick;
 
@@ -349,11 +351,12 @@ public abstract class Parameter implements Iterable<Parameter> {
 
 		if ( datatype == Short.class ) 			return Parameter.from(((Short)data).intValue());
 		else if ( datatype == String.class ) 	return Parameter.from(((String)data).toString());
-		else if ( datatype == Integer.class )	return Parameter.from((Integer) data);
-		else if ( datatype == Long.class )		return Parameter.from((Long) data);
-		else if ( datatype == Double.class ) 	return Parameter.from((Double) data);
+		else if ( datatype == Integer.class )	return Parameter.from((int) data);
+		else if ( datatype == Long.class )		return Parameter.from((long) data);
+		else if ( datatype == Double.class ) 	return Parameter.from((double) data);
 		else if ( datatype == Float.class ) 	return Parameter.from(((Float) data).doubleValue());
 		else if ( datatype == Boolean.class ) 	return Parameter.from(((Boolean) data).booleanValue());
+
 		return null;
 	}
 

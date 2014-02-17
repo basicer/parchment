@@ -1,6 +1,8 @@
 package com.basicer.parchment.base;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 import com.basicer.parchment.OperationalTargetedCommand;
 import org.bukkit.*;
@@ -10,6 +12,8 @@ import org.bukkit.entity.EntityType;
 import com.basicer.parchment.Context;
 import com.basicer.parchment.annotations.Operation;
 import com.basicer.parchment.parameters.*;
+import org.bukkit.generator.BlockPopulator;
+import org.bukkit.generator.ChunkGenerator;
 
 
 public class World extends OperationalTargetedCommand<WorldParameter> {
@@ -26,9 +30,12 @@ public class World extends OperationalTargetedCommand<WorldParameter> {
 		return this.doaffect(target, ctx);
  	}
 
-	public static org.bukkit.World create(Context ctx, StringParameter name) {
+	public static org.bukkit.World create(Context ctx, StringParameter name, StringParameter generator) {
 
 		WorldCreator wc = new WorldCreator(name.asString());
+		if ( generator != null ) {
+			wc.generator(new EmptyWorldGenerator());
+		}
 		return Bukkit.createWorld(wc);
 
 	}
@@ -59,10 +66,14 @@ public class World extends OperationalTargetedCommand<WorldParameter> {
 	public static Parameter effectOperation(org.bukkit.World world, Context ctx, StringParameter type, LocationParameter where, IntegerParameter data, IntegerParameter radius) {
 		if ( where == null ) where = ctx.getCaster().cast(LocationParameter.class);
 		if ( data == null ) data = Parameter.from(1);
-		
+
 		if ( radius == null ) world.playEffect(where.asLocation(ctx), type.asEnum(Effect.class), data.asInteger().intValue());
 		else world.playEffect(where.asLocation(ctx), type.asEnum(Effect.class), data.asInteger().intValue(), radius.asInteger().intValue());
 		return type;
+	}
+
+	public static Parameter generatorOperation(org.bukkit.World world, Context ctx) {
+		return StringParameter.from(world.getGenerator().getClass().getSimpleName());
 	}
 
 	public static Parameter pvpOperation(org.bukkit.World world, Context ctx, BooleanParameter type) {
@@ -128,5 +139,36 @@ public class World extends OperationalTargetedCommand<WorldParameter> {
 	}
 	
 
+	private static class EmptyWorldGenerator extends ChunkGenerator {
+
+
+		public EmptyWorldGenerator() {
+			super();
+		}
+
+		@Override
+		public byte[][] generateBlockSections(org.bukkit.World world, Random random, int x, int z, BiomeGrid biomes) {
+			byte[][] result = new byte[world.getMaxHeight() / 16][];
+			for ( int i = 0; i < result.length; ++i) {
+				result[i] = new byte[4096];
+			}
+			return result;
+		}
+
+		@Override
+		public boolean canSpawn(org.bukkit.World world, int x, int z) {
+			return super.canSpawn(world, x, z);
+		}
+
+		@Override
+		public List<BlockPopulator> getDefaultPopulators(org.bukkit.World world) {
+			return new ArrayList<BlockPopulator>();
+		}
+
+		@Override
+		public Location getFixedSpawnLocation(org.bukkit.World world, Random random) {
+			return super.getFixedSpawnLocation(world, random);
+		}
+	}
 	
 }
