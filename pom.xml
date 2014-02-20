@@ -88,8 +88,8 @@
                         </relocation>
 
                         <relocation>
-                            <pattern>redis.clients.jedis</pattern>
-                            <shadedPattern>com.basicer.shade.redis.clients.jedis</shadedPattern>
+                            <pattern>redis.clients</pattern>
+                            <shadedPattern>com.basicer.shade.redis.clients</shadedPattern>
                         </relocation>
 					</relocations>
 				</configuration>
