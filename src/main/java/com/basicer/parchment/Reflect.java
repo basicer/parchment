@@ -10,13 +10,17 @@ import java.lang.reflect.*;
 public class Reflect {
 	public static Field getField(Object o, String name) {
 		Class clazz = o.getClass();
-		Field f = null;
-		try {
-			f = clazz.getDeclaredField(name);
-		} catch (NoSuchFieldException e) {
-			return null;
+
+		while ( true ) {
+			try {
+				return clazz.getDeclaredField(name);
+			} catch (NoSuchFieldException e) {
+				clazz = clazz.getSuperclass();
+				if ( clazz != null ) continue;;
+				System.out.println("Couldn't find field:" + e.getMessage() + " in " + clazz.getName());
+				return null;
+			}
 		}
-		return f;
 	}
 
 	public static <T> T getFieldValue(Object o, Class<T> type, String name) {
