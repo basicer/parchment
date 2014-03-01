@@ -66,7 +66,9 @@ public class Redis extends TCLCommand {
 						++state;
 						break;
 					case 3:
-						return EvaluationResult.makeOkay(readRedisResult(client));
+						Parameter out = readRedisResult(client);
+						client.close();
+						return EvaluationResult.makeOkay(out);
 				}
 				return new BranchEvaluationResult(null, null, this);
 			}
