@@ -164,7 +164,7 @@
         <!-- Vault -->
         <repository>
 	        <id>vault-repo</id>
-	        <url>http://ci.herocraftonline.com/plugin/repository/everything</url>
+	        <url>http://ci.milkbowl.net/plugin/repository/everything/</url>
         </repository>
 
 	</repositories>

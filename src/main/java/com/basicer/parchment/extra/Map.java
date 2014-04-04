@@ -4,7 +4,6 @@ import com.basicer.parchment.Context;
 import com.basicer.parchment.OperationalTargetedCommand;
 import com.basicer.parchment.annotations.Operation;
 import com.basicer.parchment.parameters.*;
-import net.minecraft.server.v1_7_R1.PacketPlayInArmAnimation;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
