@@ -219,7 +219,7 @@ public class ParchmentCommandExecutor implements CommandExecutor, TabCompleter {
 			ctx.setWorld(Parameter.from(p.getWorld()));
 			ctx.setSource("command");
 		} else {
-
+			ctx.setCaster(Parameter.from("CONSOLE"));
 		}
 		return ctx;
 	}

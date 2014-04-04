@@ -55,7 +55,16 @@ public class DictionaryParameter extends Parameter {
 
 		return ListParameter.from(pairs);
 	}
-	
+
+	public static DictionaryParameter castFrom(ListParameter in, Context ctx) {
+		if ( in.length() % 2 == 1 ) return null;
+		DictionaryParameter out = new DictionaryParameter();
+		for ( int i = 0; i < in.length(); i += 2 ) {
+			out.writeIndex(in.index(i).asString(ctx), in.index(i+1));
+		}
+		return out;
+	}
+
 	public boolean isArray() { return true; }
 
 	public boolean hasIndex(String name) {

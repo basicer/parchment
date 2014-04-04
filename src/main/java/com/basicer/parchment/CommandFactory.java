@@ -4,6 +4,8 @@ import java.util.*;
 
 import com.basicer.parchment.base.*;
 import com.basicer.parchment.extra.IMenu;
+import com.basicer.parchment.extra.Json;
+import com.basicer.parchment.extra.Nbt;
 import com.basicer.parchment.extra.Redis;
 import com.basicer.parchment.spells.*;
 import com.basicer.parchment.tcl.*;
@@ -132,6 +134,9 @@ public class CommandFactory {
 		addBuiltinSpell(World.class);
 
 		addBuiltinSpell(Disguise.class);
+
+		addBuiltinCommand(Nbt.class);
+		addBuiltinCommand(Json.class);
 
 	}
 	
