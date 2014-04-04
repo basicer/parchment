@@ -1,11 +1,15 @@
 package com.basicer.parchment.base;
 
+import java.lang.reflect.Field;
 import java.util.List;
 
+import com.basicer.parchment.FizzleException;
 import com.basicer.parchment.OperationalTargetedCommand;
+import com.basicer.parchment.Reflect;
 import com.basicer.parchment.parameters.*;
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
+
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
@@ -98,7 +102,20 @@ public class Entity extends OperationalTargetedCommand<EntityParameter> {
 		ent.setFireTicks(20 * 15);
 		return Parameter.from(ent);
 	}
-	
+
+	public static Parameter nerfaiOperation(org.bukkit.entity.Entity ent, Context ctx, BooleanParameter set) {
+
+		try {
+			Object o = Reflect.invokeMethod(ent, Object.class, "getHandle");
+			Field f = Reflect.getField(o, "fromMobSpawner");
+			if ( set != null ) f.setBoolean(o, set.asBoolean(ctx));
+			return Parameter.from(f.getBoolean(o));
+		} catch (IllegalAccessException e1) {
+			throw new FizzleException(e1.getMessage());
+		}
+
+	}
+
 	@Operation(aliases = {"tp"}, desc = "Teleport target entity to given location.  Return the new loaction.")
 	public static Parameter teleportOperation(org.bukkit.entity.Entity ent, Context ctx, Parameter location) {
 		LivingEntity lent = null;
@@ -188,6 +205,8 @@ public class Entity extends OperationalTargetedCommand<EntityParameter> {
 		v.setX(Math.cos(yaw));
 		return VectorParameter.from(v);
 	}
+
+
 
 
 	public static Parameter onGroundOperation(org.bukkit.entity.Entity ent, Context ctx) {
