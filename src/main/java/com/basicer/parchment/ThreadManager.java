@@ -27,7 +27,7 @@ public class ThreadManager {
 	}
 
 	public static boolean amInSyncThread() {
-		return Thread.currentThread().getName().equals("Server thread");
+		return Bukkit.isPrimaryThread();
 	}
 	
 	private static class WorkItem implements Comparable<WorkItem> {
