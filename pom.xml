@@ -157,14 +157,14 @@
 
 		<!--  Disguise Craft and Some other Things -->
 		<repository>
-      		<id>kitteh-repo</id>
-      		<url>http://repo.kitteh.org/content/groups/public</url>
+      		<id>yu8-repo</id>
+      		<url>http://build.yu8.me:8080/plugin/repository/everything</url>
     	</repository>
 
         <!-- Vault -->
         <repository>
 	        <id>vault-repo</id>
-	        <url>http://ci.milkbowl.net/plugin/repository/everything/</url>
+	        <url>http://nexus.theyeticave.net/content/repositories/pub_releases</url>
         </repository>
 
 	</repositories>
@@ -221,10 +221,11 @@
             <scope>compile</scope>
 		</dependency>
 -->
+
 		<dependency>
       		<groupId>pgDev</groupId>
-      		<artifactId>disguisecraft</artifactId>
-      		<version>4.0</version>
+      		<artifactId>DisguiseCraft</artifactId>
+      		<version>5.1</version>
             <scope>compile</scope>
     	</dependency>
 
