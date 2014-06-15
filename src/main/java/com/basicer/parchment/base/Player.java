@@ -254,17 +254,17 @@ public class Player extends OperationalTargetedCommand<PlayerParameter> {
 
 	@Operation(desc = "Returns the amount of money a player has from vault.", requires = {"vault"})
 	public static Parameter moneyOperation(org.bukkit.entity.Player pent, Context ctx) {
-		return  Parameter.from(((Economy) getEconomyOrFizzle()).getBalance(pent.getName()));
+		return  Parameter.from(((Economy) getEconomyOrFizzle()).getBalance(pent));
 	}
 
 	@Operation(requires = {"vault"})
 	public static Parameter giveMoneyOperation(org.bukkit.entity.Player pent, Context ctx, DoubleParameter amount) {
-		return  Parameter.from(((Economy) getEconomyOrFizzle()).depositPlayer(pent.getName(), amount.asDouble(ctx)).balance);
+		return  Parameter.from(((Economy) getEconomyOrFizzle()).depositPlayer(pent, amount.asDouble(ctx)).balance);
 	}
 
 	@Operation(requires = {"vault"})
 	public static Parameter takeMoneyOperation(org.bukkit.entity.Player pent, Context ctx, DoubleParameter amount) {
-		return  Parameter.from(((Economy)getEconomyOrFizzle()).withdrawPlayer(pent.getName(), amount.asDouble(ctx)).balance);
+		return  Parameter.from(((Economy)getEconomyOrFizzle()).withdrawPlayer(pent, amount.asDouble(ctx)).balance);
 	}
 
 
