@@ -8,7 +8,6 @@ import com.basicer.parchment.FizzleException;
 import com.basicer.parchment.TCLEngine;
 import com.basicer.parchment.EvaluationResult.Code;
 import com.basicer.parchment.tcl.Set;
-import com.sun.javaws.exceptions.InvalidArgumentException;
 
 public class ParameterAccumulator {
 
