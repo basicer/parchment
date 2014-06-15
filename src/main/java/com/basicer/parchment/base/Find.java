@@ -10,6 +10,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.*;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -26,13 +27,23 @@ public class Find extends TCLCommand {
 
 	public enum SearchTypes { ENTITY, PLAYER, MOB, BLOCK };
 
+	public EntityType parseEntityType(Parameter type) {
+		EntityType et = type.asEnum(EntityType.class);
+		if ( et != null ) return et;
+
+		if (type.asString().equals("item") ) return EntityType.DROPPED_ITEM;
+		return null;
+	}
+
 	@Override
 	public EvaluationResult extendedExecute(Context ctx, TCLEngine e) {
 
 		if ( !ctx.has("type") ) return EvaluationResult.makeError("Type is a required flag.");
 
-		final EntityType et = ctx.get("type").asEnum(EntityType.class);
+		final EntityType et = parseEntityType(ctx.get("type"));
 		final Material bt = ctx.get("type").asEnum(Material.class);
+
+
 
 		SearchTypes t;
 		if ( et != null ) {
