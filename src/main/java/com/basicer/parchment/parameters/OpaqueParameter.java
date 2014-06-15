@@ -1,5 +1,7 @@
 package com.basicer.parchment.parameters;
 
+import com.basicer.parchment.Context;
+
 /**
  * Created with IntelliJ IDEA.
  * User: basicer
@@ -40,4 +42,10 @@ public class OpaqueParameter<T> extends Parameter {
 	public static <U> OpaqueParameter<U> create(U object) {
 		return new OpaqueParameter<U>(object);
 	}
+
+	@Override
+	public String asString(Context ctx) {
+		return "[Opaque Parameter: " + type.getName() + "]";
+	}
+
 }

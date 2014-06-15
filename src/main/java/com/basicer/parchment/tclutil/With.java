@@ -3,6 +3,7 @@ package com.basicer.parchment.tclutil;
 import com.basicer.parchment.*;
 import com.basicer.parchment.parameters.ListParameter;
 import com.basicer.parchment.parameters.Parameter;
+import com.basicer.parchment.parameters.StringParameter;
 import com.basicer.parchment.tcl.Expr;
 
 import java.util.LinkedList;
@@ -38,7 +39,7 @@ public class With extends TCLCommand {
 		final boolean merge_c = ctx.get("merge") != null;
 		final LinkedList<Parameter> results = new LinkedList<Parameter>();
 
-		final String code = ctx.get("code").asString();
+		final StringParameter code = ctx.get("code").castToStringParameter();
 		final Context eval_ctx = ctx.up(1).createSubContext();
 		eval_ctx.upvarAll(1);
 		eval_ctx.unset("target");

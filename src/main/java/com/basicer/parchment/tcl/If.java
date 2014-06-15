@@ -18,7 +18,7 @@ public class If extends TCLCommand {
 		if (ok == null)
 			throw new RuntimeException("Invalid expression: " + expr.asString());
 		if (ok.asBoolean()) {
-			return new BranchEvaluationResult(ctx.get("body").asString(), evalctx,
+			return new BranchEvaluationResult(ctx.get("body").castToStringParameter(), evalctx,
 					new EvaluationResult.EvalCallback() {
 						public EvaluationResult result(EvaluationResult er) {
 							return er; // No processing of result needed
@@ -27,7 +27,7 @@ public class If extends TCLCommand {
 		} else if (ctx.get("else") != null) {
 			String code = ctx.get("elseCode").asString();
 			if (code.length() > 0) {
-				return new BranchEvaluationResult(ctx.get("elseCode").asString(), evalctx,
+				return new BranchEvaluationResult(ctx.get("elseCode").castToStringParameter(), evalctx,
 						new EvaluationResult.EvalCallback() {
 							public EvaluationResult result(EvaluationResult er) {
 								return er; // No processing of result needed

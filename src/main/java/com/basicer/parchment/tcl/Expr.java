@@ -158,7 +158,7 @@ public class Expr extends TCLCommand {
 							s.unread(r);
 							break;
 						}
-						if ( read == null ) read = new ParameterAccumulator();
+						if ( read == null ) read = new ParameterAccumulator(ctx);
 						read.append("" + (char)r);
 					} while ( true );
 					operator = false;

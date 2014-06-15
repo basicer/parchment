@@ -2,6 +2,7 @@ package com.basicer.parchment;
 
 
 import com.basicer.parchment.parameters.Parameter;
+import com.basicer.parchment.parameters.StringParameter;
 
 public class EvaluationResult {
 
@@ -9,15 +10,15 @@ public class EvaluationResult {
 	private Parameter value;
 	private Code code = Code.OK;
 
-	public String getRefrencedCode() {
+	public StringParameter getRefrencedCode() {
 		return refrencedCode;
 	}
 
-	public void setRefrencedCode(String refrencedCode) {
+	public void setRefrencedCode(StringParameter refrencedCode) {
 		this.refrencedCode = refrencedCode;
 	}
 
-	private String refrencedCode;
+	private StringParameter refrencedCode;
 
 	public static final EvaluationResult OK = new EvaluationResult();
 	

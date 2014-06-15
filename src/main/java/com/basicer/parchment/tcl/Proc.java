@@ -3,6 +3,7 @@ package com.basicer.parchment.tcl;
 import com.basicer.parchment.*;
 import com.basicer.parchment.EvaluationResult.Code;
 import com.basicer.parchment.parameters.Parameter;
+import com.basicer.parchment.parameters.StringParameter;
 
 public class Proc extends TCLCommand {
 
@@ -15,7 +16,7 @@ public class Proc extends TCLCommand {
 	public EvaluationResult extendedExecute(Context ctx, TCLEngine e) {
 		Parameter pname = ctx.get("name");
 		Parameter pargs = ctx.get("argNames");
-		Parameter pbody = ctx.get("body");
+		final StringParameter pbody = ctx.get("body").castToStringParameter();
 
 		String[] xargs = null;
 		if (pargs.asString().length() > 0) {
@@ -24,7 +25,7 @@ public class Proc extends TCLCommand {
 			xargs = new String[0];
 		}
 
-		final String bodystr = pbody.asString();
+
 		final String[] cxargs = xargs;
 
 		TCLCommand thiz = null;
@@ -43,7 +44,7 @@ public class Proc extends TCLCommand {
 
 			@Override
 			public EvaluationResult extendedExecute(Context ctx, TCLEngine engine) {
-				return new BranchEvaluationResult(bodystr, ctx, new EvaluationResult.EvalCallback() {
+				return new BranchEvaluationResult(pbody, ctx, new EvaluationResult.EvalCallback() {
 					public EvaluationResult result(EvaluationResult r) {
 						if (r == null)
 							return EvaluationResult.OK;

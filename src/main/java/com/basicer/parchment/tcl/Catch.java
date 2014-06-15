@@ -15,7 +15,7 @@ public class Catch extends TCLCommand {
 		final Parameter code = ctx.get("script");
 
 		
-		return new BranchEvaluationResult(code.asString(), ctx.up(1), new EvalCallback() {
+		return new BranchEvaluationResult(code.castToStringParameter(), ctx.up(1), new EvalCallback() {
 			public EvaluationResult result(EvaluationResult last) {
 				if ( ctx.get("messageVarName") != null ) {
 					Set.access( ctx.get("messageVarName").asString(), true, last.getValue(), ctx.up(1));

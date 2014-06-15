@@ -18,7 +18,7 @@ public class Uplevel extends TCLCommand {
 		Context ectx = ctx.up(level.asInteger());
 		if (ectx == null)
 			return EvaluationResult.makeError("Invalid level given to uplevel");
-		return new BranchEvaluationResult(expr.asString(), ectx, new EvaluationResult.EvalCallback() {
+		return new BranchEvaluationResult(expr.castToStringParameter(), ectx, new EvaluationResult.EvalCallback() {
 			public EvaluationResult result(EvaluationResult er) {
 				return er; // No processing of result needed
 			}

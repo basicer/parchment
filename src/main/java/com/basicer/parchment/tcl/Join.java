@@ -9,6 +9,7 @@ import com.basicer.parchment.TCLCommand;
 import com.basicer.parchment.TCLEngine;
 import com.basicer.parchment.parameters.ParameterAccumulator;
 import com.basicer.parchment.parameters.Parameter;
+import com.basicer.parchment.parameters.StringParameter;
 
 public class Join extends TCLCommand {
 
@@ -18,7 +19,7 @@ public class Join extends TCLCommand {
 	@Override
 	public EvaluationResult extendedExecute(Context ctx, TCLEngine e) {
 		String name = null;
-		String what = ctx.get("list").asString();
+		StringParameter what = ctx.get("list").castToStringParameter();
 		String sep = " ";
 		if ( ctx.has("joinstring") ) {
 			Parameter p = ctx.get("joinstring");
@@ -27,7 +28,7 @@ public class Join extends TCLCommand {
 		}
 		StringBuilder b = new StringBuilder();
 		
-		ParameterAccumulator[] tkns = TCLEngine.parseLine(new PushbackReader(new StringReader(what)), null);
+		ParameterAccumulator[] tkns = what.asTCLCode(ctx).get(0); //TODO: Combine all lines?
 		int i = 0;
 		for ( ParameterAccumulator p : tkns ) {
 			String r = p.cheatyResolveOrFizzle().asString();

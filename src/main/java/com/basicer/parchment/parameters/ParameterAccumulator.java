@@ -8,6 +8,7 @@ import com.basicer.parchment.FizzleException;
 import com.basicer.parchment.TCLEngine;
 import com.basicer.parchment.EvaluationResult.Code;
 import com.basicer.parchment.tcl.Set;
+import com.sun.javaws.exceptions.InvalidArgumentException;
 
 public class ParameterAccumulator {
 
@@ -18,14 +19,14 @@ public class ParameterAccumulator {
 
 	private ArrayList<Entry> entries;
 	private TCLEngine ngn;
+	private Context ctx;
 
 	private class Entry {
 		public Type type;
 		public String data;
-		public Context ctx;
 
 		public String toString() {
-			return String.format("%s %s %s", type, data, ctx == null ? "-" : "?");
+			return String.format("%s %s", type, data);
 		}
 	}
 
@@ -37,10 +38,37 @@ public class ParameterAccumulator {
 		resolved = EvaluationResult.makeOkay(p);
 	}
 
-	public void append(Type type, String data, Context ctx) {
+	public ParameterAccumulator(Context ctx) {
+		this.ctx = ctx;
+		entries = new ArrayList<Entry>();
+	}
+
+	public ParameterAccumulator copy() {
+
+
+
+		ParameterAccumulator out =  new ParameterAccumulator(ctx);
+		if ( resolved != null ) {
+			out.resolved = resolved;
+		} else {
+			if ( entries.size() == 1 && entries.get(0).type == Type.STRING ) {
+				out.resolved = EvaluationResult.makeOkay(new StringParameter(entries.get(0).data));
+			}
+		}
+
+		out.entries = new ArrayList<Entry>(entries);
+		if ( progress != null ) out.progress = new StringBuilder(progress);
+
+		return out;
+	}
+
+	public void writeContexts(Context ctx) {
+		this.ctx = ctx;
+	}
+
+	public void append(Type type, String data) {
 		Entry e = new Entry();
 		e.data = data;
-		e.ctx = ctx;
 		e.type = type;
 		entries.add(e);
 	}
@@ -58,9 +86,7 @@ public class ParameterAccumulator {
 		last.data += s;
 	}
 
-	public ParameterAccumulator() {
-		entries = new ArrayList<Entry>();
-	}
+
 
 	public String asString() {
 		StringBuilder b = new StringBuilder();
@@ -78,14 +104,14 @@ public class ParameterAccumulator {
 			return EvaluationResult.makeOkay(Parameter.from(e.data));
 		else if ( e.type == Type.VARIABLE ) {
 			try {
-				Parameter p = Set.access(e.data, false, null, e.ctx);
+				Parameter p = Set.access(e.data, false, null, ctx);
 				return EvaluationResult.makeOkay(p);
 			} catch (FizzleException ex) {
 				return EvaluationResult.makeError(ex.getMessage());
 			}
 
 		} else {
-			ngn = new TCLEngine(e.data, e.ctx);
+			ngn = new TCLEngine(e.data, ctx);
 			return null;
 		}
 	}
@@ -193,3 +219,5 @@ public class ParameterAccumulator {
 	}
 
 }
+
+

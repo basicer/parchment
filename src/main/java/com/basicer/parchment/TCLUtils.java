@@ -89,7 +89,7 @@ public class TCLUtils {
 					continue;
 				}
 			} else {
-				if ( c == '"' ) quotes = false; //TODO: Need more logic here, for \'s and stuf
+				if ( c == '"' ) quotes = false; //TODO: Need more logic here, for \'s and stuff
 			}
 
 			if (brackets > 0) b.append(c);
@@ -228,7 +228,7 @@ public class TCLUtils {
 	}
 	public static ParameterAccumulator parseWord(PushbackReader s, Context ctx, boolean first, String extraStop) throws IOException {
 		char in = '\0';
-		ParameterAccumulator current = new ParameterAccumulator();
+		ParameterAccumulator current = new ParameterAccumulator(ctx);
 
 		int r;
 		while ( (r = s.read()) > 0 ) {
@@ -257,12 +257,12 @@ public class TCLUtils {
 					}
 				} else if ( c == '[' ) {
 					s.unread(r);
-					current.append(ParameterAccumulator.Type.CODE, TCLUtils.readBracketExpressionToString(s), ctx);
+					current.append(ParameterAccumulator.Type.CODE, TCLUtils.readBracketExpressionToString(s));
 				} else if ( c == '$' ) {
 					s.unread(r);
 					String name = TCLUtils.readVariableName(s, ctx);
 					if ( name.length() > 0 ) {
-						current.append(ParameterAccumulator.Type.VARIABLE, name, ctx);
+						current.append(ParameterAccumulator.Type.VARIABLE, name);
 					} else {
 						append = true;
 					}
@@ -297,7 +297,7 @@ public class TCLUtils {
 					}
 				} else if ( c == '[' ) {
 					s.unread(r);
-					current.append(ParameterAccumulator.Type.CODE, TCLUtils.readBracketExpressionToString(s), ctx);
+					current.append(ParameterAccumulator.Type.CODE, TCLUtils.readBracketExpressionToString(s));
 				} else if ( c == ' ' || c == '\t' || c == '\r' || c == (char) 11 || c == '\f' ) {
 					if ( !current.empty() ) return current;
 				} else if ( c == '\n' || c == ';' ) {
@@ -311,7 +311,7 @@ public class TCLUtils {
 					s.unread(r);
 					String name = TCLUtils.readVariableName(s, ctx);
 					if ( name.length() > 0 ) {
-						current.append(ParameterAccumulator.Type.VARIABLE, name, ctx);
+						current.append(ParameterAccumulator.Type.VARIABLE, name);
 					} else {
 						append = true;
 					}
@@ -467,7 +467,7 @@ public class TCLUtils {
 	public static boolean isCompleteStatement(String pr) {
 
 		try {
-			TCLEngine.parseLine(new PushbackReader(new StringReader(pr), 2), null);
+			TCLUtils.parseLine(new PushbackReader(new StringReader(pr), 2), null, false);
 		} catch ( FizzleException ex ) {
 			return false;
 		}

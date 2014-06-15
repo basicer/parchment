@@ -20,14 +20,23 @@ import javax.security.auth.callback.Callback;
 
 public class TCLEngine {
 
-	String last_ran_code;
+	StringParameter last_ran_code;
+
 	PushbackReader sourcecode;
+	List<ParameterAccumulator[]> tclcode;
+
 	Context ctx;
 	private EvaluationResult result = EvaluationResult.OK;
 	private TCLEngine sub;
 	private BranchEvaluationResult subbr;
 	public boolean resilient = false;
 	public Function<Callable<EvaluationResult>, EvaluationResult> commandGuard = null;
+
+	public TCLEngine(StringParameter src, Context ctx) {
+		tclcode = src.asTCLCode(ctx);
+		this.ctx = ctx;
+	}
+
 
 	public TCLEngine(String src, Context ctx) {
 		sourcecode = new PushbackReader(new StringReader(src), 2);
@@ -54,6 +63,20 @@ public class TCLEngine {
 
 	ParameterAccumulator[] pargs = null;
 
+	public ParameterAccumulator[] nextLine() throws FizzleException {
+		if ( tclcode != null ) {
+			if ( tclcode.isEmpty() ) return null;
+			ParameterAccumulator[] result = tclcode.remove(0);
+			if ( result.length < 1 ) return result;
+			if ( result[0] instanceof  StringParameter.ExceptionalParamaterAccmulator ) {
+				throw ((StringParameter.ExceptionalParamaterAccmulator ) result[0]).containedException;
+			}
+			return result;
+		}
+		if ( sourcecode == null ) return null;
+		return TCLUtils.parseLine(sourcecode, ctx, false);
+	}
+
 	public boolean step() {
 		return step(false);
 	}
@@ -67,7 +90,7 @@ public class TCLEngine {
 			if ( !(result instanceof BranchEvaluationResult) && result.getCode() == Code.ERROR ) {
 				if ( result.getRefrencedCode() == null ) result.setRefrencedCode(last_ran_code);
 				String rv = result.getValue() == null ? "null" : result.getValue().asString();
-				String s = rv + "\n    while executing\n\"" + result.getRefrencedCode() + "\"";
+				String s = rv + "\n    while executing\n\"" + result.getRefrencedCode().asString() + "\"";
 				ctx.top().put("errorInfo", StringParameter.from(s));
 			}
 
@@ -163,10 +186,8 @@ public class TCLEngine {
 			}
 		}
 
-		if ( sourcecode == null ) return false; //We where evaluating with result given.
-		
 		try {
-			pargs = parseLine(sourcecode, ctx);
+			pargs = nextLine();
 		} catch (FizzleException ex) {
 			result = EvaluationResult.makeError(ex.getMessage());
 			return true;
@@ -248,10 +269,6 @@ public class TCLEngine {
 	 * Parameter.from("[" + cmd + "]"); return engine.evaluate(cmd.toString(),
 	 * ctx).getValue(); }
 	 */
-
-	public static ParameterAccumulator[] parseLine(PushbackReader s, Context ctx) {
-		return  TCLUtils.parseLine(s, ctx, false);
-	}
 
 	public Parameter getResult() {
 		// TODO Auto-generated method stub

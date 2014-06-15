@@ -37,7 +37,7 @@ public class While extends TCLCommand {
 				if (ok.asBooleanStrict(ctx)) {
 					// result = engine.evaluate(ctx.get("body").asString(),
 					// evalctx);
-					return new BranchEvaluationResult(ctx.get("command").asString(), evalctx, again);
+					return new BranchEvaluationResult(ctx.get("command").castToStringParameter(), evalctx, again);
 				} else {
 					return EvaluationResult.OK;
 				}

@@ -3,6 +3,7 @@ package com.basicer.parchment;
 import com.basicer.parchment.Context;
 import com.basicer.parchment.EvaluationResult;
 import com.basicer.parchment.parameters.Parameter;
+import com.basicer.parchment.parameters.StringParameter;
 
 import java.util.concurrent.Callable;
 
@@ -16,22 +17,22 @@ public class BranchEvaluationResult extends EvaluationResult {
 
 
 	private EvalCallback callback;
-	private String toRun;
+	private StringParameter toRun;
 	private Context context;
 	private Callable<Long> scheduleAfter;
 
-	public BranchEvaluationResult(String toRun, Context ctx, EvalCallback evalCallback) {
+	public BranchEvaluationResult(StringParameter toRun, Context ctx, EvalCallback evalCallback) {
 		this.toRun = toRun;
 		this.callback = evalCallback;
 		this.context = ctx;
 	}
 
-	public BranchEvaluationResult(String toRun, Context ctx, EvalCallback evalCallback, Callable<Long> when ) {
+	public BranchEvaluationResult(StringParameter toRun, Context ctx, EvalCallback evalCallback, Callable<Long> when ) {
 		this(toRun, ctx, evalCallback);
 		scheduleAfter = when;
 	}
 
-	public BranchEvaluationResult(String toRun, Context ctx, EvalCallback evalCallback, final long delay ) {
+	public BranchEvaluationResult(StringParameter toRun, Context ctx, EvalCallback evalCallback, final long delay ) {
 		this(toRun, ctx, evalCallback);
 		scheduleAfter = new Callable<Long>() {
 			@Override
@@ -70,7 +71,7 @@ public class BranchEvaluationResult extends EvaluationResult {
 		return EvaluationResult.OK;
 	}
 
-	public String getToRun() {
+	public StringParameter getToRun() {
 		return toRun;
 	}
 

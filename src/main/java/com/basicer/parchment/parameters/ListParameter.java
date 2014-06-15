@@ -136,7 +136,7 @@ public class ListParameter extends Parameter {
 
 	public static ListParameter castFrom(StringParameter in, Context ctx) {
 		Debug.info("Making list");
-		ParameterAccumulator[] tkns = TCLEngine.parseLine(new PushbackReader(new StringReader(in.asString(ctx)), 2), null);
+		ParameterAccumulator[] tkns = in.asTCLCode(null).get(0); //TODO: Combine all lines?
 		ArrayList<Parameter> out = new ArrayList<Parameter>();
 		for ( ParameterAccumulator p : tkns ) {
 			out.add(p.cheatyResolveOrFizzle());

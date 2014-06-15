@@ -6,6 +6,7 @@ import com.basicer.parchment.*;
 import com.basicer.parchment.EvaluationResult.Code;
 import com.basicer.parchment.parameters.IntegerParameter;
 import com.basicer.parchment.parameters.Parameter;
+import com.basicer.parchment.parameters.StringParameter;
 
 public class Repeat extends TCLCommand {
 
@@ -21,7 +22,7 @@ public class Repeat extends TCLCommand {
 		final Parameter expr = ctx.get("test");
 		final Context evalctx = ctx.up(1);
 		final int times = ctx.get("times").asInteger(ctx);
-		final String body =  ctx.get("body").asString();
+		final StringParameter body =  ctx.get("body").cast(StringParameter.class);
 		final IntHolder ctl = new IntHolder();
 		final boolean target = ctx.has("targeting");
 		final boolean seti = ctx.has("i");

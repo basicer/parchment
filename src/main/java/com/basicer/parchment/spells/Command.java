@@ -105,7 +105,7 @@ public class Command extends OperationalTCLCommand {
 		removeOperation(dummy, ctx, command);
 		String cmd = command.asString(ctx);
 		SimpleCommandMap map = getServerCommandMap(Bukkit.getServer());
-		final String tcl_code = body.asString(ctx);
+		final StringParameter tcl_code = body;
 
 		final Context ctxx_up = new Context();
 		ctxx_up.setSpellFactory(ctx.getCommandFactory());

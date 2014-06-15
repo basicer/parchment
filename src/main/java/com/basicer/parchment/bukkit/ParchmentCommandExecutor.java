@@ -5,6 +5,7 @@ import java.util.*;
 
 import com.basicer.parchment.*;
 import com.basicer.parchment.parameters.ListParameter;
+import com.basicer.parchment.parameters.StringParameter;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.command.Command;
@@ -73,7 +74,7 @@ public class ParchmentCommandExecutor implements CommandExecutor, TabCompleter {
 			if ( TCLUtils.isCompleteStatement(test) ) {
 				buffer = new StringBuilder();
 
-				ThreadManager.instance().submitWork(new BranchEvaluationResult(test, ctx, new EvaluationResult.EvalCallback() {
+				ThreadManager.instance().submitWork(new BranchEvaluationResult(new StringParameter(test), ctx, new EvaluationResult.EvalCallback() {
 
 					public EvaluationResult result(EvaluationResult e) {
 						if ( e.getCode() == Code.ERROR ) {
@@ -132,7 +133,7 @@ public class ParchmentCommandExecutor implements CommandExecutor, TabCompleter {
 
 
 		if (action.equals("cast") || action.equals("c")) {
-			sender.sendMessage(ChatColor.LIGHT_PURPLE.toString() + "Warning: /cast is depricated, and will likely change function.  Use /tcl instead!");
+			sender.sendMessage(ChatColor.LIGHT_PURPLE.toString() + "Warning: /cast is deprecated, and will likely change function.  Use /tcl instead!");
 			action = "tcl";
 		}
 
@@ -148,7 +149,7 @@ public class ParchmentCommandExecutor implements CommandExecutor, TabCompleter {
 
 			//Todo: Show a prettyer error.
 			if ( b == null ) return false;
-			ThreadManager.instance().submitWork(new BranchEvaluationResult(b.toString(), ctx, new EvaluationResult.EvalCallback() {
+			ThreadManager.instance().submitWork(new BranchEvaluationResult(new StringParameter(b.toString()), ctx, new EvaluationResult.EvalCallback() {
 
 				public EvaluationResult result(EvaluationResult e) {
 					if ( e.getCode() == Code.ERROR ) {

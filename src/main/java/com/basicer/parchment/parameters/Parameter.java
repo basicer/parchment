@@ -153,6 +153,10 @@ public abstract class Parameter implements Iterable<Parameter> {
 		Class<? extends Parameter> type = classForName(name);
 		return cast(type, ctx);
 	}
+
+	public StringParameter castToStringParameter() {
+		return cast(StringParameter.class);
+	}
 	
 	private static Class<? extends Parameter> classForName(String s) {
 		
