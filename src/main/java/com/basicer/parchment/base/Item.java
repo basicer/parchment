@@ -216,20 +216,19 @@ public class Item extends OperationalTargetedCommand<ItemParameter> {
 	}
 	
 	@Operation(desc = "Enchant the target item(s) with given enchantment name and level.  If no level is specified, the maximum is used.  Unnatural enchantments will return an error." )
-	public static Parameter safeEnchantOperation(ItemStack itm, Context ctx, StringParameter name, Parameter level) {
+	public static Parameter safeEnchantOperation(ItemStack itm, Context ctx, StringParameter name) {
 		if ( name != null ) {
 			EnchantmentInfo enc = ParseEnchantment(name.asString());
 			
 			if ( enc == null ) fizzle("Unknwon enchantment: " + name.asString());
 			
-			if ( level == null ) level = Parameter.from(enc.level);
-			else if ( level.asString().equals("max") ) level = Parameter.from(enc.enchantment.getMaxLevel());
-			
-			if ( level.asInteger() == 0 ) {
+			int level = enc.level;
+
+			if ( level == 0 ) {
 				itm.removeEnchantment(enc.enchantment);
 			} else {
 				try {
-					itm.addEnchantment(enc.enchantment, level.asInteger());
+					itm.addEnchantment(enc.enchantment, level);
 				} catch ( IllegalArgumentException ex ) {
 					fizzle(enc.enchantment.getName() + " : " + ex.getMessage());
 				}
@@ -241,20 +240,18 @@ public class Item extends OperationalTargetedCommand<ItemParameter> {
 	}
 	
 	@Operation(desc = "Enchant the target item(s) with given enchantment name and level.  If no level is specified, the maximum is used.  Unnatural enchantments are okay." )
-	public static Parameter enchantOperation(ItemStack itm, Context ctx, StringParameter name, Parameter level) {
+	public static Parameter enchantOperation(ItemStack itm, Context ctx, StringParameter name) {
 		if ( name != null ) {
 			EnchantmentInfo enc = ParseEnchantment(name.asString());
 			
 			if ( enc == null ) fizzle("Unknown enchantment: " + name.asString());
 			
-			if ( level == null ) level = Parameter.from(enc.level);
-			else if ( level.asString().equals("max") ) level = Parameter.from(enc.enchantment.getMaxLevel());
-			else if ( level.asString().equals("remove") ) level = Parameter.from(0);
+			int level = enc.level;
 			
-			if ( level.asInteger() == 0 ) {
+			if ( level == 0 ) {
 				itm.removeEnchantment(enc.enchantment);
 			} else {
-				itm.addUnsafeEnchantment(enc.enchantment, level.asInteger());
+				itm.addUnsafeEnchantment(enc.enchantment, level);
 			}
 		}
 		
