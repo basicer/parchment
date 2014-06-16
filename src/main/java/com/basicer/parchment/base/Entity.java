@@ -20,6 +20,10 @@ import com.basicer.parchment.annotations.Operation;
 
 public class Entity extends OperationalTargetedCommand<EntityParameter> {
 
+	@Override
+	public String[] getAliases() {
+		return new String[] { "ent" };
+	}
 
 	public Parameter affect(EntityParameter target, Context ctx) {
 		return this.doaffect(target, ctx);
@@ -183,6 +187,24 @@ public class Entity extends OperationalTargetedCommand<EntityParameter> {
 	@Operation(aliases = {"pos", "loc"}, desc = "Returns the entities position as a Location.")
 	public static Parameter locationOperation(org.bukkit.entity.Entity ent, Context ctx) {
 		return Parameter.from(ent.getLocation());
+	}
+
+
+	@Operation(aliases = {"posx", "locx"}, desc = "Returns the entities x position as a number.")
+	public static Parameter locationXOperation(org.bukkit.entity.Entity ent, Context ctx) {
+		return Parameter.from(ent.getLocation().getX());
+	}
+
+
+	@Operation(aliases = {"posy", "locy"}, desc = "Returns the entities y position as a number.")
+	public static Parameter locationYOperation(org.bukkit.entity.Entity ent, Context ctx) {
+		return Parameter.from(ent.getLocation().getY());
+	}
+
+
+	@Operation(aliases = {"posz", "locz"}, desc = "Returns the entities x position as a number.")
+	public static Parameter locationZOperation(org.bukkit.entity.Entity ent, Context ctx) {
+		return Parameter.from(ent.getLocation().getZ());
 	}
 
 	@Operation(aliases = {"posv", "locv"}, desc = "Returns the entities position as a Vector.")

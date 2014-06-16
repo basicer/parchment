@@ -132,6 +132,8 @@ public class CommandFactory {
 		addBuiltinSpell(Firework.class);
 		addBuiltinSpell(Server.class);
 		addBuiltinSpell(World.class);
+		addBuiltinSpell(Inventory.class);
+		addBuiltinCommand(Packet.class);
 
 		addBuiltinSpell(Disguise.class);
 

@@ -139,4 +139,6 @@ public class ParchmentPluginLite extends JavaPlugin {
 	public Chat getVaultChat() {
 		return vault_chat;
 	}
+
+	public ProtocolManager getProtocolManager() { return manager; }
 }
