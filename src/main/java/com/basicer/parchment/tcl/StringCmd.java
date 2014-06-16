@@ -108,4 +108,16 @@ public class StringCmd extends OperationalTCLCommand {
 		return Parameter.from(idx);
 	}
 
+
+	@Operation(argnames={"string1", "string2"})
+	public Parameter rangeOperation(Parameter dummy, Context ctx, StringParameter str, IntegerParameter start, IntegerParameter end ) {
+		String strs = str.asString(ctx);
+		int endi = end == null ? strs.length() - 1 : end.asInteger(ctx);
+		int starti = start.asInteger(ctx).intValue();
+
+		if ( starti > endi ) return Parameter.from("");
+
+		return Parameter.from(strs.substring(starti, endi + 1));
+	}
+
 }
