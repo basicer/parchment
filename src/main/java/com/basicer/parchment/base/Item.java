@@ -41,7 +41,7 @@ import com.basicer.parchment.unsafe.ProxyFactory;
 
 public class Item extends OperationalTargetedCommand<ItemParameter> {
 
-	private static Pattern itemString = Pattern.compile("((?:diamond |d |iron |i |gold |g |stone |s )?[a-z_]+)(?::([0-9]+))?(?: ?x([0-9]+))?( .+)?");
+	private static Pattern itemString = Pattern.compile("((?:diamond |d |iron |i |gold |g |stone |s )?[a-z_]+)(?::([0-9]+))?(?: ?x([0-9]+))?( .+)?", Pattern.CASE_INSENSITIVE);
 	private static Pattern itemStringEnchant = Pattern.compile("([a-zA-Z]+):? ?(\\d+)?");
 
 	public static ItemStack createItemstackFromString(String s) {
@@ -449,11 +449,11 @@ public class Item extends OperationalTargetedCommand<ItemParameter> {
 		public int level;
 	}
 
-	private static Pattern enchantmentFormat = Pattern.compile("^([a-zA-Z]+) ?:?([0-9]+)?");
+	private static Pattern enchantmentFormat = Pattern.compile("^([a-zA-Z0-9_]+) ?:?([0-9]+)?");
 	public static EnchantmentInfo ParseEnchantment(String name) {
 		Matcher m = enchantmentFormat.matcher(name);
 		if ( !m.matches() ) fizzle("Couldn't parse enchantment: " + name);
-		Enchantment e = ParseEnchantmentName(m.group(1));
+		Enchantment e = parseEnchantmentName(m.group(1));
 		EnchantmentInfo result = new EnchantmentInfo(e);
 		if( m.group(2) != null ) {
 			result.level = Integer.decode(m.group(2));
@@ -461,7 +461,7 @@ public class Item extends OperationalTargetedCommand<ItemParameter> {
 		return result;
 
 	}
-	public static Enchantment ParseEnchantmentName(String name) {
+	public static Enchantment parseEnchantmentName(String name) {
 		name = name.toUpperCase();
 		Enchantment enc = Enchantment.getByName(name);
 		if ( enc != null ) return enc;
@@ -495,6 +495,9 @@ public class Item extends OperationalTargetedCommand<ItemParameter> {
 
 		if ( name.equals("PROT")) return Enchantment.PROTECTION_ENVIRONMENTAL;
 		if ( name.equals("PROTECTION")) return Enchantment.PROTECTION_ENVIRONMENTAL;
+        if ( name.equals("FEATHER")) return Enchantment.PROTECTION_FALL;
+        if ( name.equals("FF")) return Enchantment.PROTECTION_FALL;
+
 		return null;
 	}
 	

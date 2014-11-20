@@ -76,9 +76,9 @@ public class ParchmentPlugin extends ParchmentPluginLite implements PluginMessag
 		Bukkit.getMessenger().registerIncomingPluginChannel(this, "MC|BEdit", this);
 
 		final File base = this.getDataFolder();
-		
+
 		writeWikiHelp();
-		
+
 		final Logger logger = this.getLogger();
 		loader = new BukkitRunnable() {
 			long wrote = 0;
@@ -97,7 +97,7 @@ public class ParchmentPlugin extends ParchmentPluginLite implements PluginMessag
 					long time = s.lastModified();
 					if ( time <= wrote ) continue;
 					if ( best < s.lastModified() ) best = s.lastModified();
-					
+
 					String sname = s.getName().substring(0, (int) (s.getName().length() - 4));
 					FileInputStream fis = null;
 					try {
@@ -118,13 +118,41 @@ public class ParchmentPlugin extends ParchmentPluginLite implements PluginMessag
 				}
 				if ( best > wrote ) wrote = best;
 			}
-			
+
 		};
-		
+
 		loader.run();
 		loader.runTaskTimer(this, 100, 100);
 		pm.registerEvents(listener, this);
 		if ( listenerHeavy != null ) pm.registerEvents(listenerHeavy, this);
+
+        File autoexec = FSUtils.findOrCreateDirectory(base, "autoexec");
+        for (File s : autoexec.listFiles()) {
+            if (s.isDirectory())
+                continue;
+            if (!s.canRead())
+                continue;
+            if (!s.getName().endsWith(".tcl"))
+                continue;
+
+            FileInputStream fis = null;
+            try {
+                fis = new FileInputStream(s);
+				TCLEngine engine = new TCLEngine(new InputStreamReader(fis), createContext(null));
+                while ( engine.step() ) {}
+                logger.info("Ran " + s.getAbsolutePath());
+            } catch (FileNotFoundException e) {
+                logger.warning("Couldnt load " + s.getAbsolutePath());
+
+            } finally {
+                try {
+                    if ( fis != null ) fis.close();
+                } catch (IOException e) {
+                    //TODO: Im not even sure what to do about his one.
+                }
+            }
+
+        }
 	}
 
 
@@ -133,27 +161,27 @@ public class ParchmentPlugin extends ParchmentPluginLite implements PluginMessag
 		List<TCLCommand> sx = new ArrayList<TCLCommand>();
 		Enumeration<TCLCommand> en = spellfactory.getAll().elements();
 		while ( en.hasMoreElements() ) sx.add(en.nextElement());
-		
-		
+
+
 		Collections.sort(sx,  new Comparator<TCLCommand>() {
 			public int compare(TCLCommand arg0, TCLCommand arg1) {
 				return arg0.getName().compareTo(arg1.getName());
 			}
 		});
-		
+
 		for ( TCLCommand s : sx ) {
 			b.append(s.getHelpText());
 		}
-		
+
 		File help = new File(this.getDataFolder(), "help.txt");
-		
+
 		try {
 			if ( !help.exists() ) help.createNewFile();
 			FileWriter fw = new FileWriter(help);
 			BufferedWriter out = new BufferedWriter(fw);
 			out.write(b.toString());
 			out.close();
-			
+
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -180,7 +208,7 @@ public class ParchmentPlugin extends ParchmentPluginLite implements PluginMessag
 		if ( !binding.endsWith("Event") ) {
 			return;
 		}
-		
+
 		binding = binding.substring(0, binding.length() - 5).toLowerCase();
 		//Bukkit.getLogger().info("->" + binding);
 		if ( binding.equals("entityportalenter")) return;
@@ -199,7 +227,7 @@ public class ParchmentPlugin extends ParchmentPluginLite implements PluginMessag
 				Cancellable c = (Cancellable) e;
 				ctx.put("cancel", Parameter.from(((Cancellable) e).isCancelled()));
 			}
-			
+
 			Class<? extends Event> clazz = e.getClass();
 			for ( Method m : clazz.getMethods() ) {
 				String name = m.getName();
@@ -220,25 +248,25 @@ public class ParchmentPlugin extends ParchmentPluginLite implements PluginMessag
 				}
 			}
 			evt.writeIndex("event", Parameter.from(binding));
-			
+
 			ArrayList<Parameter> args = new ArrayList<Parameter>();
 			args.add(evt);
 
-			
+
 			EvaluationResult er = cmd.executeBinding("bukkit:" + binding, ctx, null, args);
 			TCLEngine ngn = new TCLEngine(er, ctx);   //TODO: We cant use this, can we use engine we have?
 			while ( ngn.step() ) {}
 			er = ngn.getEvaluationResult();
 			Debug.trace(" >>- " + er);
-			
-			
+
+
 			for ( Method m : clazz.getMethods() ) {
 				String name = m.getName();
 				if ( !name.startsWith("set") ) continue;
 				Debug.trace("Write ? %s", name);
 				Class<?>[] types = m.getParameterTypes();
 				if ( types.length != 1 ) continue;
-				
+
 				name = name.substring(3).toLowerCase();
 				if ( !evt.hasIndex(name) ) continue;
 				try {
@@ -256,17 +284,17 @@ public class ParchmentPlugin extends ParchmentPluginLite implements PluginMessag
 					//e1.printStackTrace();
 				}
 			}
-			
-			
+
+
 			if ( e instanceof Cancellable ) {
 				Cancellable c = (Cancellable) e;
 				c.setCancelled(ctx.get("cancel").asBoolean());
 				Debug.trace(" >- " + ctx.get("cancel").asBoolean());
 			}
 		}
-		
+
 	}
-	
+
 
 
 	public void onPluginMessageReceived(String channel, Player player, byte[] message) {
