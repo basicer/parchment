@@ -64,6 +64,9 @@ proc onCast {} {
 
 Jump
 
+```
+#!tcl
+
 # jump.tcl
 # Hold an item in your hand and type /cast item bind jump
 # Point toward where you want to go and left click.
@@ -76,6 +79,8 @@ proc x {} {
 	entity $caster still
 }
 
+```
+
 ### Differences from TCL ###
 
 * If is missing elseif.
@@ -85,4 +90,3 @@ proc x {} {
 * Some variables are "prototype" like behavior ($caster, $target, $world, $server).
 * Written from scratch by me.
 * More bugs.
-
