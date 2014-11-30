@@ -449,11 +449,12 @@ public class Item extends OperationalTargetedCommand<ItemParameter> {
 		public int level;
 	}
 
-	private static Pattern enchantmentFormat = Pattern.compile("^([a-zA-Z0-9_]+) ?:?([0-9]+)?");
+	private static Pattern enchantmentFormat = Pattern.compile("^([a-zA-Z_]+|[0-9]+) ?:?([0-9]+)?");
 	public static EnchantmentInfo ParseEnchantment(String name) {
 		Matcher m = enchantmentFormat.matcher(name);
 		if ( !m.matches() ) fizzle("Couldn't parse enchantment: " + name);
 		Enchantment e = parseEnchantmentName(m.group(1));
+		if ( e == null ) fizzle("Couldn't find enchantment called: " + m.group(1));
 		EnchantmentInfo result = new EnchantmentInfo(e);
 		if( m.group(2) != null ) {
 			result.level = Integer.decode(m.group(2));
