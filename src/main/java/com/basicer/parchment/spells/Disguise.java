@@ -5,9 +5,12 @@ import com.basicer.parchment.TargetedCommand;
 import com.basicer.parchment.parameters.PlayerParameter;
 import com.basicer.parchment.parameters.Parameter;
 import org.bukkit.entity.Player;
+
+/*
 import pgDev.bukkit.DisguiseCraft.DisguiseCraft;
 import pgDev.bukkit.DisguiseCraft.api.DisguiseCraftAPI;
 import pgDev.bukkit.DisguiseCraft.disguise.DisguiseType;
+*/
 
 /**
  * Created with IntelliJ IDEA.
@@ -20,10 +23,10 @@ public class Disguise extends TargetedCommand {
 
 	@Override
 	public boolean supportedByServer() {
-			try { return DisguiseCraft.getAPI() != null; }
-			catch ( NoClassDefFoundError ex ) {
+			//try { return DisguiseCraft.getAPI() != null; }
+			//catch ( NoClassDefFoundError ex ) {
 				return false;
-			}
+			//}
 	}
 
 	@Override
@@ -37,6 +40,9 @@ public class Disguise extends TargetedCommand {
 	public Parameter affect(PlayerParameter target, Context ctx) {
 		Player player = target.asPlayer(ctx);
 		Parameter nue = ctx.get("nue");
+		if ( !supportedByServer() ) fizzle("Disguise ot supported by server!");
+		return null;  //Remove when we want to reenable this.
+		/*
 		DisguiseCraftAPI api = DisguiseCraft.getAPI();
 
 		if ( ctx.get("remove") != null ) {
@@ -75,9 +81,12 @@ public class Disguise extends TargetedCommand {
 		pgDev.bukkit.DisguiseCraft.disguise.Disguise d = api.getDisguise(player);
 
 		return Parameter.from(disguiseToString(d));
+		*/
 	}
 
+	/*
 	private String disguiseToString(pgDev.bukkit.DisguiseCraft.disguise.Disguise d) {
 		return d.type.toString();
 	}
+	*/
 }
