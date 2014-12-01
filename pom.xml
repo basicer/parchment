@@ -222,13 +222,15 @@
 		</dependency>
 -->
 
+		<!--
+		Disabled because it requires craftbukkit to build.
 		<dependency>
       		<groupId>pgDev</groupId>
       		<artifactId>DisguiseCraft</artifactId>
       		<version>5.1</version>
             <scope>compile</scope>
     	</dependency>
-
+		-->
         <dependency>
             <groupId>net.milkbowl.vault</groupId>
             <artifactId>Vault</artifactId>
